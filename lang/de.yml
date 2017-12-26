@@ -1,0 +1,39 @@
+de:
+  event:
+    reminder: ❗️📢 %{summary} ist in %{days_to_event} Tag(en) fällig am %{date_of_event}!
+  
+  confirmations:
+    setdatetime_success_sameday: Ich werde dich ab jetzt am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    setdatetime_success_precedingday: Ich werde dich ab jetzt am Vortag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    setdatetime_success_otherday: Ich werde dich ab jetzt %{reminder_day_count} Tage vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setdate ändern.
+    unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen mehr von mir! 👍
+  events:
+    listing_intro_one: Hier ist der nächste Termin
+    listing_intro_multiple: Hier sind die nächsten %{total} Termine
+    listing_intro_empty: Es scheint keine Termine zu geben (oder du wolltest 0 Termine von mir sehen 😂)
+  start: Hallo, ich bin der Müllbot 😊 Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
+  errors:
+    no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
+    setday:
+      command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/setday 3" um deine Benachrichtigung 3 Tage vorher zu erhalten.
+      day_too_early: Früher als zwei Wochen vor den Terminen macht das doch keinen Sinn 🤔
+      day_in_past: Bitte gebe eine Zahl ein größer 0. Benachrichtigungen für vergangene Termine machen doch keinen Sinn 🤔
+    settime:
+      command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/settime 20:00" um deine Benachrichtigung um 20:00 Uhr zu erhalten.
+    events:
+      command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/events 3" um die nächsten 3 Termin zu erhalten.
+    subscribe:
+      double_subscription: Du scheinst schon Benachrichtigungen von mir zu erhalten! 🤔
+  unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
+  help:
+    msg1: Hi! 😃
+    msg2: Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
+    msg3: Ich kenne alle Daten des Müllkalenders bis zum %{last_event_date} 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
+    start: /start Ich stelle mich vor 😊
+    settime: /settime HH:mm Stelle die Uhrzeit ein, zu der ich dich benachrichtigen soll (z.B. "/settime 22:00" wenn ich dich um 22 Uhr benachrichtigen soll)
+    setday: /setday N Stelle den Tag ein, am dem ich dich benachrichtigen soll (z.B. "/setday 1" wenn ich dich 1 Tag vorher benachrichtigen soll)
+    subscribe: /subscribe Melde dich bei mir an, damit du Benachrichtigungen erhälst
+    unsubscribe: /unsubscribe Melde dich bei mir ab, damit du keine Benachrichtigungen mehr erhälst
+    events: /events N Frage mich nach den nächsten N Abholterminen (z.B. "/events 10" wenn ich dir die nächsten 10 Termine zeigen soll)
+    help: /help Ich zeige dir eine Hilfe aller meiner Befehle
