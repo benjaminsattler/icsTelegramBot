@@ -298,7 +298,7 @@ def handleIncoming(interaction)
     when '/settime'
         handleSetTimeMessage(msg, bot)
     when '/unsubscribe'
-        removeSubscriber(msg.chat.id)
+        removeSubscriber(msg.from.id)
         pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id, bot)
     when '/events'
         handleEventsMessage(msg, bot)
