@@ -5,7 +5,6 @@ require 'yaml'
 require 'i18n'
 
 $events = []
-$currentEvent = nil
 $incomingMsgQueue = []
 $subscribers = []
 $defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
@@ -14,6 +13,27 @@ $config = nil
 
 def loadConfig(configFile)
     YAML.load_file(configFile)
+end
+
+def loadEvents()
+    $events = parseICS($config['ics_path'])
+        .reject { |event| event[:date].year <= getDate().year && event[:date].yday < getDate().yday }
+        .sort_by { |event| [event[:date].year, event[:date].yday] }
+end
+
+def getEvents(count = -1)
+    result = nil
+    result = $events.take(count) if count > -1
+    result = $events if count == -1
+    result
+end
+
+def addEvent(event)
+    $events.push(event)
+end
+
+def getLeastRecentEvent
+    $events.last
 end
 
 def getCommandlineArgument(argname)
@@ -48,6 +68,8 @@ end
 
 def parseICS(file)
     File.open(file, 'r', external_encoding:Encoding::UTF_8) do |file|
+        currentEvent = nil
+        events = []
         while(line = file.gets) do
             line = cleanLine(line)
             line = splitLine(line)
@@ -57,8 +79,8 @@ def parseICS(file)
             when 'BEGIN'
                 case v
                 when 'VEVENT'
-                    if ($currentEvent.nil?) then
-                        $currentEvent = {}
+                    if (currentEvent.nil?) then
+                        currentEvent = {}
                     else
                         throw('Error: encountered new event without closing previous event')
                     end
@@ -68,29 +90,30 @@ def parseICS(file)
             when 'END'
                 case v
                 when 'VEVENT'
-                    if ($currentEvent.nil?) then
+                    if (currentEvent.nil?) then
                         throw('Error: encountered close event without opened one')
                     else
-                        $events.push($currentEvent);
-                        $currentEvent = nil;
+                        events.push(currentEvent);
+                        currentEvent = nil;
                     end
                 else
                     puts "Unknown BEGIN key #{v}"
                 end
             when 'SUMMARY'
-                if ($currentEvent.nil?) then
+                if (currentEvent.nil?) then
                     throw 'Error: event property found when in no active event'
                 else
-                    $currentEvent[:summary] = v
+                    currentEvent[:summary] = v
                 end
             when 'DTSTART;VALUE=DATE'
-                if ($currentEvent.nil?) then
+                if (currentEvent.nil?) then
                     throw 'Error event property found when in no active event'
                 else
-                    $currentEvent[:date] = parseICSDate(v)
+                    currentEvent[:date] = parseICSDate(v)
                 end
             end
         end
+        events
     end
 end
 
@@ -113,7 +136,7 @@ def tick
 end
 
 def handlePendingEvents()
-    $events.each do |event|
+    getEvents.each do |event|
         notify(event)
     end
 end
@@ -209,7 +232,7 @@ def handleEventsMessage(msg, bot)
             return
         end
     end
-    pushEventsDescription($events.take(count), msg.chat.id, bot)
+    pushEventsDescription(getEvents(count), msg.chat.id, bot)
 end
 
 def pushEventsDescription(events, id, bot)
@@ -229,7 +252,7 @@ end
 def handleHelpMessage(msg, bot)
     pushMessage(I18n.t('help.msg1'), msg.chat.id, bot)
     pushMessage(I18n.t('help.msg2'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.msg3', last_event_date: $events.last[:date].strftime("%d.%m.%Y")), msg.chat.id, bot)
+    pushMessage(I18n.t('help.msg3', last_event_date: getLeastRecentEvent[:date].strftime("%d.%m.%Y")), msg.chat.id, bot)
     pushMessage(I18n.t('help.start'), msg.chat.id, bot)
     pushMessage(I18n.t('help.settime'), msg.chat.id, bot)
     pushMessage(I18n.t('help.setday'), msg.chat.id, bot)
@@ -252,7 +275,7 @@ def handleIncoming(interaction)
         if (isSubbed.empty?) then 
             $subscribers.push({chatId: msg.from.id, bot:bot, notificationday: 1, notificationtime: {hrs: 20, min: 00}, notifiedEvents: []})
             pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id, bot)
-            pushEventsDescription([$events.first], msg.from.id, bot)
+            pushEventsDescription(getEvents(1), msg.from.id, bot)
         else
             pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id, bot);
         end
@@ -284,12 +307,8 @@ I18n.backend.load_translations
 I18n.default_locale = :de
 I18n.locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 
-parseICS($config['ics_path'])
-puts "Found #{$events.length} events."
-
-$events = $events
-    .reject { |event| event[:date].year <= getDate().year && event[:date].yday < getDate().yday }
-    .sort_by { |event| [event[:date].year, event[:date].yday] }
+loadEvents
+puts "Found #{getEvents.length} events."
 Thread.fork do 
     Telegram::Bot::Client.run($config['bot_token']) do |bot|
         bot.listen do |message| 
