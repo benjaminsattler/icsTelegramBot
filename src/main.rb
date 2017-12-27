@@ -273,7 +273,7 @@ def handleIncoming(interaction)
     command, *args = msg.text.split(/\s+/)
     case command
     when '/start'
-        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /setday /help), %w(/unsubscribe /settime /events)], one_time_keyboard: false)
+        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe), %w(/help /events /mystatus)], one_time_keyboard: false)
         pushMessage(I18n.t('start'), msg.chat.id, reply_markup)
     when '/subscribe'
         isSubbed = getSubscriberById(msg.from.id)
@@ -291,6 +291,13 @@ def handleIncoming(interaction)
     when '/unsubscribe'
         removeSubscriber(msg.from.id)
         pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
+    when '/mystatus'
+        subscriber = getSubscriberById(msg.from.id)
+        if (subscriber.nil?) then 
+            pushMessage(I18n.t('status.not_subscribed'), msg.chat.id)
+        else
+            pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"}), msg.chat.id)
+        end
     when '/events'
         handleEventsMessage(msg)
     when '/help'
