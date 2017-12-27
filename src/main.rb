@@ -4,12 +4,15 @@ require 'telegram/bot'
 require 'yaml'
 require 'i18n'
 
+require_relative './data.rb'
+
 $events = []
 $incomingMsgQueue = []
 $subscribers = []
 $defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
 $configFile = nil
 $config = nil
+$bot = nil
 
 def loadConfig(configFile)
     YAML.load_file(configFile)
@@ -36,22 +39,8 @@ def getLeastRecentEvent
     $events.last
 end
 
-def getSubscriberById(id)
-    $subscribers
-        .select { |subscriber| subscriber[:chatId] == id }
-        .first
-end
-
 def getSubscribers()
-    $subscribers
-end
-
-def addSubscriber(subscriber)
-    $subscribers.push(subscriber)
-end
-
-def removeSubscriber(id)
-    $subscribers.reject! { |subscriber| subscriber[:chatId] == id }
+    getAllSubscribers()
 end
 
 def getCommandlineArgument(argname)
@@ -111,6 +100,7 @@ def parseICS(file)
                     if (currentEvent.nil?) then
                         throw('Error: encountered close event without opened one')
                     else
+                        currentEvent[:id] = Random.new.rand(2**30-1)
                         events.push(currentEvent);
                         currentEvent = nil;
                     end
@@ -141,9 +131,9 @@ end
 
 def notify(event)
     getSubscribers.each do |subscriber|
-        if !subscriber[:notifiedEvents].include?(event) && (event[:date] - getDate()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
-            pushMessage(I18n.t('event.reminder', summary: event[:summary], days_to_event: subscriber[:notificationday], date_of_event: event[:date].strftime('%d.%m.%Y')), subscriber[:chatId], subscriber[:bot])
-            subscriber[:notifiedEvents].push(event)
+        if !subscriber[:notifiedEvents].include?(event[:id]) && (event[:date] - getDate()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
+            pushMessage(I18n.t('event.reminder', summary: event[:summary], days_to_event: subscriber[:notificationday], date_of_event: event[:date].strftime('%d.%m.%Y')), subscriber[:telegram_id])
+            subscriber[:notifiedEvents].push(event[:id])
         end
     end
 end
@@ -166,151 +156,152 @@ def handleIncomingMessages()
     end
 end
 
-def handleSetDayMessage(msg, bot)
+def handleSetDayMessage(msg)
     command, *args = msg.text.split(/\s+/)
     subscriber = getSubscriberById(msg.from.id)
     if subscriber.nil? then
-        pushMessage(I18n.t('errors.no_subscription_teaser', command: '/setday'), msg.chat.id, bot)
+        pushMessage(I18n.t('errors.no_subscription_teaser', command: '/setday'), msg.chat.id)
     else
         days = 1
         if /^[0-9]+$/.match(args[0]) then
             days = args[0].to_i
         else
-            pushMessage(I18n.t('errors.setday.command_invalid'), msg.chat.id, bot)
+            pushMessage(I18n.t('errors.setday.command_invalid'), msg.chat.id)
             return
         end
 
         if days > 14 then
-            pushMessage(I18n.t('errors.setday.day_too_early'), msg.chat.id, bot)
+            pushMessage(I18n.t('errors.setday.day_too_early'), msg.chat.id)
             return
         end
         if days < 0 then
-            pushMessage(I18n.t('errors.setday.day_in_past'), msg.chat.id, bot)
+            pushMessage(I18n.t('errors.setday.day_in_past'), msg.chat.id)
             return
         end
 
         subscriber[:notificationday] = days
         subscriber[:notifiedEvents].clear
+        updateSubscriber(subscriber)
         if subscriber[:notificationday] == 0 then
-            pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         elsif subscriber[:notificationday] == 1 then
-            pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         else
-            pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         end
     end
 end
 
-def handleSetTimeMessage(msg, bot)
+def handleSetTimeMessage(msg)
     command, *args = msg.text.split(/\s+/)
     subscriber = getSubscriberById(msg.from.id)
     if subscriber.nil? then
-        pushMessage(I18n.t('errors.no_subscription_teaser', command: '/settime'), msg.chat.id, bot)
+        pushMessage(I18n.t('errors.no_subscription_teaser', command: '/settime'), msg.chat.id)
     else
         hrs = 20
         min = 0
         matcher = /^([0-9]+):([0-9]+)$/.match(args[0])
         if !matcher.nil? then
             if matcher[1].to_i < 1 || matcher[1].to_i > 23 || matcher[2].to_i < 0 || matcher[2].to_i > 59 then
-                pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id, bot)    
+                pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id)    
                 return
             else
                 hrs = matcher[1].to_i
                 min = matcher[2].to_i
             end
         else
-            pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id, bot)
+            pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id)
             return
         end
 
         subscriber[:notificationtime] = {hrs: hrs, min: min}
         subscriber[:notifiedEvents].clear
+        updateSubscriber(subscriber)
         if subscriber[:notificationday] == 0 then
-            pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         elsif subscriber[:notificationday] == 1 then
-            pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         else
-            pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id, bot)
+            pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         end
     end
 end
 
-def handleEventsMessage(msg, bot)
+def handleEventsMessage(msg)
     command, *args = msg.text.split(/\s+/)
     count = 10
     if /^[0-9]+$/.match(args[0]) then
         count = args[0].to_i
     else
         unless args.empty? then
-            pushMessage(I18n.t('errors.events.command_invalid'), msg.chat.id, bot)
+            pushMessage(I18n.t('errors.events.command_invalid'), msg.chat.id)
             return
         end
     end
-    pushEventsDescription(getEvents(count), msg.chat.id, bot)
+    pushEventsDescription(getEvents(count), msg.chat.id)
 end
 
-def pushEventsDescription(events, id, bot)
+def pushEventsDescription(events, id)
     count = events.length
-    pushMessage(I18n.t('events.listing_intro_multiple', total:count), id, bot) unless count == 1
-    pushMessage(I18n.t('events.listing_intro_one'), id, bot) if count == 1
-    pushMessage(I18n.t('events.listing_intro_empty'), id, bot) if count == 0
+    pushMessage(I18n.t('events.listing_intro_multiple', total:count), id) unless count == 1
+    pushMessage(I18n.t('events.listing_intro_one'), id) if count == 1
+    pushMessage(I18n.t('events.listing_intro_empty'), id) if count == 0
     events
         .take(count)
-        .each { |event|  pushEventDescription(event, id, bot)}
+        .each { |event|  pushEventDescription(event, id)}
 end
 
-def pushEventDescription(event, id, bot)
-    pushMessage("#{event[:date].strftime('%d.%m.%Y')}: #{event[:summary]}", id, bot)
+def pushEventDescription(event, id)
+    pushMessage("#{event[:date].strftime('%d.%m.%Y')}: #{event[:summary]}", id)
 end
 
-def handleHelpMessage(msg, bot)
-    pushMessage(I18n.t('help.msg1'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.msg2'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.msg3', last_event_date: getLeastRecentEvent[:date].strftime("%d.%m.%Y")), msg.chat.id, bot)
-    pushMessage(I18n.t('help.start'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.settime'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.setday'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.subscribe'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.unsubscribe'), msg.chat.id, bot);
-    pushMessage(I18n.t('help.events'), msg.chat.id, bot)
-    pushMessage(I18n.t('help.help'), msg.chat.id, bot);
+def handleHelpMessage(msg)
+    pushMessage(I18n.t('help.msg1'), msg.chat.id)
+    pushMessage(I18n.t('help.msg2'), msg.chat.id)
+    pushMessage(I18n.t('help.msg3', last_event_date: getLeastRecentEvent[:date].strftime("%d.%m.%Y")), msg.chat.id)
+    pushMessage(I18n.t('help.start'), msg.chat.id)
+    pushMessage(I18n.t('help.settime'), msg.chat.id)
+    pushMessage(I18n.t('help.setday'), msg.chat.id)
+    pushMessage(I18n.t('help.subscribe'), msg.chat.id)
+    pushMessage(I18n.t('help.unsubscribe'), msg.chat.id);
+    pushMessage(I18n.t('help.events'), msg.chat.id)
+    pushMessage(I18n.t('help.help'), msg.chat.id);
 end
 
 def handleIncoming(interaction)
-    bot = interaction[:bot]
     msg = interaction[:msg]
     command, *args = msg.text.split(/\s+/)
     case command
     when '/start'
         reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /setday /help), %w(/unsubscribe /settime /events)], one_time_keyboard: false)
-        pushMessage(I18n.t('start'), msg.chat.id, bot, reply_markup)
+        pushMessage(I18n.t('start'), msg.chat.id, reply_markup)
     when '/subscribe'
         isSubbed = getSubscriberById(msg.from.id)
         if (isSubbed.nil?) then 
-            addSubscriber({chatId: msg.from.id, bot:bot, notificationday: 1, notificationtime: {hrs: 20, min: 00}, notifiedEvents: []})
-            pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id, bot)
-            pushEventsDescription(getEvents(1), msg.from.id, bot)
+            addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
+            pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id)
+            pushEventsDescription(getEvents(1), msg.from.id)
         else
-            pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id, bot);
+            pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
         end
     when '/setday'
-        handleSetDayMessage(msg, bot)
+        handleSetDayMessage(msg)
     when '/settime'
-        handleSetTimeMessage(msg, bot)
+        handleSetTimeMessage(msg)
     when '/unsubscribe'
         removeSubscriber(msg.from.id)
-        pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id, bot)
+        pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
     when '/events'
-        handleEventsMessage(msg, bot)
+        handleEventsMessage(msg)
     when '/help'
-        handleHelpMessage(msg, bot)
+        handleHelpMessage(msg)
     else
-        pushMessage(I18n.t('unknown_command'), msg.chat.id, bot)
+        pushMessage(I18n.t('unknown_command'), msg.chat.id)
     end
 end
 
-def pushMessage(msg, chatId, bot, reply_markup = nil)
-    bot.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup)
+def pushMessage(msg, chatId, reply_markup = nil)
+    $bot.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless $bot.nil?
 end
 
 $shouldQuit = false
@@ -321,12 +312,15 @@ I18n.backend.load_translations
 I18n.default_locale = :de
 I18n.locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 
+init($config['db_path'])
+
 loadEvents
 puts "Found #{getEvents.length} events."
 Thread.fork do 
     Telegram::Bot::Client.run($config['bot_token']) do |bot|
-        bot.listen do |message| 
-            $incomingMsgQueue.push({msg: message, bot: bot})
+        $bot = bot
+        $bot.listen do |message| 
+            $incomingMsgQueue.push({msg: message})
             puts "message length in telegram thread: #{$incomingMsgQueue.length}"
         end
     end
