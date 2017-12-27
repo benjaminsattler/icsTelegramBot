@@ -19,7 +19,7 @@ end
 def addSubscriber(sub)
     $subscribers.push(sub)
     notificationtime = sub[:notificationtime][:hrs] * 100 + sub[:notificationtime][:min]
-    #$db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime) VALUES(?, ?, ?)', [sub[:telegram_id], sub[:notificationday], notificationtime])
+    $db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime) VALUES(?, ?, ?)', [sub[:telegram_id], sub[:notificationday], notificationtime])
 end
 
 def removeSubscriber(id)
@@ -31,17 +31,10 @@ def getSubscriberById(id)
     $subscribers
         .select { |subscriber| subscriber[:telegram_id] == id }
         .first
-    #sub = $db.execute('SELECT * from subscribers WHERE telegram_id = ? LIMIT 1', [id])
-    #if sub.empty?
-    #    nil
-    #else
-    #    fixDatabaseObject(sub[0])
-    #end
 end
 
 def getAllSubscribers()
     $subscribers
-    #subs = $db.execute('SELECT * from subscribers').map { |sub| fixDatabaseObject(sub) }
 end
 
 def fixDatabaseObject(sub)
@@ -57,19 +50,12 @@ def updateSubscriber(sub)
         subscriber[:notificationtime][:min] = sub[:notificationtime][:min] if sub[:telegram_id] == subscriber[:telegram_id]
         subscriber
     }
-    #notificationtime = sub[:notificationtime][:hrs] * 100 + sub[:notificationtime][:min]
-    #$db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE telegram_id = ? LIMIT 1', sub[:notificationday], notificationtime, sub[:telegram_id])
 end
 
 def flush
     $subscribers.each do |subscriber|
         notificationtime = subscriber[:notificationtime][:hrs] * 100 + subscriber[:notificationtime][:min]
-        sub = $db.execute('SELECT id from subscribers WHERE telegram_id = ? LIMIT 1', [subscriber[:telegram_id]])
-        if sub.empty?
-            $db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime) VALUES(?, ?, ?)', [subscriber[:telegram_id], subscriber[:notificationday], notificationtime])
-        else
-            $db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE telegram_id = ? LIMIT 1', subscriber[:notificationday], notificationtime, subscriber[:telegram_id])
-        end
+        $db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE telegram_id = ? LIMIT 1', subscriber[:notificationday], notificationtime, subscriber[:telegram_id])
     end
 end
 
