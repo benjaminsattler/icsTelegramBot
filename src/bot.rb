@@ -3,7 +3,6 @@ require 'i18n'
 
 class Bot
 
-    @incomingMessages = nil
     @data = nil
     @calendar = nil
     @bot_instance = nil
@@ -11,30 +10,24 @@ class Bot
     @uptime_start = nil
 
     def initialize(token, dataStore, calendar)
-        @incomingMessages = Array.new
         @token = token
         @data = dataStore
         @calendar = calendar
     end
 
-    def pushMessage(message)
-        @incomingMessages.push(message);
-    end
-
     def run
         @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
+            begin
+                bot.api.getMe()
+            rescue Exception => e
+                puts "Please double check Telegram bot token!"
+                raise e
+            end
             @bot_instance = bot
             @bot_instance.listen do |message| 
-                self.handleIncoming({msg: message})
+                self.handleIncoming({msg: message}) unless message.text.nil?
             end
-        end
-    end
-    
-    def handleIncomingMessages()
-        @incomingMessages.reject! do |msg|
-            Bot.handleIncoming(msg)
-            true
         end
     end
     
@@ -151,9 +144,11 @@ class Bot
         self.pushMessage(I18n.t('help.settime'), msg.chat.id)
         self.pushMessage(I18n.t('help.setday'), msg.chat.id)
         self.pushMessage(I18n.t('help.subscribe'), msg.chat.id)
-        self.pushMessage(I18n.t('help.unsubscribe'), msg.chat.id);
+        self.pushMessage(I18n.t('help.unsubscribe'), msg.chat.id)
         self.pushMessage(I18n.t('help.events'), msg.chat.id)
-        self.pushMessage(I18n.t('help.help'), msg.chat.id);
+        self.pushMessage(I18n.t('help.botstatus'), msg.chat.id)
+        self.pushMessage(I18n.t('help.mystatus'), msg.chat.id)
+        self.pushMessage(I18n.t('help.help'), msg.chat.id)
     end
 
     def notify(event)
@@ -170,8 +165,8 @@ class Bot
         command, *args = msg.text.split(/\s+/)
         case command
         when '/start'
-            reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe), %w(/help /events /mystatus)], one_time_keyboard: false)
-            self.pushMessage(I18n.t('start'), msg.chat.id, reply_markup)
+            reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe /botstatus), %w(/help /events /mystatus)], one_time_keyboard: false)
+            self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id, reply_markup)
         when '/subscribe'
             isSubbed = @data.getSubscriberById(msg.from.id)
             if (isSubbed.nil?) then 

@@ -18,7 +18,7 @@ de:
     uptime: Ich bin online seit %{uptime}.
     event_count: Ich kenne %{event_count} Events.
     subscribers_count: Ich habe %{subscribers_count} angemeldete Personen.
-  start: Hallo, ich bin der Müllbot 😊 Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
+  start: Hallo, ich bin %{botname} 😊 Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
@@ -42,4 +42,6 @@ de:
     subscribe: /subscribe Melde dich bei mir an, damit du Benachrichtigungen erhälst
     unsubscribe: /unsubscribe Melde dich bei mir ab, damit du keine Benachrichtigungen mehr erhälst
     events: /events N Frage mich nach den nächsten N Abholterminen (z.B. "/events 10" wenn ich dir die nächsten 10 Termine zeigen soll)
+    mystatus: /mystatus Ich zeige dir an, welche Informationen ich zu dir gespeichert habe
+    botstatus: /botstatus Ich zeige dir ein paar interessante Informationen zu mir an
     help: /help Ich zeige dir eine Hilfe aller meiner Befehle

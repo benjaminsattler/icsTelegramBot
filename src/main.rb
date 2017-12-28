@@ -69,19 +69,23 @@ databaseThread = Thread.fork do
     end
 end
 
+$execute = true
 botThread = Thread.fork do
+    begin
     $bot.run
+    rescue Exception => e
+        $execute = false
+    end
 end
 
-execute = true
-while(execute) do
+
+while($execute) do
     begin
-        sleep 1    
+        sleep 1
     rescue Exception => e
-        execute = false
+        $execute = false
         puts "Shutdown signal received"
     end
-    
 end
 
 puts "Shutting down..."
