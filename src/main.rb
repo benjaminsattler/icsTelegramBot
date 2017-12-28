@@ -33,7 +33,7 @@ end
 
 def handlePendingEvents(events)
     events.each do |event|
-        Bot.notify(event)
+        $bot.notify(event)
     end
 end
 
@@ -53,24 +53,26 @@ $bot = Bot.new($config['bot_token'], $data, $events)
 
 puts "Found #{$events.getEvents.length} events."
 
-eventThread = Thread.fork do
+$eventThread = nil
+$databaseThread = nil
+$botThread = nil
+
+$eventThreadBlock  = lambda do
     while(true) do
         handlePendingEvents($events.getEvents)
         sleep 1
     end
 end
-
-databaseThread = Thread.fork do
+$databaseThreadBlock = lambda do
     while(true) do
-        puts "Syncing database..."
+        puts "#{Time.now.strftime('%H:%M:%S')}: Syncing database..."
         $data.flush
         puts "Syncing done..."
-        sleep($config.flush_interval)
+        puts "sleeping #{$config['flush_interval']} seconds"
+        sleep($config['flush_interval'])
     end
 end
-
-$execute = true
-botThread = Thread.fork do
+$botThreadBlock = lambda do
     begin
     $bot.run
     rescue Exception => e
@@ -78,6 +80,14 @@ botThread = Thread.fork do
     end
 end
 
+def startThreads
+    $eventThread = Thread.fork &$eventThreadBlock if $eventThread.nil? or not $eventThread.alive?
+    $databaseThread = Thread.fork &$databaseThreadBlock if $databastThread.nil? or not $databaseThread.alive?
+    $botThread = Thread.fork &$botThreadBlock if $botThread.nil? or not $botThread.alive?
+end
+
+$execute = true
+startThreads
 while($execute) do
     begin
         sleep 1
@@ -85,10 +95,19 @@ while($execute) do
         $execute = false
         puts "Shutdown signal received"
     end
+    unless $databaseThread.alive?
+        puts "Database-Thread lost"
+    end
+    unless $eventThread.alive?
+        puts "Event-Thread lost"
+    end
+    unless $botThread.alive?
+        puts "Bot-Thread lost"
+    end
 end
 
 puts "Shutting down..."
-eventThread.kill if eventThread.alive?
-databaseThread.kill if databaseThread.alive?
-botThread.kill if botThread.alive?
+$eventThread.kill if $eventThread.alive?
+$databaseThread.kill if $databaseThread.alive?
+$botThread.kill if $botThread.alive?
 puts "Shutdown complete."
