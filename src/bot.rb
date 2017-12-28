@@ -199,5 +199,4 @@ class Bot
     def pushMessage(msg, chatId, reply_markup = nil)
         @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless $bot.nil?
     end
-
 end

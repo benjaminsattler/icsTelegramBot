@@ -50,7 +50,7 @@ module ICS
                                 currentEvent = nil;
                             end
                         else
-                            puts "Unknown BEGIN key #{v}"
+                            puts "Unknown END key #{v}"
                         end
                     when 'SUMMARY'
                         if (currentEvent.nil?) then
