@@ -78,7 +78,6 @@ botThread = Thread.fork do
     end
 end
 
-
 while($execute) do
     begin
         sleep 1

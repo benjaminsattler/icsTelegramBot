@@ -117,16 +117,20 @@ class Bot
     end
 
     def handleBotStatusMessage(msg)
-        self.pushMessage(I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%m:%S')), msg.chat.id)
-        self.pushMessage(I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length), msg.chat.id)
-        self.pushMessage(I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length), msg.chat.id)
+        text = Array.new
+        text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%m:%S'))
+        text << I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length)
+        text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length)
+        self.pushMessage(text.join("\n"), msg.chat.id)
     end
 
     def pushEventsDescription(events, id)
         count = events.length
-        self.pushMessage(I18n.t('events.listing_intro_multiple', total:count), id) unless count == 1
-        self.pushMessage(I18n.t('events.listing_intro_one'), id) if count == 1
-        self.pushMessage(I18n.t('events.listing_intro_empty'), id) if count == 0
+        text = Array.new
+        text << I18n.t('events.listing_intro_multiple', total:count) unless count == 1
+        text << I18n.t('events.listing_intro_one') if count == 1
+        text << I18n.t('events.listing_intro_empty') if count == 0
+        self.pushMessage(text.join("\n"), id)
         events
             .take(count)
             .each { |event|  self.pushEventDescription(event, id)}
@@ -137,18 +141,23 @@ class Bot
     end
 
     def handleHelpMessage(msg)
-        self.pushMessage(I18n.t('help.msg1'), msg.chat.id)
-        self.pushMessage(I18n.t('help.msg2'), msg.chat.id)
-        self.pushMessage(I18n.t('help.msg3', last_event_date: @calendar.getLeastRecentEvent.date.strftime("%d.%m.%Y")), msg.chat.id)
-        self.pushMessage(I18n.t('help.start'), msg.chat.id)
-        self.pushMessage(I18n.t('help.settime'), msg.chat.id)
-        self.pushMessage(I18n.t('help.setday'), msg.chat.id)
-        self.pushMessage(I18n.t('help.subscribe'), msg.chat.id)
-        self.pushMessage(I18n.t('help.unsubscribe'), msg.chat.id)
-        self.pushMessage(I18n.t('help.events'), msg.chat.id)
-        self.pushMessage(I18n.t('help.botstatus'), msg.chat.id)
-        self.pushMessage(I18n.t('help.mystatus'), msg.chat.id)
-        self.pushMessage(I18n.t('help.help'), msg.chat.id)
+        text = Array.new
+        text << I18n.t('help.intro', last_event_date: @calendar.getLeastRecentEvent.date.strftime("%d.%m.%Y"))
+        text << I18n.t('help.start')
+        text << ""
+        text << I18n.t('help.subscribe')
+        text << I18n.t('help.unsubscribe')
+        text << ""
+        text << I18n.t('help.settime')
+        text << I18n.t('help.setday')
+        text << ""
+        text << I18n.t('help.events')
+        text << ""
+        text << I18n.t('help.botstatus')
+        text << I18n.t('help.mystatus')
+        text << ""
+        text << I18n.t('help.help')
+        self.pushMessage(text.join("\n"), msg.chat.id)
     end
 
     def notify(event)

@@ -18,7 +18,9 @@ de:
     uptime: Ich bin online seit %{uptime}.
     event_count: Ich kenne %{event_count} Events.
     subscribers_count: Ich habe %{subscribers_count} angemeldete Personen.
-  start: Hallo, ich bin %{botname} 😊 Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
+  start: |
+    Hallo, ich bin %{botname} 😊
+    Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
@@ -33,9 +35,10 @@ de:
       double_subscription: Du scheinst schon Benachrichtigungen von mir zu erhalten! 🤔
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
   help:
-    msg1: Hi! 😃
-    msg2: Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
-    msg3: Ich kenne alle Daten des Müllkalenders bis zum %{last_event_date} 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
+    intro: |
+      Hi! 😃
+      Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
+      Ich kenne alle Daten des Müllkalenders bis zum %{last_event_date} 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
     start: /start Ich stelle mich vor 😊
     settime: /settime HH:mm Stelle die Uhrzeit ein, zu der ich dich benachrichtigen soll (z.B. "/settime 22:00" wenn ich dich um 22 Uhr benachrichtigen soll)
     setday: /setday N Stelle den Tag ein, am dem ich dich benachrichtigen soll (z.B. "/setday 1" wenn ich dich 1 Tag vorher benachrichtigen soll)
