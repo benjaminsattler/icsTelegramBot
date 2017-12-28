@@ -14,6 +14,10 @@ de:
   status:
     not_subscribed: Du erhälst von mir keine Erinnerungen, da du nicht angemeldet bist. Mit /subscribe kannst du das ändern! 😇
     subscribed: Ich werde dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
+  botstatus:
+    uptime: Ich bin online seit %{uptime}.
+    event_count: Ich kenne %{event_count} Events.
+    subscribers_count: Ich habe %{subscribers_count} angemeldete Personen.
   start: Hallo, ich bin der Müllbot 😊 Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!

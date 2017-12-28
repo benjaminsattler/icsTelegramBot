@@ -8,6 +8,7 @@ class Bot
     @calendar = nil
     @bot_instance = nil
     @token = nil
+    @uptime_start = nil
 
     def initialize(token, dataStore, calendar)
         @incomingMessages = Array.new
@@ -16,11 +17,12 @@ class Bot
         @calendar = calendar
     end
 
-    def pushMesage(message)
+    def pushMessage(message)
         @incomingMessages.push(message);
     end
 
     def run
+        @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
             @bot_instance = bot
             @bot_instance.listen do |message| 
@@ -121,6 +123,12 @@ class Bot
         self.pushEventsDescription(@calendar.getEvents(count), msg.chat.id)
     end
 
+    def handleBotStatusMessage(msg)
+        self.pushMessage(I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%m:%S')), msg.chat.id)
+        self.pushMessage(I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length), msg.chat.id)
+        self.pushMessage(I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length), msg.chat.id)
+    end
+
     def pushEventsDescription(events, id)
         count = events.length
         self.pushMessage(I18n.t('events.listing_intro_multiple', total:count), id) unless count == 1
@@ -187,6 +195,8 @@ class Bot
             else
                 self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"}), msg.chat.id)
             end
+        when '/botstatus'
+            self.handleBotStatusMessage(msg)
         when '/events'
             self.handleEventsMessage(msg)
         when '/help'
