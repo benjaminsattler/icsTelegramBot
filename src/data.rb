@@ -2,7 +2,7 @@ require 'sqlite3'
 
 class DataStore
     @db = nil
-    @subscribers = Array.new
+    @subscribers = nil
 
     def initialize(file)
         @db = SQLite3::Database.new file
