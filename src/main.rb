@@ -8,11 +8,11 @@ require_relative './data.rb'
 
 $events = []
 $incomingMsgQueue = []
-$subscribers = []
 $defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
 $configFile = nil
 $config = nil
 $bot = nil
+$data = nil
 
 def loadConfig(configFile)
     YAML.load_file(configFile)
@@ -37,10 +37,6 @@ end
 
 def getLeastRecentEvent
     $events.last
-end
-
-def getSubscribers()
-    getAllSubscribers()
 end
 
 def getCommandlineArgument(argname)
@@ -130,7 +126,7 @@ def getDate()
 end
 
 def notify(event)
-    getSubscribers.each do |subscriber|
+    $data.getAllSubscribers.each do |subscriber|
         if !subscriber[:notifiedEvents].include?(event[:id]) && (event[:date] - getDate()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
             pushMessage(I18n.t('event.reminder', summary: event[:summary], days_to_event: subscriber[:notificationday], date_of_event: event[:date].strftime('%d.%m.%Y')), subscriber[:telegram_id])
             subscriber[:notifiedEvents].push(event[:id])
@@ -158,7 +154,7 @@ end
 
 def handleSetDayMessage(msg)
     command, *args = msg.text.split(/\s+/)
-    subscriber = getSubscriberById(msg.from.id)
+    subscriber = $data.getSubscriberById(msg.from.id)
     if subscriber.nil? then
         pushMessage(I18n.t('errors.no_subscription_teaser', command: '/setday'), msg.chat.id)
     else
@@ -181,7 +177,7 @@ def handleSetDayMessage(msg)
 
         subscriber[:notificationday] = days
         subscriber[:notifiedEvents].clear
-        updateSubscriber(subscriber)
+        $data.updateSubscriber(subscriber)
         if subscriber[:notificationday] == 0 then
             pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         elsif subscriber[:notificationday] == 1 then
@@ -194,7 +190,7 @@ end
 
 def handleSetTimeMessage(msg)
     command, *args = msg.text.split(/\s+/)
-    subscriber = getSubscriberById(msg.from.id)
+    subscriber = $data.getSubscriberById(msg.from.id)
     if subscriber.nil? then
         pushMessage(I18n.t('errors.no_subscription_teaser', command: '/settime'), msg.chat.id)
     else
@@ -216,7 +212,7 @@ def handleSetTimeMessage(msg)
 
         subscriber[:notificationtime] = {hrs: hrs, min: min}
         subscriber[:notifiedEvents].clear
-        updateSubscriber(subscriber)
+        $data.updateSubscriber(subscriber)
         if subscriber[:notificationday] == 0 then
             pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), msg.chat.id)
         elsif subscriber[:notificationday] == 1 then
@@ -276,9 +272,9 @@ def handleIncoming(interaction)
         reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe), %w(/help /events /mystatus)], one_time_keyboard: false)
         pushMessage(I18n.t('start'), msg.chat.id, reply_markup)
     when '/subscribe'
-        isSubbed = getSubscriberById(msg.from.id)
+        isSubbed = $data.getSubscriberById(msg.from.id)
         if (isSubbed.nil?) then 
-            addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
+            $data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
             pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id)
             pushEventsDescription(getEvents(1), msg.from.id)
         else
@@ -289,10 +285,10 @@ def handleIncoming(interaction)
     when '/settime'
         handleSetTimeMessage(msg)
     when '/unsubscribe'
-        removeSubscriber(msg.from.id)
+        $data.removeSubscriber(msg.from.id)
         pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
     when '/mystatus'
-        subscriber = getSubscriberById(msg.from.id)
+        subscriber = $data.getSubscriberById(msg.from.id)
         if (subscriber.nil?) then 
             pushMessage(I18n.t('status.not_subscribed'), msg.chat.id)
         else
@@ -319,7 +315,7 @@ I18n.backend.load_translations
 I18n.default_locale = :de
 I18n.locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 
-init($config['db_path'])
+$data = DataStore.new($config['db_path'])
 
 loadEvents
 puts "Found #{getEvents.length} events."
@@ -332,6 +328,15 @@ Thread.fork do
         end
     end
 end
+
+Thread.fork {
+    while(true) do
+        puts "Syncing database..."
+        $data.flush
+        puts "Syncing done..."
+        sleep(10)
+    end
+}
 
 while (!$shouldQuit) do
     puts "message length in loop thread: #{$incomingMsgQueue.length}"
