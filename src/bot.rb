@@ -1,3 +1,5 @@
+require_relative './log'
+
 require 'telegram/bot'
 require 'i18n'
 
@@ -21,7 +23,7 @@ class Bot
             begin
                 bot.api.getMe()
             rescue Exception => e
-                puts "Please double check Telegram bot token!"
+                log("Please double check Telegram bot token!")
                 raise e
             end
             @bot_instance = bot

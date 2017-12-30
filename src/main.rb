@@ -7,6 +7,7 @@ require_relative './data'
 require_relative './bot'
 require_relative './ics'
 require_relative './watchdog'
+require_relative './log'
 
 $defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
 
@@ -33,8 +34,10 @@ def getCommandlineArgument(argname)
 end
  
 configFilename = getCommandlineArgument('--config').nil? ? $defaultConfigFile : getCommandlineArgument('--config')
-locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 $config = loadConfig(configFilename)
+locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
+
+Logger.setLogfile($config['log_file'])
 
 I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
 I18n.backend.load_translations
@@ -69,9 +72,9 @@ $databaseThreadBlock = lambda do
             seconds = seconds - 1
             run = false if Thread.current[:stop]
         end
-        puts "#{Time.now.strftime('%H:%M:%S')}: Syncing database..."
+        log("Syncing database...")
         $data.flush
-        puts "Syncing done..."
+        log("Syncing done...")
     end
 end
 
@@ -94,7 +97,7 @@ $watchdog.watch([{
 $execute = true
 Signal.trap("TERM") do
     $execute = false
-    puts "Shutdown signal received"
+    log("Shutdown signal received")
     $watchdog.stop
 end
 
@@ -102,4 +105,4 @@ while($execute) do
     sleep 1
 end
 
-puts "Shutdown complete."
+log("Shutdown complete.")

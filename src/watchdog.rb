@@ -1,3 +1,5 @@
+require_relative './log'
+
 class Watchdog
 
     @watchThreads = nil
@@ -35,13 +37,13 @@ class Watchdog
             while(not stop) do
                 threads.each do |thread_desc|
                     unless thread_desc[:handle].alive? then
-                        puts "(Re)starting thread #{thread_desc[:name]}"
+                        log("(Re)starting thread #{thread_desc[:name]}")
                         thread_desc[:handle] = Thread.new &thread_desc[:thr]
                     end
                 end
                 if Thread.current[:stop] then
                     threads.each do |thread_desc|
-                        puts "Stopping thread #{thread_desc[:name]} (Timeout #{stopTimeout} seconds)"
+                        log("Stopping thread #{thread_desc[:name]} (Timeout #{stopTimeout} seconds)")
                         thread_desc[:handle][:stop] = true
                         thread_desc[:handle].join(stopTimeout)
                     end 

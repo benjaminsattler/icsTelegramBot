@@ -1,3 +1,5 @@
+require_relative './log'
+
 require 'sqlite3'
 
 class DataStore

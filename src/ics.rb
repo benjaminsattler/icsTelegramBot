@@ -1,3 +1,5 @@
+require_relative './log'
+
 module ICS
     class FileParser
 
@@ -37,7 +39,7 @@ module ICS
                                 throw('Error: encountered new event without closing previous event')
                             end
                         else
-                            puts "Unknown BEGIN key #{v}"
+                            log("Unknown BEGIN key #{v}")
                         end
                     when 'END'
                         case v
@@ -50,7 +52,7 @@ module ICS
                                 currentEvent = nil;
                             end
                         else
-                            puts "Unknown END key #{v}"
+                        log("Unknown END key #{v}")
                         end
                     when 'SUMMARY'
                         if (currentEvent.nil?) then
@@ -66,7 +68,7 @@ module ICS
                         end
                     end
                 end
-                puts "Found #{events.length} events."
+                log("Found #{events.length} events.")
                 events
             end
         end
