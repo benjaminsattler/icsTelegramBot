@@ -37,7 +37,7 @@ configFilename = getCommandlineArgument('--config').nil? ? $defaultConfigFile : 
 $config = loadConfig(configFilename)
 locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 
-Logger.setLogfile($config['log_file'])
+Logger.setLogfile(File.join(File.dirname(__FILE__), '..', $config['log_file']))
 
 I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
 I18n.backend.load_translations
