@@ -1,3 +1,6 @@
 assets/*.ics
 config/conf.yml
 .vscode/
+out/*.out
+out/*.log
+db/*
