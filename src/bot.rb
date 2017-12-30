@@ -118,7 +118,7 @@ class Bot
 
     def handleBotStatusMessage(msg)
         text = Array.new
-        text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%m:%S'))
+        text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
         text << I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length)
         text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length)
         self.pushMessage(text.join("\n"), msg.chat.id)

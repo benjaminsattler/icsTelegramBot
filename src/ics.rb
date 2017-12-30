@@ -66,6 +66,7 @@ module ICS
                         end
                     end
                 end
+                puts "Found #{events.length} events."
                 events
             end
         end
