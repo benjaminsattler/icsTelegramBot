@@ -174,8 +174,7 @@ class Bot
         command, *args = msg.text.split(/\s+/)
         case command
         when '/start'
-            reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe /botstatus), %w(/help /events /mystatus)], one_time_keyboard: false)
-            self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id, reply_markup)
+            self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
         when '/subscribe'
             isSubbed = @data.getSubscriberById(msg.from.id)
             if (isSubbed.nil?) then 
@@ -211,6 +210,7 @@ class Bot
     end
 
     def pushMessage(msg, chatId, reply_markup = nil)
+        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe /botstatus), %w(/help /events /mystatus)], one_time_keyboard: false) if reply_markup.nil?
         @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless $bot.nil?
     end
 end
