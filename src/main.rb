@@ -76,14 +76,10 @@ $databaseThreadBlock = lambda do
 end
 
 $botThreadBlock = lambda do
-    begin
     $bot.run
-    rescue Exception => e
-        $execute = false
-    end
 end
 
-$execute = true
+
 $watchdog.watch([{
     name: 'Bot-Thread',
     thr: $botThreadBlock
@@ -95,6 +91,7 @@ $watchdog.watch([{
     thr: $eventThreadBlock
 }])
 
+$execute = true
 Signal.trap("TERM") do
     $execute = false
     puts "Shutdown signal received"
