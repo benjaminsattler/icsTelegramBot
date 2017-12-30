@@ -36,14 +36,14 @@ configFilename = getCommandlineArgument('--config').nil? ? $defaultConfigFile : 
 locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 $config = loadConfig(configFilename)
 
-I18n.load_path = Dir['lang/*.yml']
+I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
 I18n.backend.load_translations
 I18n.default_locale = :de
 I18n.locale = locale unless locale.nil?
 
-$data = DataStore.new($config['db_path'])
+$data = DataStore.new(File.join(File.dirname(__FILE__), '..', $config['db_path']))
 $events = ICS::Calendar.new
-$events.loadEvents(ICS::FileParser::parseICS($config['ics_path']))
+$events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', $config['ics_path'])))
 $bot = Bot.new($config['bot_token'], $data, $events)
 
 $watchdog = Watchdog.new
@@ -74,6 +74,7 @@ $databaseThreadBlock = lambda do
         puts "Syncing done..."
     end
 end
+
 $botThreadBlock = lambda do
     begin
     $bot.run
