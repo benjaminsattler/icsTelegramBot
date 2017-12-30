@@ -4,3 +4,4 @@ config/conf.yml
 out/*.out
 out/*.log
 db/*
+*.pid
