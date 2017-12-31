@@ -12,26 +12,26 @@ class Server
     end
 
     def run
-        $data = DataStore.new(File.join(File.dirname(__FILE__), '..', @options['db_path']))
-        $events = ICS::Calendar.new
-        $events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @options['ics_path'])))
-        $bot = Bot.new(@options['bot_token'], $data, $events)
+        data = DataStore.new(File.join(File.dirname(__FILE__), '..', @options['db_path']))
+        events = ICS::Calendar.new
+        events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @options['ics_path'])))
+        bot = Bot.new(@options['bot_token'], data, events)
         
-        $watchdog = Watchdog.new
-        $eventThread = nil
-        $databaseThread = nil
-        $botThread = nil
+        watchdog = Watchdog.new
+        eventThread = nil
+        databaseThread = nil
+        botThread = nil
         
-        $eventThreadBlock  = lambda do
+        eventThreadBlock  = lambda do
             while(not Thread.current[:stop]) do
-                $events.getEvents.each do |event|
-                    $bot.notify(event)
+                events.getEvents.each do |event|
+                    bot.notify(event)
                 end
                 sleep 1
             end
         end
         
-        $databaseThreadBlock = lambda do
+        databaseThreadBlock = lambda do
             run = true
             while(run) do
                 seconds = @options['flush_interval']
@@ -41,35 +41,35 @@ class Server
                     run = false if Thread.current[:stop]
                 end
                 log("Syncing database...")
-                $data.flush
+                data.flush
                 log("Syncing done...")
             end
         end
         
-        $botThreadBlock = lambda do
-            $bot.run
+        botThreadBlock = lambda do
+            bot.run
         end
         
         
-        $watchdog.watch([{
+        watchdog.watch([{
             name: 'Bot-Thread',
-            thr: $botThreadBlock
+            thr: botThreadBlock
         }, {
             name: 'Database-Thread',
-            thr: $databaseThreadBlock
+            thr: databaseThreadBlock
         }, {
             name: 'Event-Thread',
-            thr: $eventThreadBlock
+            thr: eventThreadBlock
         }])
 
-        $execute = true
+        execute = true
         Signal.trap("TERM") do
-            $execute = false
+            execute = false
             log("Shutdown signal received")
-            $watchdog.stop
+            watchdog.stop
         end
 
-        while($execute) do
+        while(execute) do
             sleep 1
         end
         

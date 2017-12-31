@@ -6,9 +6,9 @@ require 'i18n'
 require_relative './server'
 require_relative './log'
 
-$defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
+defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
 
-$config = nil
+config = nil
 
 def loadConfig(configFile)
     YAML.load_file(configFile)
@@ -27,19 +27,19 @@ def getCommandlineArgument(argname)
     args[argname]
 end
  
-configFilename = getCommandlineArgument('--config').nil? ? $defaultConfigFile : getCommandlineArgument('--config')
-$config = loadConfig(configFilename)
+configFilename = getCommandlineArgument('--config').nil? ? defaultConfigFile : getCommandlineArgument('--config')
+config = loadConfig(configFilename)
 locale = getCommandlineArgument('--lang').to_sym unless getCommandlineArgument('--lang').nil?
 
-Logger.setLogfile(File.join(File.dirname(__FILE__), '..', $config['log_file']))
+Logger.setLogfile(File.join(File.dirname(__FILE__), '..', config['log_file']))
 
 I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
 I18n.backend.load_translations
 I18n.default_locale = :de
 I18n.locale = locale unless locale.nil?
 
-$server = Server.new($config)
+server = Server.new(config)
 
-$server.run
+server.run
 
 log("Shutdown complete.")
