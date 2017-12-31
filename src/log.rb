@@ -4,7 +4,7 @@ end
 
 class Logger
     def self.setLogfile(filename)
-        $stdout.reopen(filename)
+        $stdout.reopen(filename, 'a')
         $stderr = $stdout        
     end
 
@@ -13,4 +13,3 @@ class Logger
         STDOUT.flush
     end
 end
-
