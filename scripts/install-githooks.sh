@@ -12,7 +12,7 @@ GITHOOKS_TRGTDIR=$SCRIPT_DIR/../.git/hooks/
 GITHOOKS_SRCDIR=../../scripts/githooks/
 
 cd $GITHOOKS_TRGTDIR
-echo "Looking for scripts in $GITHOOKS_SRCDIR and linkin them into $GITHOOKS_TRGTDIR"
+echo "Looking for scripts in $GITHOOKS_SRCDIR and linking them into $GITHOOKS_TRGTDIR"
 
 echo
 echo "Scanning for available hooks"
