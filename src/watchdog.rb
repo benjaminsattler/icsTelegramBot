@@ -1,4 +1,4 @@
-require_relative './log'
+require 'log'
 
 class Watchdog
 

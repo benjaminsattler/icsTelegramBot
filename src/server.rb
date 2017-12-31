@@ -1,8 +1,8 @@
-require_relative './data'
-require_relative './bot'
-require_relative './ics'
-require_relative './watchdog'
-require_relative './log'
+require 'data'
+require 'bot'
+require 'ics'
+require 'watchdog'
+require 'log'
 
 class Server
 

@@ -3,8 +3,8 @@
 require 'yaml'
 require 'i18n'
 
-require_relative './server'
-require_relative './log'
+require 'server'
+require 'log'
 
 defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
 
