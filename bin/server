@@ -17,7 +17,9 @@ def getCommandlineArgument(argname)
         if (matcher) then
             args[matcher[1]] = matcher[2]
         else
-            args[arg] = true
+            if (arg == argname) then
+                args[arg] = true
+            end
         end
     end
     args[argname]
@@ -28,6 +30,8 @@ config = loadConfig(configFilename)
 config['locale'] = ENV['LOCALE'] unless ENV['locale']
 config['pid'] = getCommandlineArgument('--pid')
 config['log'] = getCommandlineArgument('--log')
+config['daemon'] = true unless getCommandlineArgument('--daemon').nil?
+
 p = [
     File.dirname(__FILE__),
     '..',

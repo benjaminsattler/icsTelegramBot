@@ -36,6 +36,21 @@ class Server
         @options['log']
     end
 
+    def daemon?
+        !@options['daemon'].nil?
+    end
+
+    def daemon
+        @options['daemon']
+    end
+
+    def daemonize
+        puts "daemonizing"
+        exit if fork
+        Process.setsid
+        exit if fork
+    end
+    
     def redirect_output(filename)
         FileUtils.mkdir_p(File.dirname(filename), :mode => 0755)
         FileUtils.touch filename
@@ -59,13 +74,17 @@ class Server
     end
 
     def write_pidfile
-        FileUtils.mkdir_p(File.dirname(self.pidfile), :mode => 0755)
-        FileUtils.touch self.pidfile
         begin
+            FileUtils.mkdir_p(File.dirname(self.pidfile), :mode => 0755)
+            FileUtils.touch self.pidfile
             pid = File.open(self.pidfile, 'w') { |f| f.write(Process.pid) }
-        rescue Errno::EPERM
+            at_exit {
+               puts "at exit"
+               File.delete(self.pidfile) if File.exists?(self.pidfile)
+            }
+        rescue Errno::EPERM, Errno::EACCES
             puts "Cannot write PIDFILE #{self.pidfile}: Permission denied!"
-            exit
+            
         end
     end
 
@@ -87,9 +106,12 @@ class Server
     end
 
     def start
-        self.redirect_output(self.logfile) if self.logfile?
+        
         self.check_running if self.pidfile?
+        self.daemonize if self.daemon?
         self.write_pidfile if self.pidfile?
+        self.redirect_output(self.logfile) if self.logfile?
+        
         puts "logtest"
         while(true) do 
             sleep 1
