@@ -20,7 +20,7 @@ class MainThread
             when 'testing'
                 'test.yml'
             else
-                puts "Unknown environment. Cannot load config. Terminating."
+                log("Unknown environment. Cannot load config. Terminating.")
                 exit
             end
         self.loadConfig(File.join [File.dirname(__FILE__), '..', 'config', configFilename])

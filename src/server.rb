@@ -123,8 +123,9 @@ class Server
         begin 
             require self.mainClass
             classRef = self.class_from_string(self.mainClass)
+            puts "Could not find main class #{self.mainClass}. Terminating..." if classRef.nil?
         rescue LoadError
-            puts "Could not load main class #{self.mainClass}. Terminating..." if classRef.nil?
+            puts "Could not load main class #{self.mainClass}. Terminating..."
             exit
         end
         classRef.new.run unless classRef.nil?

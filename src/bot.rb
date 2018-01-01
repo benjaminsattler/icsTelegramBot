@@ -2,6 +2,7 @@ require 'log'
 
 require 'telegram/bot'
 require 'i18n'
+require 'multitrap'
 
 class Bot
 
