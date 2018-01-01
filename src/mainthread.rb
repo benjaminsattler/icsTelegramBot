@@ -34,7 +34,7 @@ class MainThread
         data = DataStore.new(File.join(File.dirname(__FILE__), '..', @config['db_path']))
         events = ICS::Calendar.new
         events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @config['ics_path'])))
-        bot = Bot.new(@config['bot_token'], @data, @events)
+        bot = Bot.new(@config['bot_token'], data, events)
         
         watchdog = Watchdog.new
         eventThread = nil
@@ -69,18 +69,6 @@ class MainThread
             bot.run
         end
         
-        watchdog.watch([{
-            name: 'Bot-Thread',
-            thr: botThreadBlock
-        }, {
-            name: 'Database-Thread',
-            thr: databaseThreadBlock
-        }, {
-            name: 'Event-Thread',
-            thr: eventThreadBlock
-        }])
-
-        execute = true
         Signal.trap("TERM") do
             execute = false
             log("Termination signal received")
@@ -92,6 +80,20 @@ class MainThread
             log("Interrupt signal received")
             watchdog.stop
         end
+        
+        watchdog.watch([{
+            name: 'Bot',
+            thr: botThreadBlock
+        }, {
+            name: 'Database',
+            thr: databaseThreadBlock
+        }, {
+            name: 'Event',
+            thr: eventThreadBlock
+        }])
+
+        execute = true
+        
 
         while(execute) do
             sleep 1
