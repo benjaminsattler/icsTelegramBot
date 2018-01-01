@@ -14,14 +14,19 @@ class MainThread
         I18n.default_locale = :de
         I18n.locale = config['locale'] unless ENV['LOCALE'].nil?
 
-        configFilename  = case ENV['ICSBOT_ENV']
+        $env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
+        
+        if !['production', 'testing'].include?($env) then
+            log("Unknown environment #{$env}. Terminating...")
+            exit
+        end
+        
+        log("Running in #{$env.upcase} environment")
+        configFilename  = case $env
             when 'production'
                 'prod.yml'
             when 'testing'
                 'test.yml'
-            else
-                log("Unknown environment. Cannot load config. Terminating.")
-                exit
             end
         self.loadConfig(File.join [File.dirname(__FILE__), '..', 'config', configFilename])
     end
