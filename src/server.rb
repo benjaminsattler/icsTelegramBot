@@ -120,10 +120,14 @@ class Server
         self.redirect_output(self.logfile) if self.logfile?
         self.suppress_output if not self.logfile? and self.daemon? and self.daemon
     
-        require self.mainClass
-
-        classRef = self.class_from_string(self.mainClass)
+        begin 
+            require self.mainClass
+            classRef = self.class_from_string(self.mainClass)
+        rescue LoadError
+            puts "Could not load main class #{self.mainClass}. Terminating..." if classRef.nil?
+            exit
+        end
         classRef.new.run unless classRef.nil?
-        puts "Could not load main class #{self.mainClass}. Terminating..." if classRef.nil?
+        
     end
 end
