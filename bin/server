@@ -1,15 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'yaml'
-
-defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
-
-config = nil
-
-def loadConfig(configFile)
-    YAML.load_file(configFile)
-end
-
 def getCommandlineArgument(argname)
     args = {}
     ARGV.each do |arg|
@@ -24,13 +14,13 @@ def getCommandlineArgument(argname)
     end
     args[argname]
 end
- 
-configFilename = getCommandlineArgument('--config').nil? ? defaultConfigFile : getCommandlineArgument('--config')
-config = loadConfig(configFilename)
-config['locale'] = ENV['LOCALE'] unless ENV['locale']
-config['pid'] = getCommandlineArgument('--pid')
-config['log'] = getCommandlineArgument('--log')
-config['daemon'] = true unless getCommandlineArgument('--daemon').nil?
+
+config = {
+    pid: getCommandlineArgument('--pid'),
+    log: getCommandlineArgument('--log'),
+    daemon: !getCommandlineArgument('--daemon').nil?,
+    main: getCommandlineArgument('--main')
+}
 
 p = [
     File.dirname(__FILE__),

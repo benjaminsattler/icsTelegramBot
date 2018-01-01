@@ -1,9 +1,3 @@
-require 'data'
-require 'bot'
-require 'ics'
-require 'watchdog'
-require 'log'
-
 require 'i18n'
 require 'fileutils'
 
@@ -12,38 +6,40 @@ class Server
     attr_reader :options
     def initialize(options)
         @options = options
-
-        I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
-        I18n.backend.load_translations
-        I18n.default_locale = :de
-        I18n.locale = options['locale'] unless options['locale'].nil?
-        #Logger.setLogfile(File.join(File.dirname(__FILE__), '..', options['log_file']))        
     end
 
     def pidfile?
-        !@options['pid'].nil?
+        !@options[:pid].nil?
     end
 
     def pidfile
-        @options['pid']
+        @options[:pid]
     end
 
     def logfile?
-        !@options['log'].nil?
+        !@options[:log].nil?
     end
 
     def logfile
-        @options['log']
+        @options[:log]
     end
 
     def daemon?
-        !@options['daemon'].nil?
+        !@options[:daemon].nil?
     end
 
     def daemon
-        @options['daemon']
+        @options[:daemon]
     end
 
+    def mainClass?
+        !@options[:main].nil?
+    end
+
+    def mainClass
+        @options[:main]
+    end
+    
     def daemonize
         puts "daemonizing"
         exit if fork
@@ -59,6 +55,11 @@ class Server
         $stdout.reopen($stderr)
         $stdout.sync = $stderr.sync = true
     end
+
+    def suppress_output
+        $stderr.reopen('/dev/null', 'a')
+        $stdout.reopen('/dev/null', 'a')
+      end
 
     def status_from_pidfile
         return :dead unless self.pidfile?
@@ -79,7 +80,6 @@ class Server
             FileUtils.touch self.pidfile
             pid = File.open(self.pidfile, 'w') { |f| f.write(Process.pid) }
             at_exit {
-               puts "at exit"
                File.delete(self.pidfile) if File.exists?(self.pidfile)
             }
         rescue Errno::EPERM, Errno::EACCES
@@ -105,81 +105,25 @@ class Server
         end
     end
 
-    def start
-        
+    def class_from_string(str)
+        str.split('::').inject(Object) do |mod, class_name|
+            mod.const_get(class_name)
+        end
+    rescue NameError
+        nil?
+    end
+
+    def start        
         self.check_running if self.pidfile?
-        self.daemonize if self.daemon?
+        self.daemonize if self.daemon? and self.daemon
         self.write_pidfile if self.pidfile?
         self.redirect_output(self.logfile) if self.logfile?
-        
-        puts "logtest"
-        while(true) do 
-            sleep 1
-        end
-    end
-
-    def run
-        data = DataStore.new(File.join(File.dirname(__FILE__), '..', @options['db_path']))
-        events = ICS::Calendar.new
-        events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @options['ics_path'])))
-        bot = Bot.new(@options['bot_token'], data, events)
-        
-        watchdog = Watchdog.new
-        eventThread = nil
-        databaseThread = nil
-        botThread = nil
-        
-        eventThreadBlock  = lambda do
-            while(not Thread.current[:stop]) do
-                events.getEvents.each do |event|
-                    bot.notify(event)
-                end
-                sleep 1
-            end
-        end
-        
-        databaseThreadBlock = lambda do
-            run = true
-            while(run) do
-                seconds = @options['flush_interval']
-                while(seconds > 0 && run) do
-                    sleep 1
-                    seconds = seconds - 1
-                    run = false if Thread.current[:stop]
-                end
-                log("Syncing database...")
-                data.flush
-                log("Syncing done...")
-            end
-        end
-        
-        botThreadBlock = lambda do
-            bot.run
-        end
-        
-        
-        watchdog.watch([{
-            name: 'Bot-Thread',
-            thr: botThreadBlock
-        }, {
-            name: 'Database-Thread',
-            thr: databaseThreadBlock
-        }, {
-            name: 'Event-Thread',
-            thr: eventThreadBlock
-        }])
-
-        execute = true
-        Signal.trap("TERM") do
-            execute = false
-            log("Shutdown signal received")
-            watchdog.stop
-        end
-
-        while(execute) do
-            sleep 1
-        end
-        
-    end
+        self.suppress_output if not self.logfile? and self.daemon? and self.daemon
     
+        require self.mainClass
+
+        classRef = self.class_from_string(self.mainClass)
+        classRef.new.run unless classRef.nil?
+        puts "Could not load main class #{self.mainClass}. Terminating..." if classRef.nil?
+    end
 end
