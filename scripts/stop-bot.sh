@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(dirname $BASH_SOURCE)
-PIDFILE=$SCRIPT_DIR/../out/bot.pid
+PIDFILE=$SCRIPT_DIR/../log/bot.pid
 PID=`cat $PIDFILE`
 TIMEOUT=30
 RETRIES=3

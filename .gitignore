@@ -1,7 +1,6 @@
 assets/*.ics
-config/conf.yml
+config/*.yml
 .vscode/
-out/*.out
-out/*.log
+*.log
 db/*
 *.pid
