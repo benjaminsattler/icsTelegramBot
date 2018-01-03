@@ -14,15 +14,17 @@ class MainThread
         I18n.default_locale = :de
         I18n.locale = config['locale'] unless ENV['LOCALE'].nil?
 
-        $env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
+        env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
+        @isRunning = true
         
-        if !['production', 'testing'].include?($env) then
-            log("Unknown environment #{$env}. Terminating...")
+        
+        if !['production', 'testing'].include?(env) then
+            log("Unknown environment #{env}. Terminating...")
             exit
         end
         
-        log("Running in #{$env.upcase} environment")
-        configFilename  = case $env
+        log("Running in #{env.upcase} environment")
+        configFilename  = case env
             when 'production'
                 'prod.yml'
             when 'testing'
@@ -75,7 +77,7 @@ class MainThread
         end
         
         Signal.trap("TERM") do
-            execute = false
+            @isRunning = false
             log("Termination signal received")
             watchdog.stop
         end
@@ -91,10 +93,10 @@ class MainThread
             thr: eventThreadBlock
         }])
 
-        execute = true
+        @isRunning = true
         
 
-        while(execute) do
+        while(@isRunning) do
             sleep 1
         end
     end
