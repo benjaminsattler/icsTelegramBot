@@ -33,5 +33,3 @@ require 'server'
 
 server = Server.new(config)
 server.start
-
-log("Shutdown complete.")
