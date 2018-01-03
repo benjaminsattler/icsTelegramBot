@@ -96,12 +96,12 @@ class Server
                 File.delete(self.pidfile)
             rescue Errno::EPERM, Errno::EACCES
                 puts "Cannot delete PIDFILE #{self.pidfile}: Permission error!"
-                exit
+                exit -2
             rescue Errno::ENOENT
             end
         when :running
             puts "Server is already running! If you think this is a mistake, please delete pidfile #{File.expand_path(self.pidfile)}"
-            exit
+            exit -1
         end
     end
 
@@ -119,7 +119,9 @@ class Server
         self.write_pidfile if self.pidfile?
         self.redirect_output(self.logfile) if self.logfile?
         self.suppress_output if not self.logfile? and self.daemon? and self.daemon
-    
+        
+        puts "Starting with PID #{Process.pid}"
+        puts "Loading main class #{self.mainClass}"
         begin 
             require self.mainClass
             classRef = self.class_from_string(self.mainClass)
@@ -128,7 +130,8 @@ class Server
             puts "Could not load main class #{self.mainClass}. Terminating..."
             exit
         end
+        puts "Instantiating main class"
         classRef.new.run unless classRef.nil?
-        
+        return 0
     end
 end

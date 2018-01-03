@@ -1,9 +1,18 @@
 #!/bin/bash
-SCRIPT_DIR=$(dirname $BASH_SOURCE)
-PIDFILE=$SCRIPT_DIR/../log/bot.pid
+BASE_DIR=$(dirname $BASH_SOURCE)/../
+PIDFILE=${BASE_DIR}log/bot.pid
+LOGFILE=${BASE_DIR}log/production.log
 
 echo Starting Bot...
-nohup ruby $SCRIPT_DIR/../src/main.rb  &> $SCRIPT_DIR/../log/nohup.out&
-PID=$!
-echo "Started with PID $PID"
-echo -n $PID > $PIDFILE
+if [ "$1" = "" ]; then
+    echo "Please specify a running environment: testing or production!"
+    exit
+fi
+export ICSBOT_ENV=$1
+${BASE_DIR}bin/server --daemon --log=${LOGFILE} --pid=${PIDFILE} --main=MainThread
+servercode=$? 
+if [ -f $PIDFILE ] && [ "$servercode" -eq "0" ]; then
+    echo "Started with PID `cat $PIDFILE`, ENVIRONMENT $ICSBOT_ENV and LOG $LOGFILE"
+else
+    echo "Failed to start server with exitcode $servercode!"
+fi
