@@ -17,6 +17,7 @@ class Watchdog
     def stop
         @watchThread[:stop] = true
         @watchThread.join(@stopTimeout * (@watchThreads.length + 1))
+        log("Watchthread terminating...")
     end
 
     def randomKill
@@ -31,6 +32,7 @@ class Watchdog
             thread_desc[:handle] = Thread.new {sleep()}
             thread_desc[:handle].kill
         }
+        
         @watchThread = Thread.new(@watchThreads, @stopTimeout) do |threads, stopTimeout|
             Thread.current[:stop] = false
             stop = false

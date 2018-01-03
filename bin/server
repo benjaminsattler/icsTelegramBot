@@ -1,18 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'yaml'
-
-require 'server'
-require 'log'
-
-defaultConfigFile = File.join File.dirname(__FILE__), '..', 'config', 'conf.yml'
-
-config = nil
-
-def loadConfig(configFile)
-    YAML.load_file(configFile)
-end
-
 def getCommandlineArgument(argname)
     args = {}
     ARGV.each do |arg|
@@ -20,17 +7,29 @@ def getCommandlineArgument(argname)
         if (matcher) then
             args[matcher[1]] = matcher[2]
         else
-            args[arg] = true
+            if (arg == argname) then
+                args[arg] = true
+            end
         end
     end
     args[argname]
 end
- 
-configFilename = getCommandlineArgument('--config').nil? ? defaultConfigFile : getCommandlineArgument('--config')
-config = loadConfig(configFilename)
-config['locale'] = ENV['LOCALE'] unless ENV['locale']
+
+config = {
+    pid: getCommandlineArgument('--pid'),
+    log: getCommandlineArgument('--log'),
+    daemon: !getCommandlineArgument('--daemon').nil?,
+    main: getCommandlineArgument('--main')
+}
+
+p = [
+    File.dirname(__FILE__),
+    '..',
+    'src'
+]
+
+$LOAD_PATH.unshift(File.expand_path(File.join(p)))
+require 'server'
 
 server = Server.new(config)
-server.run
-
-log("Shutdown complete.")
+server.start

@@ -1,0 +1,4 @@
+bot_token: 468454321:AAFcFjHxNm3XC3d8Yz1k56ATpDA_4qmxOfE
+ics_path: assets/muell.ics
+db_path: db/dev.db
+flush_interval: 10
