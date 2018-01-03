@@ -1,11 +1,10 @@
 #!/bin/sh
 
 echo "Running post-merge git hook..."
-diff=`git diff HEAD^..HEAD config/conf.yml.example`
+diff=`git diff HEAD@{1}..HEAD config/conf.yml.example`
 if [ "$diff" = "" ]; then
         echo "Sample config is identical"
 else
 		echo "Below you see the changes in the sample config. Please readjust your config files!"
-		git diff HEAD^..HEAD config/conf.yml.example
+		git diff HEAD@{1}..HEAD config/conf.yml.example
 fi 
-
