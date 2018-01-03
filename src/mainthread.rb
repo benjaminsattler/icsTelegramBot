@@ -79,12 +79,6 @@ class MainThread
             log("Termination signal received")
             watchdog.stop
         end
-
-        Signal.trap("INT") do
-            execute = false
-            log("Interrupt signal received")
-            watchdog.stop
-        end
         
         watchdog.watch([{
             name: 'Bot',
