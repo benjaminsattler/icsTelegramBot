@@ -1,7 +1,7 @@
 #!/bin/bash
-SCRIPT_DIR=$(dirname $BASH_SOURCE)
-PIDFILE=$SCRIPT_DIR/../out/bot.pid
-PID=`cat $PIDFILE`
+BASE_DIR=$(dirname $BASH_SOURCE)/../
+PIDFILE=${BASE_DIR}log/bot.pid
+PID=`cat $PIDFILE 2>/dev/null`
 STATUS="unknown"
 echo Status of Bot...
 if [ "$PID" = "" ]; then
