@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname $BASH_SOURCE)
-PIDFILE=$SCRIPT_DIR/../log/bot.pid
+BASE_DIR=$(dirname $BASH_SOURCE)/../
+PIDFILE=${BASE_DIR}log/bot.pid
 PID=`cat $PIDFILE`
 TIMEOUT=30
 RETRIES=3
@@ -44,7 +44,15 @@ if [ "$dead" -eq "0" ]; then
     echo "Failed to kill bot."
 else
     echo "Bot killed successfully."
-    rm $PIDFILE
+    if [ -f $PIDFILE ]; then
+        echo "ATTENTION: PID file still exists. Trying to delete manually."
+        rm $PIDFILE
+        if [ -f $PIDFILE ]; then
+            echo "Failed to delete PID file."
+        else
+            echo "Deleted successfully."
+        fi
+    fi
 fi
 
 exit $dead
