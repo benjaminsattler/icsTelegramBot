@@ -1,7 +1,7 @@
 #!/bin/bash
 BASE_DIR=$(dirname $BASH_SOURCE)/../
 PIDFILE=${BASE_DIR}log/bot.pid
-LOGFILE=${BASE_DIR}log/production.log
+LOGFILE=${BASE_DIR}log/bot_${1}.log
 
 echo Starting Bot...
 if [ "$1" = "" ]; then
