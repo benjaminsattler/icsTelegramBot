@@ -87,7 +87,7 @@ module ICS
 
         def loadEvents(events)
             @events = events
-                        .reject { |event| event.date.year <= getDate().year && event.date.yday < getDate().yday }
+                        .reject { |event| event.date <= getDate() }
                         .sort_by { |event| [event.date.year, event.date.yday] }
         end
 
