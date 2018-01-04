@@ -4,6 +4,17 @@ require 'telegram/bot'
 require 'i18n'
 require 'multitrap'
 
+class Query
+    attr_accessor :given_data, :message_id, :user_id, :pending_command
+
+    def initialize(opts)
+        @given_data = opts[:given_data]
+        @message_id = opts[:message_id]
+        @user_id = opts[:user_id]
+        @pending_command = opts[:pending_command]
+    end
+end
+
 class Bot
 
     @data = nil
@@ -11,11 +22,13 @@ class Bot
     @bot_instance = nil
     @token = nil
     @uptime_start = nil
+    @pendingQueries = nil
 
     def initialize(token, dataStore, calendar)
         @token = token
         @data = dataStore
         @calendar = calendar
+        @pendingQueries = Array.new
     end
 
     def run
@@ -29,7 +42,7 @@ class Bot
             end
             @bot_instance = bot
             @bot_instance.listen do |message| 
-                self.handleIncoming({msg: message}) unless message.text.nil?
+                self.handleIncoming({msg: message})
             end
         end
     end
@@ -79,16 +92,28 @@ class Bot
             hrs = 20
             min = 0
             matcher = /^([0-9]+):([0-9]+)$/.match(args[0])
+            valid_command = true
             if !matcher.nil? then
                 if matcher[1].to_i < 1 || matcher[1].to_i > 23 || matcher[2].to_i < 0 || matcher[2].to_i > 59 then
-                    self.pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id)    
-                    return
+                    valid_command = false
                 else
                     hrs = matcher[1].to_i
                     min = matcher[2].to_i
                 end
             else
-                self.pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id)
+                valid_command = false
+                #self.pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id)
+                #return
+            end
+
+            unless valid_command then
+                btns = (1..9).map { |n| Telegram::Bot::Types::InlineKeyboardButton.new(text: n, callback_data: "settime #{n}") }
+                btns.concat([0, ':'].map { |txt| Telegram::Bot::Types::InlineKeyboardButton.new(text: txt, callback_data: "settime #{txt}") })
+                btns.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "Abbr.", callback_data: "cancel"))
+                kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [btns[0..2], btns[3..5], btns[6..8], btns[9..11]])
+                puts "message id: #{msg.message_id}"
+                @pendingQueries.push(Query.new({user_id: msg.from.id, message_id: msg.from.id, given_data: Array.new,  pending_command: '/settime'}))
+                self.pushMessage(I18n.t('errors.settime.command_invalid'), msg.chat.id, kb)
                 return
             end
     
@@ -174,6 +199,24 @@ class Bot
 
     def handleIncoming(interaction)
         msg = interaction[:msg]
+        case msg
+        when Telegram::Bot::Types::Message
+            self.handleTextMessage(msg)
+        when Telegram::Bot::Types::CallbackQuery
+            self.handleCallbackQuery(msg)
+        else
+            puts "Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}"
+            #self.pushMessage(I18n.t('unknown_command', msg.chat.id))
+        end
+    end
+
+    def handleCallbackQuery(msg)
+        command, *args = msg.data.split(/\s+/)
+        puts "Chat id: #{msg.message.message_id}"
+
+    end
+    
+    def handleTextMessage(msg)
         command, *args = msg.text.split(/\s+/)
         case command
         when '/start'
