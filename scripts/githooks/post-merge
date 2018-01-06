@@ -1,10 +1,41 @@
 #!/bin/sh
 
 echo "Running post-merge git hook..."
+marker="###### EVERYTHING BELOW THIS LINE WILL BE REMOVED #####"
 diff=`git diff HEAD@{1}..HEAD config/conf.yml.example`
+confdir='config/'
 if [ "$diff" = "" ]; then
-        echo "Sample config is identical"
+        echo "Sample config is identical, no config file updates required"
 else
-		echo "Below you see the changes in the sample config. Please readjust your config files!"
-		git diff HEAD@{1}..HEAD config/conf.yml.example
+	echo "Sample config changed, updating each config file..."
+	for conffile in ${confdir}*.yml
+	do
+		echo "Processing $conffile file.."
+		tmpfile=`mktemp`
+		backupfile=${confdir}backup/`basename $conffile .yml`_`date +%Y%m%d_%H%M%S`.yml
+		mkdir -p `dirname $backupfile`
+		oldfilesize=`wc -c < $conffile | sed 's/^ *//;s/ *$//'`
+		echo "Working with temp file $tmpfile"
+		cat $conffile > $tmpfile
+		echo $marker >> $tmpfile
+		echo "# Below you see the changes in the sample config." >> $tmpfile
+		echo "# Please readjust your config file $conffile above" >> $tmpfile
+		echo "# and then save and close the editor. Your config" >> $tmpfile
+		echo "# will then automatically be updated accordingly." >> $tmpfile
+		echo "$diff" >> $tmpfile
+		vim $tmpfile -c "set filetype=diff"
+		echo "Backing original config $conffile to $backupfile"
+		cp $conffile $backupfile
+		echo "Replacing config file $conffile"
+		cp /dev/null $conffile
+		while read -r line
+		do
+			if [ "$line" == "$marker" ]; then
+				break
+			fi
+			echo "$line" >> $conffile
+		done < $tmpfile
+		newfilesize=`wc -c < $conffile | sed 's/^ *//;s/ *$//'`
+		echo "Replaced config file $conffile. New filesize is $newfilesize bytes (`expr $newfilesize - $oldfilesize` bytes)"
+	done
 fi 

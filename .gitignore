@@ -1,5 +1,6 @@
 assets/*.ics
 config/*.yml
+config/backup/
 .vscode/
 *.log
 db/*
