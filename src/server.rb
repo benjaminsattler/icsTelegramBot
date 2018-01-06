@@ -48,6 +48,7 @@ class Server
     end
     
     def redirect_output(filename)
+        puts "Redirecting output to #{filename}"
         FileUtils.mkdir_p(File.dirname(filename), :mode => 0755)
         FileUtils.touch filename
         File.chmod(0644, filename)
@@ -57,6 +58,7 @@ class Server
     end
 
     def suppress_output
+        puts "Suppressing output"
         $stderr.reopen('/dev/null', 'a')
         $stdout.reopen('/dev/null', 'a')
       end
@@ -75,6 +77,7 @@ class Server
     end
 
     def write_pidfile
+        puts "Writing PID to #{self.pidfile}"
         begin
             FileUtils.mkdir_p(File.dirname(self.pidfile), :mode => 0755)
             FileUtils.touch self.pidfile
@@ -122,6 +125,12 @@ class Server
         
         puts "Starting with PID #{Process.pid}"
         puts "Loading main class #{self.mainClass}"
+
+        Signal.trap('SIGUSR1') do 
+            puts "Caught signal USR1"
+            self.redirect_output(self.logfile) if self.logfile?
+        end
+        
         begin 
             require self.mainClass
             classRef = self.class_from_string(self.mainClass)
@@ -131,7 +140,7 @@ class Server
             exit
         end
         puts "Instantiating main class"
-        classRef.new.run unless classRef.nil?
+            classRef.new.run unless classRef.nil?
         return 0
     end
 end
