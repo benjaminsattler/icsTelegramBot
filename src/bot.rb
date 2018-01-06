@@ -11,13 +11,19 @@ class Bot
     @bot_instance = nil
     @token = nil
     @uptime_start = nil
+    @adminUsers = nil
 
-    def initialize(token, dataStore, calendar)
+    def initialize(token, dataStore, calendar, adminUsers)
         @token = token
         @data = dataStore
         @calendar = calendar
+        @adminUsers = adminUsers
     end
 
+    def pingAdminUsers(users)
+        users.each { |user_id| self.pushMessage('hi admin! i am alive!', user_id) } 
+    end
+    
     def run
         @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
@@ -28,6 +34,7 @@ class Bot
                 raise e
             end
             @bot_instance = bot
+            self.pingAdminUsers(@adminUsers)
             @bot_instance.listen do |message| 
                 self.handleIncoming({msg: message}) unless message.text.nil?
             end
