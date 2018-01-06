@@ -3,4 +3,4 @@ ics_path: <path to ics file>
 db_path: <path to desired db file>
 flush_interval: <interval in seconds>
 admin_users:
-  - <telegram user id, copy line for multiple users>
+  - <telegram user id, copy this line for multiple users>

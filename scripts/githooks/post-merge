@@ -8,6 +8,7 @@ if [ "$diff" = "" ]; then
         echo "Sample config is identical, no config file updates required"
 else
 	echo "Sample config changed, updating each config file..."
+	exec < /dev/tty
 	for conffile in ${confdir}*.yml
 	do
 		echo "Processing $conffile file.."
@@ -23,6 +24,7 @@ else
 		echo "# and then save and close the editor. Your config" >> $tmpfile
 		echo "# will then automatically be updated accordingly." >> $tmpfile
 		echo "$diff" >> $tmpfile
+		exec < /dev/tty
 		vim $tmpfile -c "set filetype=diff"
 		echo "Backing original config $conffile to $backupfile"
 		cp $conffile $backupfile
