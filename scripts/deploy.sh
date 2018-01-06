@@ -3,4 +3,4 @@
 BASE_DIR=`dirname $BASH_SOURCE`/../
 source ${SCRIPT_DIR}config/deployment.sh
 
-ssh $sshurl "cd ${sshlocaldir} && git checkout master && git pull && $sshafterupdate"
+ssh -t $sshurl "cd ${sshlocaldir} && git checkout master && git pull && $sshafterupdate"
