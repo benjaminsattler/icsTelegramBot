@@ -4,6 +4,8 @@ require 'fileutils'
 class Server
 
     attr_reader :options
+    main_instance = nil
+
     def initialize(options)
         @options = options
     end
@@ -140,7 +142,8 @@ class Server
             exit
         end
         puts "Instantiating main class"
-            classRef.new.run unless classRef.nil?
+        @main_instance = classRef.new unless classRef.nil?
+        @main_instance.run unless @main_instance.nil?
         return 0
     end
 end

@@ -48,6 +48,7 @@ class Watchdog
                         log("Stopping thread #{thread_desc[:name]} (Timeout #{stopTimeout} seconds)")
                         thread_desc[:handle][:stop] = true
                         thread_desc[:handle].join(stopTimeout)
+                        thread_desc[:handle].exit  if thread_desc[:handle].alive?
                     end 
                     Thread.current[:stop] = false
                     stop = true

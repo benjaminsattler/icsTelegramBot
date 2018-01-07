@@ -8,6 +8,10 @@ require 'yaml'
 
 class MainThread
 
+    @watchdog = nil
+    @isRunning = false
+    @config = nil
+
     def initialize
         I18n.load_path = Dir[File.join(File.dirname(__FILE__), '..', 'lang', '*.yml')]
         I18n.backend.load_translations
@@ -42,7 +46,7 @@ class MainThread
         events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @config['ics_path'])))
         bot = Bot.new(@config['bot_token'], data, events, @config['admin_users'])
         
-        watchdog = Watchdog.new
+        @watchdog = Watchdog.new
         eventThread = nil
         databaseThread = nil
         botThread = nil
@@ -93,10 +97,16 @@ class MainThread
         Signal.trap("TERM") do
             @isRunning = false
             log("Termination signal received")
-            watchdog.stop
+            self.stop
         end
         
-        watchdog.watch([{
+        Signal.trap('SIGINT') do 
+            # cannot handle SIGINT, because the telegram gem is trapping
+            # this signal. Instead, we can throw SIGTERM and can react on that
+            Process.kill('TERM', Process.pid)
+        end
+        
+        @watchdog.watch([{
             name: 'Bot',
             thr: botThreadBlock
         }, {
@@ -112,5 +122,9 @@ class MainThread
         while(@isRunning) do
             sleep 1
         end
+    end
+
+    def stop
+        @watchdog.stop
     end
 end
