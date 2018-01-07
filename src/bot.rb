@@ -105,14 +105,14 @@ class Bot
         else
             hrs = 20
             min = 0
-            matcher = /^([0-9]+):([0-9]+)$/.match(args[0])
-            if args[0].nil? then
+            matcher = /^([0-9]+):([0-9]+)$/.match(args.first)
+            if args.first.nil? then
                 inline = SetTimeQuery.new({user_id: userid, chat_id: chatid, bot: self})
                 inline.start
                 return
             else
                 if !matcher.nil? then
-                    if matcher[1].to_i > 0 && matcher[1].to_i < 23 && matcher[2].to_i > 0 &&  matcher[2].to_i < 59 then
+                    if matcher[1].to_i >= 0 && matcher[1].to_i < 23 && matcher[2].to_i >= 0 &&  matcher[2].to_i < 59 then
                         hrs = matcher[1].to_i
                         min = matcher[2].to_i
                         subscriber[:notificationtime] = {hrs: hrs, min: min}
@@ -238,7 +238,7 @@ class Bot
             if (isSubbed.nil?) then 
                 @data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
                 self.pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id)
-                self.pushEventsDescription(@calendar.getEvents(1), msg.from.id)
+                self.pushEventsDescription(@calendar.getEvents(1), msg.from.id, msg.chat.id)
             else
                 self.pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
             end
