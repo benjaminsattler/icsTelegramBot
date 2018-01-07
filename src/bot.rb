@@ -1,5 +1,5 @@
 require 'log'
-require 'settimequery'
+require 'query/settimequery'
 
 require 'telegram/bot'
 require 'i18n'
