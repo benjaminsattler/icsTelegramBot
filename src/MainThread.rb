@@ -49,31 +49,46 @@ class MainThread
         botThread = nil
         
         eventThreadBlock  = lambda do
-            while(not Thread.current[:stop]) do
-                events.getEvents.each do |event|
-                    bot.notify(event)
+            begin
+                while(not Thread.current[:stop]) do
+                    events.getEvents.each do |event|
+                        bot.notify(event)
+                    end
+                    sleep 1
                 end
-                sleep 1
+            rescue Exception => e
+                puts e.inspect
+                puts e.backtrace
             end
         end
         
         databaseThreadBlock = lambda do
-            run = true
-            while(run) do
-                seconds = @config['flush_interval']
-                while(seconds > 0 && run) do
-                    sleep 1
-                    seconds = seconds - 1
-                    run = false if Thread.current[:stop]
+            begin
+                run = true
+                while(run) do
+                    seconds = @config['flush_interval']
+                    while(seconds > 0 && run) do
+                        sleep 1
+                        seconds = seconds - 1
+                        run = false if Thread.current[:stop]
+                    end
+                    log("Syncing database...")
+                    data.flush
+                    log("Syncing done...")
                 end
-                log("Syncing database...")
-                data.flush
-                log("Syncing done...")
+            rescue Exception => e
+                puts e.inspect
+                puts e.backtrace
             end
         end
         
         botThreadBlock = lambda do
-            bot.run
+            begin
+                bot.run
+            rescue Exception => e
+                puts e.inspect
+                puts e.backtrace
+            end
         end
         
         Signal.trap("TERM") do
