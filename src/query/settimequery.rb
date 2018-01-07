@@ -1,13 +1,9 @@
-class SetTimeQuery
-    include Comparable
-    attr_reader :given_data, :message_id, :user_id, :chat_id
+require 'query/query'
+
+class SetTimeQuery < Query
     
     def initialize(opts)
-        @given_data = Array.new
-        @message_id = nil
-        @user_id = opts[:user_id]
-        @chat_id = opts[:chat_id]
-        @bot = opts[:bot]
+        super(opts)
     end
 
     def respond
