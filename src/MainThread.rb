@@ -17,7 +17,6 @@ class MainThread
         env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
         @isRunning = true
         
-        
         if !['production', 'testing'].include?(env) then
             log("Unknown environment #{env}. Terminating...")
             exit
@@ -110,7 +109,6 @@ class MainThread
 
         @isRunning = true
         
-
         while(@isRunning) do
             sleep 1
         end
