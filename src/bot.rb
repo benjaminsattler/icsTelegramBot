@@ -21,7 +21,7 @@ class Bot
     end
 
     def pingAdminUsers(users)
-        users.each { |user_id| self.pushMessage('hi admin! i am alive!', user_id) } 
+        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id) } 
     end
     
     def run
