@@ -35,6 +35,10 @@ class Query
     end
 
     def <=>(another_query)
-        raise NotImplementedError
+        if another_query.class == self.class then
+            another_query.message_id - self.message_id
+        else
+            nil
+        end
     end
 end

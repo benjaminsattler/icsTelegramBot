@@ -1,5 +1,6 @@
 require 'log'
 require 'query/settimequery'
+require 'query/setday'
 
 require 'telegram/bot'
 require 'i18n'
@@ -60,32 +61,38 @@ class Bot
         if subscriber.nil? then
             self.pushMessage(I18n.t('errors.no_subscription_teaser', command: '/setday'), chatid)
         else
-            days = 1
-            if /^[0-9]+$/.match(args[0]) then
-                days = args[0].to_i
+            if args.empty? then
+                inline = SetDayQuery.new({user_id: userid, chat_id: chatid, bot: self})
+                inline.start
+                return
             else
-                self.pushMessage(I18n.t('errors.setday.command_invalid'), chatid)
-                return
-            end
-    
-            if days > 14 then
-                self.pushMessage(I18n.t('errors.setday.day_too_early'), chatid)
-                return
-            end
-            if days < 0 then
-                self.pushMessage(I18n.t('errors.setday.day_in_past'), chatid)
-                return
-            end
-    
-            subscriber[:notificationday] = days
-            subscriber[:notifiedEvents].clear
-            @data.updateSubscriber(subscriber)
-            if subscriber[:notificationday] == 0 then
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
-            elsif subscriber[:notificationday] == 1 then
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
-            else
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                days = 1
+                if /^[0-9]+$/.match(args.first) then
+                    days = args.first.to_i
+                else
+                    self.pushMessage(I18n.t('errors.setday.command_invalid'), chatid)
+                    return
+                end
+        
+                if days > 14 then
+                    self.pushMessage(I18n.t('errors.setday.day_too_early'), chatid)
+                    return
+                end
+                if days < 0 then
+                    self.pushMessage(I18n.t('errors.setday.day_in_past'), chatid)
+                    return
+                end
+        
+                subscriber[:notificationday] = days
+                subscriber[:notifiedEvents].clear
+                @data.updateSubscriber(subscriber)
+                if subscriber[:notificationday] == 0 then
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                elsif subscriber[:notificationday] == 1 then
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                else
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                end
             end
         end
     end

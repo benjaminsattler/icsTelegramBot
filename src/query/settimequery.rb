@@ -67,12 +67,4 @@ class SetTimeQuery < Query
         btns.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "Abbr.", callback_data: "cancel"))
         Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [btns[0..2], btns[3..5], btns[6..8], btns[9..10]])
     end
-
-    def <=>(another_query)
-        if another_query.class == self.class then
-            another_query.message_id - self.message_id
-        else
-            nil
-        end
-    end
 end
