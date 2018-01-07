@@ -24,7 +24,6 @@ else
 		echo "# and then save and close the editor. Your config" >> $tmpfile
 		echo "# will then automatically be updated accordingly." >> $tmpfile
 		echo "$diff" >> $tmpfile
-		exec < /dev/tty
 		vim $tmpfile -c "set filetype=diff"
 		echo "Backing original config $conffile to $backupfile"
 		cp $conffile $backupfile
@@ -39,5 +38,21 @@ else
 		done < $tmpfile
 		newfilesize=`wc -c < $conffile | sed 's/^ *//;s/ *$//'`
 		echo "Replaced config file $conffile. New filesize is $newfilesize bytes (`expr $newfilesize - $oldfilesize` bytes)"
+		while true; do
+			echo "Continue with the next config file? (y/n)"
+			read -r line
+			case "$line" in
+				y)
+					break
+					;;
+				n)
+					break 2
+					;;
+				*)
+					echo "I did not understand your input... Try again"
+					;;
+			esac
+		done
 	done
+	echo "Updated all config files."
 fi 
