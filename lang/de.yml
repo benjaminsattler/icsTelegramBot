@@ -21,6 +21,11 @@ de:
   start: |
     Hallo, ich bin %{botname} 😊
     Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
+  settime:
+    command_inline: |
+      Wann möchtest du benachrichtigt werden?
+
+      Deine Eingabe: %{response}
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:

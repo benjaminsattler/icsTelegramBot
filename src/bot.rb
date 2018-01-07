@@ -1,22 +1,14 @@
 require 'log'
+require 'settimequery'
 
 require 'telegram/bot'
 require 'i18n'
 require 'multitrap'
 
-class Query
-    attr_accessor :given_data, :message_id, :user_id, :pending_command
-
-    def initialize(opts)
-        @given_data = opts[:given_data]
-        @message_id = opts[:message_id]
-        @user_id = opts[:user_id]
-        @pending_command = opts[:pending_command]
-    end
-end
-
 class Bot
 
+    attr_reader :bot_instance
+    
     @data = nil
     @calendar = nil
     @bot_instance = nil
@@ -29,7 +21,7 @@ class Bot
         @token = token
         @data = dataStore
         @calendar = calendar
-        @pendingQueries = Array.new
+        @pendingQueries = {}
         @adminUsers = adminUsers
     end
 
@@ -37,6 +29,14 @@ class Bot
         users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id) } 
     end
     
+    def storePendingQuery(message_id, query)
+        @pendingQueries[message_id] = query
+    end
+
+    def removePendingQuery(qry)
+        @pendingQueries.reject! { |key, val| val == qry }
+    end
+
     def run
         @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
@@ -99,43 +99,33 @@ class Bot
             hrs = 20
             min = 0
             matcher = /^([0-9]+):([0-9]+)$/.match(args[0])
-            valid_command = true
-            if !matcher.nil? then
-                if matcher[1].to_i < 1 || matcher[1].to_i > 23 || matcher[2].to_i < 0 || matcher[2].to_i > 59 then
-                    valid_command = false
-                else
-                    hrs = matcher[1].to_i
-                    min = matcher[2].to_i
-                end
-            else
-                valid_command = false
-                #self.pushMessage(I18n.t('errors.settime.command_invalid'), chatid)
-                #return
-            end
-
-            unless valid_command then
-                btns = (1..9).map { |n| Telegram::Bot::Types::InlineKeyboardButton.new(text: n, callback_data: "settime #{n}") }
-                btns.concat([0, ':'].map { |txt| Telegram::Bot::Types::InlineKeyboardButton.new(text: txt, callback_data: "settime #{txt}") })
-                btns.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "Abbr.", callback_data: "cancel"))
-                kb = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [btns[0..2], btns[3..5], btns[6..8], btns[9..11]])
-                @pendingQueries.push(Query.new({user_id: userid, message_id: userid, given_data: Array.new,  pending_command: '/settime'}))
-                self.pushMessage(I18n.t('errors.settime.command_invalid'), chatid, kb)
+            if args[0].nil? then
+                inline = SetTimeQuery.new({user_id: userid, chat_id: chatid, bot: self})
+                inline.start
                 return
-            end
-    
-            subscriber[:notificationtime] = {hrs: hrs, min: min}
-            subscriber[:notifiedEvents].clear
-            @data.updateSubscriber(subscriber)
-            if subscriber[:notificationday] == 0 then
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
-            elsif subscriber[:notificationday] == 1 then
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
             else
-                self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                if !matcher.nil? then
+                    if matcher[1].to_i > 0 && matcher[1].to_i < 23 && matcher[2].to_i > 0 &&  matcher[2].to_i < 59 then
+                        hrs = matcher[1].to_i
+                        min = matcher[2].to_i
+                        subscriber[:notificationtime] = {hrs: hrs, min: min}
+                        subscriber[:notifiedEvents].clear
+                        @data.updateSubscriber(subscriber)
+                        if subscriber[:notificationday] == 0 then
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                        elsif subscriber[:notificationday] == 1 then
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                        else
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                        end
+                        return
+                    end
+                end
+                self.pushMessage(I18n.t('errors.settime.command_invalid'), chatid)
             end
         end
     end
-    
+
     def handleEventsMessage(msg, userid, chatid)
         command, *args = msg.split(/\s+/)
         count = 10
@@ -147,7 +137,7 @@ class Bot
                 return
             end
         end
-        self.pushEventsDescription(@calendar.getEvents(count), chatid)
+        self.pushEventsDescription(@calendar.getEvents(count), userid, chatid)
     end
 
     def handleBotStatusMessage(msg, userid, chatid)
@@ -217,9 +207,18 @@ class Bot
     end
 
     def handleCallbackQuery(msg)
-        command, *args = msg.data.split(/\s+/)
-        puts "Chat id: #{msg.message.message_id}"
+        qry = self.getPendingQuery(msg.message.message_id) 
+        qry.respondTo(msg) unless qry.nil?
+    end
 
+    def hasPendingQuery(message_id)
+        qry = @pendingQueries[message_id]
+        return false if qry.nil?
+        return true
+    end
+    
+    def getPendingQuery(message_id)
+        @pendingQueries[message_id]
     end
     
     def handleTextMessage(msg)
@@ -262,7 +261,7 @@ class Bot
     end
 
     def pushMessage(msg, chatId, reply_markup = nil)
-        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe /botstatus), %w(/help /events /mystatus)], one_time_keyboard: false) if reply_markup.nil?
+        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /unsubscribe /setday /botstatus), %w(/help /events /settime /mystatus)], one_time_keyboard: false) if reply_markup.nil?
         @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless @bot_instance.nil?
     end
 end
