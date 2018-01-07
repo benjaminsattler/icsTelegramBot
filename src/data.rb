@@ -27,7 +27,7 @@ class DataStore
 
     def removeSubscriber(id)
         @subscribers.reject! { |subscriber| subscriber[:telegram_id] == id }
-        @db.execute('DELETE FROM subscribers WHERE telegram_id = ? LIMIT 1', [id])
+        @db.execute('DELETE FROM subscribers WHERE telegram_id = ?', [id])
     end
 
     def getSubscriberById(id)
