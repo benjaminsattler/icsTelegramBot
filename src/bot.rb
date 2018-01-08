@@ -112,7 +112,7 @@ class Bot
                 return
             else
                 if !matcher.nil? then
-                    if matcher[1].to_i >= 0 && matcher[1].to_i < 23 && matcher[2].to_i >= 0 &&  matcher[2].to_i < 59 then
+                    if matcher[1].to_i >= 0 && matcher[1].to_i <= 23 && matcher[2].to_i >= 0 &&  matcher[2].to_i <= 59 then
                         hrs = matcher[1].to_i
                         min = matcher[2].to_i
                         subscriber[:notificationtime] = {hrs: hrs, min: min}
