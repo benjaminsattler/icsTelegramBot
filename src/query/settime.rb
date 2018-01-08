@@ -29,6 +29,7 @@ class SetTimeQuery < Query
             send_response = true
             @given_data.push(data) unless data.nil?
         end
+        @bot.bot_instance.api.answerCallbackQuery(callback_query_id: msg.id)
         if (self.complete?) then
             self.finish if send_response
         else

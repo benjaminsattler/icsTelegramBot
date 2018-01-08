@@ -13,6 +13,7 @@ class SetDayQuery < Query
 
     def respondTo(msg)
         @given_data.push(msg.data)
+        @bot.bot_instance.api.answerCallbackQuery(callback_query_id: msg.id)
         self.finish
     end
     
