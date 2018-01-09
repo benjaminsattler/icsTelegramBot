@@ -1,5 +1,30 @@
 #!/bin/sh
 
+answer=0
+editor=`git config --get core.editor`
+if [ "$editor" == "" ]; then
+	editor=${FCEDIT:-${VISUAL:-${EDITOR:-vi}}}
+fi
+function getAnswer {
+	while true; do
+		echo "$1 (y/n)"
+		answer=0
+		read -r line
+		case "$line" in
+			y)
+				answer=1
+				break
+				;;
+			n)
+				break 
+				;;
+			*)
+				echo "I did not understand your input... Try again"
+				;;
+		esac
+	done
+}
+
 echo "Running post-merge git hook..."
 marker="###### EVERYTHING BELOW THIS LINE WILL BE REMOVED #####"
 diff=`git diff HEAD@{1}..HEAD config/conf.yml.example`
@@ -7,7 +32,12 @@ confdir='config/'
 if [ "$diff" = "" ]; then
         echo "Sample config is identical, no config file updates required"
 else
-	echo "Sample config changed, updating each config file..."
+	getAnswer "Sample config changed. Do you want to update each config file?"
+	if [ "$answer" -eq "0" ]; then
+		echo "Not updating configs."
+		exit
+	fi
+	echo "Updating configs."
 	exec < /dev/tty
 	for conffile in ${confdir}*.yml
 	do
@@ -24,7 +54,7 @@ else
 		echo "# and then save and close the editor. Your config" >> $tmpfile
 		echo "# will then automatically be updated accordingly." >> $tmpfile
 		echo "$diff" >> $tmpfile
-		vim $tmpfile -c "set filetype=diff"
+		$editor $tmpfile
 		echo "Backing original config $conffile to $backupfile"
 		cp $conffile $backupfile
 		echo "Replacing config file $conffile"
@@ -38,21 +68,11 @@ else
 		done < $tmpfile
 		newfilesize=`wc -c < $conffile | sed 's/^ *//;s/ *$//'`
 		echo "Replaced config file $conffile. New filesize is $newfilesize bytes (`expr $newfilesize - $oldfilesize` bytes)"
-		while true; do
-			echo "Continue with the next config file? (y/n)"
-			read -r line
-			case "$line" in
-				y)
-					break
-					;;
-				n)
-					break 2
-					;;
-				*)
-					echo "I did not understand your input... Try again"
-					;;
-			esac
-		done
+		getAnswer "Continue with the next config file?"
+		if [ "$answer" -eq "0" ]; then
+			echo "Not continuing."
+			break
+		fi
 	done
-	echo "Updated all config files."
+	echo "Finished updating config files."
 fi 
