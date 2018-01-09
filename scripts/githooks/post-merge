@@ -27,21 +27,25 @@ function getAnswer {
 
 echo "Running post-merge git hook..."
 marker="###### EVERYTHING BELOW THIS LINE WILL BE REMOVED #####"
-diff=`git diff HEAD@{1}..HEAD config/conf.yml.example`
 confdir='config/'
-if [ "$diff" = "" ]; then
-        echo "Sample config is identical, no config file updates required"
-else
-	getAnswer "Sample config changed. Do you want to update each config file?"
+for examplefile in ${confdir}*.yml.example
+do
+	diff=`git diff HEAD@{1}..HEAD $examplefile`
+	if [ "$diff" = "" ]; then
+			echo "$examplefile is identical, no config file updates required"
+			continue
+	fi
+	getAnswer "$examplefile changed. Do you want to apply changes manually to config files?"
 	if [ "$answer" -eq "0" ]; then
 		echo "Not updating configs."
-		exit
+		continue
 	fi
 	echo "Updating configs."
 	exec < /dev/tty
 	for conffile in ${confdir}*.yml
 	do
-		echo "Processing $conffile file.."
+		getAnswer "Processing $conffile file..?"
+		if [ "$answer" -eq "0" ]; then continue; fi
 		tmpfile=`mktemp`
 		backupfile=${confdir}backup/`basename $conffile .yml`_`date +%Y%m%d_%H%M%S`.yml
 		mkdir -p `dirname $backupfile`
@@ -61,18 +65,11 @@ else
 		cp /dev/null $conffile
 		while read -r line
 		do
-			if [ "$line" == "$marker" ]; then
-				break
-			fi
+			if [ "$line" == "$marker" ]; then break; fi
 			echo "$line" >> $conffile
 		done < $tmpfile
 		newfilesize=`wc -c < $conffile | sed 's/^ *//;s/ *$//'`
 		echo "Replaced config file $conffile. New filesize is $newfilesize bytes (`expr $newfilesize - $oldfilesize` bytes)"
-		getAnswer "Continue with the next config file?"
-		if [ "$answer" -eq "0" ]; then
-			echo "Not continuing."
-			break
-		fi
 	done
 	echo "Finished updating config files."
-fi 
+done
