@@ -58,6 +58,8 @@ do
 		echo "# and then save and close the editor. Your config" >> $tmpfile
 		echo "# will then automatically be updated accordingly." >> $tmpfile
 		echo "$diff" >> $tmpfile
+		echo "##################################################" >> $tmpfile
+		echo "# vim: set ft=diff:" >> $tmpfile
 		$editor $tmpfile
 		echo "Backing original config $conffile to $backupfile"
 		cp $conffile $backupfile
