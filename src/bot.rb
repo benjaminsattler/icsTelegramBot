@@ -229,7 +229,9 @@ class Bot
     end
     
     def handleTextMessage(msg)
-        if msg.nil or msg.text.nil? return
+        if msg.nil or msg.text.nil? then
+            return
+        end
         command, *args = msg.text.split(/\s+/)
         case command
         when '/start'
