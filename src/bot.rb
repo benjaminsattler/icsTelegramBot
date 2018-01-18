@@ -230,6 +230,7 @@ class Bot
     
     def handleTextMessage(msg)
         if msg.nil? or msg.text.nil? then
+            self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
             return
         end
         command, *args = msg.text.split(/\s+/)
