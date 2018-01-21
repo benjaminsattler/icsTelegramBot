@@ -1,0 +1,13 @@
+Hi,
+
+a new database backup is available. You can find the file in the google drive folder configured as target.
+
+In order to use the backup you need to decrypt it first using the key attachted to this email.
+
+In order to use the key attachted to this email you need to decrypt this first, too, using the private key that corresponds to the public key used for encrypting it.
+
+You can use the script "script/decrypt-file.sh" for easy file decryption, which will take care of all steps. Call it like this to write the decrypted database backup to outfile.db
+
+> ./scripts/decrypt-file.sh encrypted_backup.db.enc /path/to/private_key_file encrypted_key.db.key outfile.db
+
+cheers! 

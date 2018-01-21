@@ -1,1 +1,5 @@
 gdrive_backup_folder_id=<your google drive folder id, find it in its sharing link>
+public_key_file=<public key you want to use for backup file encryption>
+mail_rcpt=<recipient mail address>
+mail_subject=<mail subject line>
+mail_txt_file=<path to mail text file, see file "config/mail.txt.example">
