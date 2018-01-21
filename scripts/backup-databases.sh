@@ -15,8 +15,12 @@ if [ "$MAIL_BINARY" == "" ]; then
     MAIL_BINARY=mutt
 fi
 
+if [ "$SQLITE_BINARY" == "" ]; then
+    SQLITE_BINARY=sqlite3
+fi
+
 valid_gdrive_binary=0
-`$GDRIVE_BINARY version >/dev/null 2>&1` && valid_gdrive_binary=1 || valid_gdrive_binary=0
+$GDRIVE_BINARY version >/dev/null 2>&1 && valid_gdrive_binary=1 || valid_gdrive_binary=0
 
 if [ "$valid_gdrive_binary" -eq 1 ]; then
     echo Found gdrive executable $GDRIVE_BINARY
@@ -26,12 +30,22 @@ else
 fi
 
 valid_mail_binary=0
-`$MAIL_BINARY -v > /dev/null 2>&1` && valid_mail_binary=1 || valid_mail_binary=0
+$MAIL_BINARY -v > /dev/null 2>&1 && valid_mail_binary=1 || valid_mail_binary=0
 
 if [ "$valid_mail_binary" -eq 1 ]; then
     echo Found mail executable $MAIL_BINARY
 else
     echo "Could not find mail binary. Please install mutt!"
+    exit -1
+fi
+
+valid_sqlite_binary=0
+$SQLITE_BINARY -version > /dev/null 2>&1 && valid_sqlite_binary=1 || valid_sqlite_binary=0
+
+if [ "$valid_sqlite_binary" -eq 1 ]; then
+    echo Found sqlite executable $SQLITE_BINARY
+else
+    echo "Could not find sqlite binary. Please install sqlite!"
     exit -1
 fi
 
@@ -53,7 +67,7 @@ for dbfile in ${SRC_DIR}*.db; do
     echo key file will be $tgtkeyfilename
     echo Copying file
     error=0
-    cp $dbfile ${DEST_DIR}${tgtfilename}
+    $SQLITE_BINARY $dbfile ".backup ${DEST_DIR}${tgtfilename}"
     if [ -e ${DEST_DIR}${tgtfilename} ]; then
         echo Encrypting file
         ${SCRIPT_DIR}encrypt-file.sh ${DEST_DIR}${tgtfilename} $public_key_file ${DEST_DIR}${tgtkeyfilename} ${DEST_DIR}${tgtencfilename}
