@@ -4,6 +4,8 @@ config/*
 config/backup/
 .vscode/
 *.log
+log/*.log
+log/*.gz
 db/*
 !db/migrations
 *.pid
