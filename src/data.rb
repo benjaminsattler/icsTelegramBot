@@ -8,14 +8,6 @@ class DataStore
 
     def initialize(file)
         @db = SQLite3::Database.new file
-        @db.execute <<-SQL
-            create table IF NOT EXISTS subscribers (
-                id INTEGER PRIMARY KEY,
-                telegram_id int not null,
-                notificationday int not null,
-                notificationtime int not null
-            );
-            SQL
         @subscribers = @db.execute('SELECT * from subscribers').map { |sub| DataStore.fixDatabaseObject(sub) }
     end
 

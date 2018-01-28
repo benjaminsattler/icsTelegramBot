@@ -45,11 +45,6 @@ esac
 
 echo Migration binary is $dbmate_binary
 
-if [ ! -f "$dbmate_binary" ]; then
-    echo Could not find dbmate binary $dbmate_binary
-    exit 1
-fi
-
 echo Executing migrations
 DB="sqlite://${db_file}" ${dbmate_binary} --migrations-dir "${BASE_DIR}/db/migrations/" -e DB $*
 echo Finished executing migrations
