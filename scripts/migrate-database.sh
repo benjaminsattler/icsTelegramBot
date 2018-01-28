@@ -34,15 +34,18 @@ if [ ! -f $db_file ]; then
     #exit 1
 fi
 
-case `uname -s` in
-    Darwin)
-        dbmate_binary=${BASE_DIR}bin/dbmate/dbmate
-        ;;
-    Linux)
-        dbmate_binary=${BASE_DIR}bin/dbmate/dbmate-linux-amd64
-        ;;
-esac
-
+if [ "$DBMATE_BINARY" != "" ]; then
+    dbmate_binary=$DBMATE_BINARY
+else
+    case `uname -s` in
+        Darwin)
+            dbmate_binary=${BASE_DIR}bin/dbmate/dbmate
+            ;;
+        Linux)
+            dbmate_binary=${BASE_DIR}bin/dbmate/dbmate-linux-amd64
+            ;;
+    esac
+fi
 echo Migration binary is $dbmate_binary
 
 echo Executing migrations
