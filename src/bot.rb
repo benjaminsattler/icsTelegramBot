@@ -272,6 +272,10 @@ class Bot
 
     def pushMessage(msg, chatId, reply_markup = nil)
         reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /help /setday /botstatus), %w(/unsubscribe /events /settime /mystatus)], one_time_keyboard: false) if reply_markup.nil?
-        @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless @bot_instance.nil?
+        begin
+            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless @bot_instance.nil?
+        rescue Exception => e
+            puts "Exception received #{e}"
+        end
     end
 end
