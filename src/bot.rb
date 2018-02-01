@@ -1,6 +1,7 @@
 require 'log'
 require 'query/settime'
 require 'query/setday'
+require 'util'
 
 require 'telegram/bot'
 require 'i18n'
@@ -86,12 +87,13 @@ class Bot
                 subscriber[:notificationday] = days
                 subscriber[:notifiedEvents].clear
                 @data.updateSubscriber(subscriber)
+                reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
                 if subscriber[:notificationday] == 0 then
-                    self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: reminder_time), chatid)
                 elsif subscriber[:notificationday] == 1 then
-                    self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: reminder_time), chatid)
                 else
-                    self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                    self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time), chatid)
                 end
             end
         end
@@ -118,12 +120,13 @@ class Bot
                         subscriber[:notificationtime] = {hrs: hrs, min: min}
                         subscriber[:notifiedEvents].clear
                         @data.updateSubscriber(subscriber)
+                        reminder_time ="#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
                         if subscriber[:notificationday] == 0 then
-                            self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: reminder_time), chatid)
                         elsif subscriber[:notificationday] == 1 then
-                            self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_precedingday', reminder_time: reminder_time), chatid)
                         else
-                            self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"), chatid)
+                            self.pushMessage(I18n.t('confirmations.setdatetime_success_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time), chatid)
                         end
                         return
                     end
@@ -257,7 +260,8 @@ class Bot
             if (subscriber.nil?) then 
                 self.pushMessage(I18n.t('status.not_subscribed'), msg.chat.id)
             else
-                self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: "#{subscriber[:notificationtime][:hrs]}:#{subscriber[:notificationtime][:min]}"}), msg.chat.id)
+                reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
+                self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time}), msg.chat.id)
             end
         when '/botstatus'
             self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
