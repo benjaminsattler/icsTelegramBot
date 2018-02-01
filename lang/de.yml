@@ -13,7 +13,9 @@ de:
     listing_intro_empty: Es scheint keine Termine zu geben (oder du wolltest 0 Termine von mir sehen 😂)
   status:
     not_subscribed: Du erhälst von mir keine Erinnerungen, da du nicht angemeldet bist. Mit /subscribe kannst du das ändern! 😇
-    subscribed: Ich werde dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribed_sameday: Ich werde dich am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribed_precedingday: Ich werde dich am Vortrag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribed_otherday: Ich werde dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
   botstatus:
     uptime: Ich bin online seit %{uptime}.
     event_count: Ich kenne %{event_count} Events.

@@ -164,7 +164,13 @@ class Bot
             self.pushMessage(I18n.t('status.not_subscribed'), chatid)
         else
             reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
-            self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time}), chatid)
+            if subscriber[:notificationday] == 0 then
+                self.pushMessage(I18n.t('status.subscribed_sameday', reminder_time: reminder_time), chatid)
+            elsif subscriber[:notificationday] == 1 then
+                self.pushMessage(I18n.t('status.subscribed_precedingday', reminder_time: reminder_time), chatid)
+            else
+                self.pushMessage(I18n.t('status.subscribed_otherday', reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time), chatid)
+            end
         end
     end
 
