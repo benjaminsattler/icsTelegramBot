@@ -158,6 +158,16 @@ class Bot
         self.pushMessage(text.join("\n"), chatid)
     end
 
+    def handleMyStatusMessage(msg, userid, chatid)
+        subscriber = @data.getSubscriberById(userid)
+        if (subscriber.nil?) then 
+            self.pushMessage(I18n.t('status.not_subscribed'), chatid)
+        else
+            reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
+            self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time}), chatid)
+        end
+    end
+
     def pushEventsDescription(events, userid, chatid)
         count = events.length
         text = Array.new
@@ -256,13 +266,7 @@ class Bot
             @data.removeSubscriber(msg.from.id)
             self.pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
         when '/mystatus'
-            subscriber = @data.getSubscriberById(msg.from.id)
-            if (subscriber.nil?) then 
-                self.pushMessage(I18n.t('status.not_subscribed'), msg.chat.id)
-            else
-                reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
-                self.pushMessage(I18n.t('status.subscribed', {reminder_day_count: subscriber[:notificationday], reminder_time: reminder_time}), msg.chat.id)
-            end
+            self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/botstatus'
             self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/events'
