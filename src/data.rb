@@ -12,37 +12,38 @@ class DataStore
     end
 
     def addSubscriber(sub)
+        sub[:eventlist_id] = 1 if sub[:eventlist_id].nil?
         @subscribers.push(sub)
         notificationtime = sub[:notificationtime][:hrs] * 100 + sub[:notificationtime][:min]
-        @db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime) VALUES(?, ?, ?)', [sub[:telegram_id], sub[:notificationday], notificationtime])
+        @db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime, eventlist_id) VALUES(?, ?, ?, ?)', [sub[:telegram_id], sub[:notificationday], notificationtime, sub[:eventlist_id]])
     end
 
-    def removeSubscriber(id)
-        @subscribers.reject! { |subscriber| subscriber[:telegram_id] == id }
-        @db.execute('DELETE FROM subscribers WHERE telegram_id = ?', [id])
+    def removeSubscriber(id, eventlist = 1)
+        @subscribers.reject! { |subscriber| subscriber[:telegram_id] == id and subscriber[:eventlist_id] == eventlist}
+        @db.execute('DELETE FROM subscribers WHERE telegram_id = ? AND eventlist_id = ?', [id, eventlist])
     end
 
-    def getSubscriberById(id)
+    def getSubscriberById(id, eventlist = 1)
         @subscribers
-            .select { |subscriber| subscriber[:telegram_id] == id }
+            .select { |subscriber| subscriber[:telegram_id] == id && subscriber[:eventlist_id] == eventlist }
             .first
     end
 
-    def getAllSubscribers()
-        @subscribers
+    def getAllSubscribers(eventlist = 1)
+        @subscribers.select { |subscriber| subscriber[:eventlist_id] == eventlist }
     end
 
     def self.fixDatabaseObject(sub)
         notificationhour = sub[3] / 100
         notificationminute = sub[3] % 100
-        {telegram_id: sub[1], notificationday:sub[2], notificationtime: {hrs: notificationhour, min: notificationminute}, notifiedEvents: []}
+        {telegram_id: sub[1], notificationday:sub[2], eventlist_id:sub[4], notificationtime: {hrs: notificationhour, min: notificationminute}, notifiedEvents: []}
     end
 
-    def updateSubscriber(sub)
+    def updateSubscriber(sub, eventlist = 1)
         @subscribers = @subscribers.map { |subscriber|
-            subscriber[:notificationday] = sub[:notificationday] if sub[:telegram_id] == subscriber[:telegram_id]
-            subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs] if sub[:telegram_id] == subscriber[:telegram_id]
-            subscriber[:notificationtime][:min] = sub[:notificationtime][:min] if sub[:telegram_id] == subscriber[:telegram_id]
+            subscriber[:notificationday] = sub[:notificationday] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
+            subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
+            subscriber[:notificationtime][:min] = sub[:notificationtime][:min] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
             subscriber
         }
     end
@@ -51,7 +52,7 @@ class DataStore
         unless @subscribers.nil?
             @subscribers.each do |subscriber|
                 notificationtime = subscriber[:notificationtime][:hrs] * 100 + subscriber[:notificationtime][:min]
-                @db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE telegram_id = ?', subscriber[:notificationday], notificationtime, subscriber[:telegram_id])
+                @db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE id = ?', subscriber[:notificationday], notificationtime, subscriber[:id])
             end
         end
     end
