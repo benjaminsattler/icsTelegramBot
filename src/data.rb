@@ -29,6 +29,11 @@ class DataStore
             .first
     end
 
+    def getSubscriptionsForId(id)
+        @subscribers
+            .select { |subscriber| subscriber[:telegram_id] == id }
+    end
+
     def getAllSubscribers(eventlist = 1)
         @subscribers.select { |subscriber| subscriber[:eventlist_id] == eventlist }
     end
@@ -39,11 +44,11 @@ class DataStore
         {telegram_id: sub[1], notificationday:sub[2], eventlist_id:sub[4], notificationtime: {hrs: notificationhour, min: notificationminute}, notifiedEvents: []}
     end
 
-    def updateSubscriber(sub, eventlist = 1)
+    def updateSubscriber(sub)
         @subscribers = @subscribers.map { |subscriber|
-            subscriber[:notificationday] = sub[:notificationday] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
-            subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
-            subscriber[:notificationtime][:min] = sub[:notificationtime][:min] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == eventlist
+            subscriber[:notificationday] = sub[:notificationday] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == sub[:eventlist_id]
+            subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == sub[:eventlist_id]
+            subscriber[:notificationtime][:min] = sub[:notificationtime][:min] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == sub[:eventlist_id]
             subscriber
         }
     end

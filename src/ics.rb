@@ -81,17 +81,13 @@ module ICS
     class Calendar
         @events
 
-        def getDate()
-            Date.today
-        end
-
         def loadEvents(events)
             @events = events.sort_by { |event| [event.date.year, event.date.yday] }
         end
 
         def getEvents(count = -1)
             result = nil
-            events = @events.reject { |event| event.date <= getDate() }
+            events = @events.reject { |event| event.date <= Date.today() }
             result = events.take(count) if count > -1
             result = events if count == -1
             result

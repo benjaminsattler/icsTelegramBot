@@ -12,17 +12,17 @@ class Bot
     attr_reader :bot_instance
     
     @data = nil
-    @calendar = nil
+    @calendars = nil
     @bot_instance = nil
     @token = nil
     @uptime_start = nil
     @pendingQueries = nil
     @adminUsers = nil
 
-    def initialize(token, dataStore, calendar, adminUsers)
+    def initialize(token, dataStore, calendars, adminUsers)
         @token = token
         @data = dataStore
-        @calendar = calendar
+        @calendars = calendars
         @pendingQueries = {}
         @adminUsers = adminUsers
     end
@@ -139,6 +139,7 @@ class Bot
     def handleEventsMessage(msg, userid, chatid)
         command, *args = msg.split(/\s+/)
         count = 10
+        calendar = 1
         if /^[0-9]+$/.match(args[0]) then
             count = args[0].to_i
         else
@@ -147,15 +148,31 @@ class Bot
                 return
             end
         end
-        self.pushEventsDescription(@calendar.getEvents(count), userid, chatid)
+
+        if /^[0-9]+$/.match(args[1]) then
+            calendar = args[1].to_i
+            if calendar > @calendars.length or calendar < 1 or @calendars[calendar].nil? then
+                self.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
+                return
+            end
+        else
+            unless args.empty? then
+                self.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
+                return
+            end
+        end
+        self.pushEventsDescription(@calendars[calendar].getEvents(count), userid, chatid)
     end
 
     def handleBotStatusMessage(msg, userid, chatid)
         text = Array.new
         text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
-        text << I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length)
-        text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length)
+        @calendars.each do |key, value|
+            text << I18n.t('botstatus.event_count', event_count: value.getEvents.length)
+            text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers(key).length)
+        end
         self.pushMessage(text.join("\n"), chatid)
+
     end
 
     def handleMyStatusMessage(msg, userid, chatid)
@@ -192,7 +209,7 @@ class Bot
 
     def handleHelpMessage(msg, userid, chatid)
         text = Array.new
-        text << I18n.t('help.intro', last_event_date: @calendar.getLeastRecentEvent.date.strftime("%d.%m.%Y"))
+        text << I18n.t('help.intro', last_event_date: @calendars.getLeastRecentEvent.date.strftime("%d.%m.%Y"))
         text << I18n.t('help.start')
         text << ""
         text << I18n.t('help.subscribe')
@@ -212,7 +229,7 @@ class Bot
 
     def notify(event)
         @data.getAllSubscribers.each do |subscriber|
-            if !subscriber[:notifiedEvents].include?(event.id) && (event.date - @calendar.getDate()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
+            if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
                 self.pushMessage(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
                 subscriber[:notifiedEvents].push(event.id)
             end
@@ -260,7 +277,7 @@ class Bot
             if (isSubbed.nil?) then 
                 @data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
                 self.pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id)
-                self.pushEventsDescription(@calendar.getEvents(1), msg.from.id, msg.chat.id)
+                self.pushEventsDescription(@calendars.getEvents(1), msg.from.id, msg.chat.id)
             else
                 self.pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
             end

@@ -44,7 +44,7 @@ class MainThread
         data = DataStore.new(File.join(File.dirname(__FILE__), '..', @config['db_path']))
         events = ICS::Calendar.new
         events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @config['ics_path'])))
-        bot = Bot.new(@config['bot_token'], data, events, @config['admin_users'])
+        bot = Bot.new(@config['bot_token'], data, {1 => events}, @config['admin_users'])
         
         @watchdog = Watchdog.new
         eventThread = nil
