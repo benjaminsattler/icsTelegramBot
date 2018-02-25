@@ -227,6 +227,17 @@ class Bot
         self.pushMessage(text.join("\n"), chatid)
     end
 
+    def handleSubscribeMessage(msg, userid, chatid)
+        isSubbed = @data.getSubscriberById(userid)
+        if (isSubbed.nil?) then 
+            @data.addSubscriber({telegram_id: userid, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
+            self.pushMessage(I18n.t('confirmations.subscribe_success'), chatid)
+            self.pushEventsDescription(@calendars[1].getEvents(1), userid, chatid)
+        else
+            self.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
+        end
+    end
+
     def notify(event)
         @data.getAllSubscribers.each do |subscriber|
             if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
@@ -273,14 +284,7 @@ class Bot
         when '/start'
             self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
         when '/subscribe'
-            isSubbed = @data.getSubscriberById(msg.from.id)
-            if (isSubbed.nil?) then 
-                @data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
-                self.pushMessage(I18n.t('confirmations.subscribe_success'), msg.chat.id)
-                self.pushEventsDescription(@calendars.getEvents(1), msg.from.id, msg.chat.id)
-            else
-                self.pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
-            end
+            self.handleSubscribeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/setday'
             self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
         when '/settime'
