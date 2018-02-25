@@ -50,8 +50,10 @@ class Bot
             end
             @bot_instance = bot
             self.pingAdminUsers(@adminUsers)
-            @bot_instance.listen do |message| 
-                self.handleIncoming({msg: message})
+            while not Thread.current[:stop]
+                @bot_instance.listen do |message| 
+                    self.handleIncoming({msg: message})
+                end
             end
         end
     end
