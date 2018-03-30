@@ -18,6 +18,7 @@ class Bot
     @uptime_start = nil
     @pendingQueries = nil
     @adminUsers = nil
+    @botname = nil
 
     def initialize(token, dataStore, calendar, adminUsers)
         @token = token
@@ -43,12 +44,14 @@ class Bot
         @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
             begin
-                bot.api.getMe()
+                me = bot.api.getMe()
             rescue Exception => e
                 log("Please double check Telegram bot token!")
                 raise e
             end
             @bot_instance = bot
+            @botname = me['result']['username']
+            log("Botname is #{@botname}")
             self.pingAdminUsers(@adminUsers)
             while not Thread.current[:stop]
                 @bot_instance.listen do |message| 
@@ -254,10 +257,14 @@ class Bot
             return
         end
         command, *args = msg.text.split(/\s+/)
+        commandTarget = command.include?('@') ? command.split('@')[1] : nil
+        log("command target is #{commandTarget}")
         case command
         when '/start'
+        when "/start@#{@botname}"
             self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
         when '/subscribe'
+        when "/subscribe@#{@botname}"
             isSubbed = @data.getSubscriberById(msg.from.id)
             if (isSubbed.nil?) then 
                 @data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
@@ -267,23 +274,32 @@ class Bot
                 self.pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
             end
         when '/setday'
+        when "/setday@#{@botname}"
             self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
         when '/settime'
+        when "/settime@#{@botname}"
             self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/unsubscribe'
+        when "/unsubscribe@#{@botname}"
             @data.removeSubscriber(msg.from.id)
             self.pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
         when '/mystatus'
+        when "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/botstatus'
+        when "/botstatus@#{@botname}"
             self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/events'
+        when "/events@#{@botname}"
             self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
         when '/help'
+        when "/help@#{@botname}"
             self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
         else
+            if commandTarget == @botname then
             self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
         end
+    end
     end
 
     def pushMessage(msg, chatId, reply_markup = nil)
