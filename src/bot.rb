@@ -29,7 +29,7 @@ class Bot
     end
 
     def pingAdminUsers(users)
-        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id) } 
+        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id, true) } 
     end
     
     def storePendingQuery(message_id, query)
@@ -155,12 +155,12 @@ class Bot
         self.pushEventsDescription(@calendar.getEvents(count), userid, chatid)
     end
 
-    def handleBotStatusMessage(msg, userid, chatid)
+    def handleBotStatusMessage(msg, userid, chatid, silent = false)
         text = Array.new
         text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
         text << I18n.t('botstatus.event_count', event_count: @calendar.getEvents.length)
         text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers.length)
-        self.pushMessage(text.join("\n"), chatid)
+        self.pushMessage(text.join("\n"), chatid, nil, silent)
     end
 
     def handleMyStatusMessage(msg, userid, chatid)
@@ -297,15 +297,16 @@ class Bot
             self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
         else
             if commandTarget == @botname then
-            self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
+                self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
+            end
         end
     end
-    end
 
-    def pushMessage(msg, chatId, reply_markup = nil)
+    def pushMessage(msg, chatId, reply_markup = nil, silent = false)
+        log("silent is #{silent} for #{msg}") if silent
         reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /help /setday /botstatus), %w(/unsubscribe /events /settime /mystatus)], one_time_keyboard: false) if reply_markup.nil?
         begin
-            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless @bot_instance.nil?
+            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup, disable_notification: silent) unless @bot_instance.nil?
         rescue Exception => e
             puts "Exception received #{e}"
         end
