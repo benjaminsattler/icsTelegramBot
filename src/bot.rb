@@ -232,7 +232,7 @@ class Bot
         when Telegram::Bot::Types::CallbackQuery
             self.handleCallbackQuery(msg)
         else
-            puts "Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}"
+            log("Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}")
             #self.pushMessage(I18n.t('unknown_command', msg.chat.id))
         end
     end
@@ -260,11 +260,9 @@ class Bot
         commandTarget = command.include?('@') ? command.split('@')[1] : nil
         log("command target is #{commandTarget}")
         case command
-        when '/start'
-        when "/start@#{@botname}"
+        when '/start', "/start@#{@botname}"
             self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
-        when '/subscribe'
-        when "/subscribe@#{@botname}"
+        when '/subscribe', "/subscribe@#{@botname}"
             isSubbed = @data.getSubscriberById(msg.from.id)
             if (isSubbed.nil?) then 
                 @data.addSubscriber({telegram_id: msg.from.id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
@@ -273,27 +271,20 @@ class Bot
             else
                 self.pushMessage(I18n.t('errors.subscribe.double_subscription'), msg.chat.id);
             end
-        when '/setday'
-        when "/setday@#{@botname}"
+        when '/setday', "/setday@#{@botname}"
             self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/settime'
-        when "/settime@#{@botname}"
+        when '/settime', "/settime@#{@botname}"
             self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/unsubscribe'
-        when "/unsubscribe@#{@botname}"
+        when '/unsubscribe', "/unsubscribe@#{@botname}"
             @data.removeSubscriber(msg.from.id)
             self.pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
-        when '/mystatus'
-        when "/mystatus@#{@botname}"
+        when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/botstatus'
-        when "/botstatus@#{@botname}"
+        when '/botstatus', "/botstatus@#{@botname}"
             self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/events'
-        when "/events@#{@botname}"
+        when '/events', "/events@#{@botname}"
             self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/help'
-        when "/help@#{@botname}"
+        when '/help', "/help@#{@botname}"
             self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
         else
             if commandTarget == @botname then
@@ -308,7 +299,7 @@ class Bot
         begin
             @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup, disable_notification: silent) unless @bot_instance.nil?
         rescue Exception => e
-            puts "Exception received #{e}"
+            log("Exception received #{e}")
         end
     end
 end
