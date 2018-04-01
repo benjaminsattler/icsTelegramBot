@@ -2,6 +2,7 @@ require 'log'
 require 'query/settime'
 require 'query/setday'
 require 'util'
+require 'commandBuilder'
 
 require 'telegram/bot'
 require 'i18n'
@@ -9,7 +10,7 @@ require 'multitrap'
 
 class Bot
 
-    attr_reader :bot_instance
+    attr_reader :bot_instance, :uptime_start
     
     @data = nil
     @calendars = nil
@@ -170,13 +171,8 @@ class Bot
     end
 
     def handleBotStatusMessage(msg, userid, chatid, silent = false)
-        text = Array.new
-        text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
-        @calendars.each do |key, value|
-            text << I18n.t('botstatus.event_count', event_count: value.getEvents.length)
-            text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers(key).length)
-        end
-        self.pushMessage(text.join("\n"), chatid, nil, silent)
+        CommandBuilder.new.build('BotStatusCommand')
+            .process(msg, userid, chatid, silent)
     end
 
     def handleMyStatusMessage(msg, userid, chatid)

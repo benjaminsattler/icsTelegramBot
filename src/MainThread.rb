@@ -3,6 +3,7 @@ require 'bot'
 require 'data'
 require 'ics'
 require 'log'
+require 'container'
 
 require 'yaml'
 
@@ -45,6 +46,10 @@ class MainThread
         events = ICS::Calendar.new
         events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @config['ics_path'])))
         bot = Bot.new(@config['bot_token'], data, {1 => events}, @config['admin_users'])
+        
+        Container::set('bot', bot)
+        Container::set('calendars', {1 => events})
+        Container::set('datastore', data)
         
         @watchdog = Watchdog.new
         eventThread = nil
