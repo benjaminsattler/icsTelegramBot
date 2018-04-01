@@ -18,6 +18,7 @@ class Bot
     @uptime_start = nil
     @pendingQueries = nil
     @adminUsers = nil
+    @botname = nil
 
     def initialize(token, dataStore, calendars, adminUsers)
         @token = token
@@ -28,7 +29,7 @@ class Bot
     end
 
     def pingAdminUsers(users)
-        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id) } 
+        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id, true) } 
     end
     
     def storePendingQuery(message_id, query)
@@ -43,15 +44,19 @@ class Bot
         @uptime_start = DateTime.now
         Telegram::Bot::Client.run(@token) do |bot|
             begin
-                bot.api.getMe()
+                me = bot.api.getMe()
             rescue Exception => e
                 log("Please double check Telegram bot token!")
                 raise e
             end
             @bot_instance = bot
+            @botname = me['result']['username']
+            log("Botname is #{@botname}")
             self.pingAdminUsers(@adminUsers)
-            @bot_instance.listen do |message| 
-                self.handleIncoming({msg: message})
+            while not Thread.current[:stop]
+                @bot_instance.listen do |message| 
+                    self.handleIncoming({msg: message})
+                end
             end
         end
     end
@@ -164,15 +169,14 @@ class Bot
         self.pushEventsDescription(@calendars[calendar].getEvents(count), userid, chatid)
     end
 
-    def handleBotStatusMessage(msg, userid, chatid)
+    def handleBotStatusMessage(msg, userid, chatid, silent = false)
         text = Array.new
         text << I18n.t('botstatus.uptime', uptime: @uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
         @calendars.each do |key, value|
             text << I18n.t('botstatus.event_count', event_count: value.getEvents.length)
             text << I18n.t('botstatus.subscribers_count', subscribers_count: @data.getAllSubscribers(key).length)
         end
-        self.pushMessage(text.join("\n"), chatid)
-
+        self.pushMessage(text.join("\n"), chatid, nil, silent)
     end
 
     def handleMyStatusMessage(msg, userid, chatid)
@@ -255,7 +259,7 @@ class Bot
         when Telegram::Bot::Types::CallbackQuery
             self.handleCallbackQuery(msg)
         else
-            puts "Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}"
+            log("Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}")
             #self.pushMessage(I18n.t('unknown_command', msg.chat.id))
         end
     end
@@ -280,37 +284,42 @@ class Bot
             return
         end
         command, *args = msg.text.split(/\s+/)
+        commandTarget = command.include?('@') ? command.split('@')[1] : nil
+        log("command target is #{commandTarget}")
         case command
-        when '/start'
+        when '/start', "/start@#{@botname}"
             self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
-        when '/subscribe'
+        when '/subscribe', "/subscribe@#{@botname}"
             self.handleSubscribeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/setday'
             self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/settime'
+        when '/settime', "/settime@#{@botname}"
             self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/unsubscribe'
+        when '/unsubscribe', "/unsubscribe@#{@botname}"
             @data.removeSubscriber(msg.from.id)
             self.pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
-        when '/mystatus'
+        when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/botstatus'
+        when '/botstatus', "/botstatus@#{@botname}"
             self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/events'
+        when '/events', "/events@#{@botname}"
             self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
-        when '/help'
+        when '/help', "/help@#{@botname}"
             self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
         else
-            self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
+            if commandTarget == @botname then
+                self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
+            end
         end
     end
 
-    def pushMessage(msg, chatId, reply_markup = nil)
+    def pushMessage(msg, chatId, reply_markup = nil, silent = false)
+        log("silent is #{silent} for #{msg}") if silent
         reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /help /setday /botstatus), %w(/unsubscribe /events /settime /mystatus)], one_time_keyboard: false) if reply_markup.nil?
         begin
-            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup) unless @bot_instance.nil?
+            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup, disable_notification: silent) unless @bot_instance.nil?
         rescue Exception => e
-            puts "Exception received #{e}"
+            log("Exception received #{e}")
         end
     end
 end
