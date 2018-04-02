@@ -3,6 +3,7 @@ require 'commands/BotStatusCommand'
 require 'commands/MyStatusCommand'
 require 'commands/SetTimeCommand'
 require 'commands/SetDayCommand'
+require 'commands/EventsCommand'
 require 'container'
 
 class CommandBuilder
