@@ -96,6 +96,11 @@ class Bot
         CommandBuilder::build('SubscribeCommand')
             .process(msg, userid, chatid, false)
     end
+
+    def handleUnsubscribeMessage(msg, userid, chatid)
+        CommandBuilder::build('UnsubscribeCommand')
+            .process(msg, userid, chatid, false)
+    end
     
     def notify(event)
         @data.getAllSubscribers.each do |subscriber|
@@ -151,8 +156,7 @@ class Bot
         when '/settime', "/settime@#{@botname}"
             self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/unsubscribe', "/unsubscribe@#{@botname}"
-            @data.removeSubscriber(msg.from.id)
-            self.pushMessage(I18n.t('confirmations.unsubscribe_success'), msg.chat.id)
+            self.handleUnsubscribeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
