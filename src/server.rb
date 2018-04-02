@@ -137,7 +137,8 @@ class Server
             require self.mainClass
             classRef = self.class_from_string(self.mainClass)
             puts "Could not find main class #{self.mainClass}. Terminating..." if classRef.nil?
-        rescue LoadError
+        rescue LoadError => e
+            puts e.inspect
             puts "Could not load main class #{self.mainClass}. Terminating..."
             exit
         end

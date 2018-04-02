@@ -1,10 +1,10 @@
 require 'commands/command'
-require 'commands/botstatus'
+require 'commands/BotStatusCommand'
 require 'container'
 
 class CommandBuilder
 
-    def build(commandClass)
+    def self::build(commandClass)
         if Object.const_get(commandClass) < Command then
             return Object.const_get(commandClass)
                 .new

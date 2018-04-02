@@ -171,7 +171,7 @@ class Bot
     end
 
     def handleBotStatusMessage(msg, userid, chatid, silent = false)
-        CommandBuilder.new.build('BotStatusCommand')
+        CommandBuilder::build('BotStatusCommand')
             .process(msg, userid, chatid, silent)
     end
 
