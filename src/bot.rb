@@ -1,6 +1,6 @@
 require 'log'
-require 'query/settime'
-require 'query/setday'
+require 'query/SetTimeQuery'
+require 'query/SetDayQuery'
 require 'util'
 require 'commandBuilder'
 
