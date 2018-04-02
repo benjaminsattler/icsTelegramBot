@@ -4,6 +4,7 @@ require 'commands/MyStatusCommand'
 require 'commands/SetTimeCommand'
 require 'commands/SetDayCommand'
 require 'commands/EventsCommand'
+require 'commands/HelpCommand'
 require 'container'
 
 class CommandBuilder

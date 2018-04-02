@@ -104,23 +104,8 @@ class Bot
     end
 
     def handleHelpMessage(msg, userid, chatid)
-        text = Array.new
-        text << I18n.t('help.intro', last_event_date: @calendars.getLeastRecentEvent.date.strftime("%d.%m.%Y"))
-        text << I18n.t('help.start')
-        text << ""
-        text << I18n.t('help.subscribe')
-        text << I18n.t('help.unsubscribe')
-        text << ""
-        text << I18n.t('help.settime')
-        text << I18n.t('help.setday')
-        text << ""
-        text << I18n.t('help.events')
-        text << ""
-        text << I18n.t('help.botstatus')
-        text << I18n.t('help.mystatus')
-        text << ""
-        text << I18n.t('help.help')
-        self.pushMessage(text.join("\n"), chatid)
+        CommandBuilder::build('HelpCommand')
+            .process(msg, userid, chatid, false)
     end
 
     def handleSubscribeMessage(msg, userid, chatid)
