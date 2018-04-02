@@ -1,6 +1,7 @@
 require 'commands/command'
 require 'commands/BotStatusCommand'
 require 'commands/MyStatusCommand'
+require 'commands/SetTimeCommand'
 require 'container'
 
 class CommandBuilder
