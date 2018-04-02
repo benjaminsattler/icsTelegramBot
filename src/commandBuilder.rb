@@ -5,6 +5,7 @@ require 'commands/SetTimeCommand'
 require 'commands/SetDayCommand'
 require 'commands/EventsCommand'
 require 'commands/HelpCommand'
+require 'commands/SubscribeCommand'
 require 'container'
 
 class CommandBuilder

@@ -87,38 +87,16 @@ class Bot
             .process(msg, userid, chatid, false)
     end
 
-    def pushEventsDescription(events, userid, chatid)
-        count = events.length
-        text = Array.new
-        text << I18n.t('events.listing_intro_multiple', total:count) unless count == 1
-        text << I18n.t('events.listing_intro_one') if count == 1
-        text << I18n.t('events.listing_intro_empty') if count == 0
-        self.pushMessage(text.join("\n"), chatid)
-        events
-            .take(count)
-            .each { |event|  self.pushEventDescription(event, chatid)}
-    end
-
-    def pushEventDescription(event, chatid)
-        self.pushMessage("#{event.date.strftime('%d.%m.%Y')}: #{event.summary}", chatid)
-    end
-
     def handleHelpMessage(msg, userid, chatid)
         CommandBuilder::build('HelpCommand')
             .process(msg, userid, chatid, false)
     end
 
     def handleSubscribeMessage(msg, userid, chatid)
-        isSubbed = @data.getSubscriberById(userid)
-        if (isSubbed.nil?) then 
-            @data.addSubscriber({telegram_id: userid, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
-            self.pushMessage(I18n.t('confirmations.subscribe_success'), chatid)
-            self.pushEventsDescription(@calendars[1].getEvents(1), userid, chatid)
-        else
-            self.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
-        end
+        CommandBuilder::build('SubscribeCommand')
+            .process(msg, userid, chatid, false)
     end
-
+    
     def notify(event)
         @data.getAllSubscribers.each do |subscriber|
             if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
