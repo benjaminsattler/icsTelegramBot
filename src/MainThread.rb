@@ -4,7 +4,6 @@ require 'data'
 require 'ics'
 require 'log'
 require 'container'
-require 'DependencyDecorator'
 
 require 'yaml'
 
