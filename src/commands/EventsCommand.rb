@@ -14,23 +14,23 @@ class EventsCommand < Command
             count = args[0].to_i
         else
             unless args.empty? then
-                @bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
+                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
                 return
             end
         end
 
         if /^[0-9]+$/.match(args[1]) then
             calendar = args[1].to_i
-            if calendar > @calendars.length or calendar < 1 or @calendars[calendar].nil? then
-                @bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
+            if calendar > self.calendars.length or calendar < 1 or self.calendars[calendar].nil? then
+                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
                 return
             end
         else
             unless args.empty? then
-                @bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
+                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
                 return
             end
         end
-        self.pushEventsDescription(@calendars[calendar].getEvents(count), userid, chatid)
+        self.pushEventsDescription(self.calendars[calendar].getEvents(count), userid, chatid)
     end
 end

@@ -5,7 +5,7 @@ require 'i18n'
 class HelpCommand < Command
     def process(msg, userid, chatid, silent)
         text = Array.new
-        text << I18n.t('help.intro', last_event_date: @calendars[1].getLeastRecentEvent.date.strftime("%d.%m.%Y"))
+        text << I18n.t('help.intro', last_event_date: self.calendars[1].getLeastRecentEvent.date.strftime("%d.%m.%Y"))
         text << I18n.t('help.start')
         text << ""
         text << I18n.t('help.subscribe')
@@ -20,6 +20,6 @@ class HelpCommand < Command
         text << I18n.t('help.mystatus')
         text << ""
         text << I18n.t('help.help')
-        @bot.pushMessage(text.join("\n"), chatid)
+        self.bot.pushMessage(text.join("\n"), chatid)
     end
 end

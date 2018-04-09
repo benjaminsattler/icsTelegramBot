@@ -7,13 +7,13 @@ class SubscribeCommand < Command
     include EventMessagePusher
 
     def process(msg, userid, chatid, silent)
-        isSubbed = @dataStore.getSubscriberById(userid)
+        isSubbed = self.dataStore.getSubscriberById(userid)
         if (isSubbed.nil?) then 
-            @dataStore.addSubscriber({telegram_id: userid, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
-            @bot.pushMessage(I18n.t('confirmations.subscribe_success'), chatid)
-            self.pushEventsDescription(@calendars[1].getEvents(1), userid, chatid)
+            self.dataStore.addSubscriber({telegram_id: userid, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
+            self.bot.pushMessage(I18n.t('confirmations.subscribe_success'), chatid)
+            self.pushEventsDescription(self.calendars[1].getEvents(1), userid, chatid)
         else
-            self.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
+            self.bot.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
         end
     end
 end

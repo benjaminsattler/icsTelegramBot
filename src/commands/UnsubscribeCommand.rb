@@ -6,7 +6,7 @@ class UnsubscribeCommand < Command
     include EventMessagePusher
 
     def process(msg, userid, chatid, silent)
-        @dataStore.removeSubscriber(userid)
-        @bot.pushMessage(I18n.t('confirmations.unsubscribe_success'), chatid)
+        self.dataStore.removeSubscriber(userid)
+        self.bot.pushMessage(I18n.t('confirmations.unsubscribe_success'), chatid)
     end
 end

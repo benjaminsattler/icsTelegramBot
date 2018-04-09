@@ -3,17 +3,16 @@ require 'query/SetTimeQuery'
 require 'query/SetDayQuery'
 require 'util'
 require 'commandBuilder'
+require 'AbstractClass'
 
 require 'telegram/bot'
 require 'i18n'
 require 'multitrap'
 
-class Bot
+class Bot < AbstractClass
 
     attr_reader :bot_instance, :uptime_start
     
-    @data = nil
-    @calendars = nil
     @bot_instance = nil
     @token = nil
     @uptime_start = nil
@@ -22,9 +21,8 @@ class Bot
     @botname = nil
 
     def initialize(token, dataStore, calendars, adminUsers)
+        super()
         @token = token
-        @data = dataStore
-        @calendars = calendars
         @pendingQueries = {}
         @adminUsers = adminUsers
     end
@@ -103,7 +101,7 @@ class Bot
     end
     
     def notify(event)
-        @data.getAllSubscribers.each do |subscriber|
+        self.dataStore.getAllSubscribers.each do |subscriber|
             if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
                 self.pushMessage(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
                 subscriber[:notifiedEvents].push(event.id)

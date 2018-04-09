@@ -1,20 +1,13 @@
 class AbstractClass
-    @bot = nil
-    @dataStore = nil
-    @calendars = nil
-    
-    def setBot(bot)
-        @bot = bot
-        return self
+    def bot
+        Container::get(:bot)
     end
 
-    def setDataStore(dataStore)
-        @dataStore = dataStore
-        return self
+    def dataStore()
+        Container::get(:dataStore)
     end
 
-    def setCalendars(calendars)
-        @calendars = calendars
-        return self
+    def calendars()
+        Container::get(:calendars)
     end
 end

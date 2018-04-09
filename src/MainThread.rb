@@ -4,6 +4,7 @@ require 'data'
 require 'ics'
 require 'log'
 require 'container'
+require 'DependencyDecorator'
 
 require 'yaml'
 
@@ -50,7 +51,6 @@ class MainThread
         Container::set(:bot, bot)
         Container::set(:calendars, {1 => events})
         Container::set(:dataStore, data)
-        
         @watchdog = Watchdog.new
         eventThread = nil
         databaseThread = nil
