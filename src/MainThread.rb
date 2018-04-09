@@ -47,9 +47,9 @@ class MainThread
         events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', @config['ics_path'])))
         bot = Bot.new(@config['bot_token'], data, {1 => events}, @config['admin_users'])
         
-        Container::set('bot', bot)
-        Container::set('calendars', {1 => events})
-        Container::set('datastore', data)
+        Container::set(:bot, bot)
+        Container::set(:calendars, {1 => events})
+        Container::set(:dataStore, data)
         
         @watchdog = Watchdog.new
         eventThread = nil

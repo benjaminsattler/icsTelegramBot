@@ -1,5 +1,5 @@
 require 'commands/command'
-require 'query/setday'
+require 'query/SetDayQuery'
 require 'util'
 
 require 'i18n'

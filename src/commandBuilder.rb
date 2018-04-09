@@ -7,17 +7,13 @@ require 'commands/EventsCommand'
 require 'commands/HelpCommand'
 require 'commands/SubscribeCommand'
 require 'commands/UnsubscribeCommand'
-require 'container'
+require 'DependencyDecorator'
 
 class CommandBuilder
 
     def self::build(commandClass)
         if Object.const_get(commandClass) < Command then
-            return Object.const_get(commandClass)
-                .new
-                .setBot(Container::get('bot'))
-                .setDataStore(Container::get('datastore'))
-                .setCalendars(Container::get('calendars'))
+            return DependencyDecorator::process(Object.const_get(commandClass).new)
         end
     end
 
