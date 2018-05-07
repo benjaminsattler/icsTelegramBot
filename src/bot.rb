@@ -16,27 +16,15 @@ class Bot < AbstractClass
     @bot_instance = nil
     @token = nil
     @uptime_start = nil
-    @pendingQueries = nil
     @adminUsers = nil
     @botname = nil
+    @pendingWorkflows = nil
 
     def initialize(token, dataStore, calendars, adminUsers)
         super()
         @token = token
-        @pendingQueries = {}
+        @pendingWorkflows = {}
         @adminUsers = adminUsers
-    end
-
-    def pingAdminUsers(users)
-        users.each { |user_id| self.handleBotStatusMessage(nil, user_id, user_id, true) } 
-    end
-    
-    def storePendingQuery(message_id, query)
-        @pendingQueries[message_id] = query
-    end
-
-    def removePendingQuery(qry)
-        @pendingQueries.reject! { |key, val| val == qry }
     end
 
     def run
@@ -51,54 +39,23 @@ class Bot < AbstractClass
             @bot_instance = bot
             @botname = me['result']['username']
             log("Botname is #{@botname}")
-            self.pingAdminUsers(@adminUsers)
+            #self.pingAdminUsers(@adminUsers)
             while not Thread.current[:stop]
                 @bot_instance.listen do |message| 
                     self.handleIncoming({msg: message})
                 end
             end
         end
-    end
-    
-    def handleSetDayMessage(msg, userid, chatid)
-        CommandBuilder::build('SetDayCommand')
-            .process(msg, userid, chatid, false)
-    end
-    
-    def handleSetTimeMessage(msg, userid, chatid)
-        CommandBuilder::build('SetTimeCommand')
-            .process(msg, userid, chatid, false)
-    end
-
-    def handleEventsMessage(msg, userid, chatid)
-        CommandBuilder::build('EventsCommand')
-            .process(msg, userid, chatid, false)
-            end
-
-    def handleBotStatusMessage(msg, userid, chatid, silent = false)
-        CommandBuilder::build('BotStatusCommand')
-            .process(msg, userid, chatid, silent)
-    end
-
-    def handleMyStatusMessage(msg, userid, chatid)
-        CommandBuilder::build('MyStatusCommand')
-            .process(msg, userid, chatid, false)
-    end
-
-    def handleHelpMessage(msg, userid, chatid)
-        CommandBuilder::build('HelpCommand')
-            .process(msg, userid, chatid, false)
-    end
 
     def handleSubscribeMessage(msg, userid, chatid)
         CommandBuilder::build('SubscribeCommand')
             .process(msg, userid, chatid, false)
     end
 
-    def handleUnsubscribeMessage(msg, userid, chatid)
-        CommandBuilder::build('UnsubscribeCommand')
-            .process(msg, userid, chatid, false)
-    end
+    #def handleUnsubscribeMessage(msg, userid, chatid)
+    #    CommandBuilder::build('UnsubscribeCommand')
+    #        .process(msg, userid, chatid, false)
+    #end
     
     def notify(event)
         self.dataStore.getAllSubscribers.each do |subscriber|
@@ -110,31 +67,7 @@ class Bot < AbstractClass
     end
 
     def handleIncoming(interaction)
-        msg = interaction[:msg]
-        case msg
-        when Telegram::Bot::Types::Message
-            self.handleTextMessage(msg)
-        when Telegram::Bot::Types::CallbackQuery
-            self.handleCallbackQuery(msg)
-        else
-            log("Received an unknown interaction type #{msg.class}. Dump is #{msg.inspect}")
-            #self.pushMessage(I18n.t('unknown_command', msg.chat.id))
-        end
-    end
-
-    def handleCallbackQuery(msg)
-        qry = self.getPendingQuery(msg.message.message_id) 
-        qry.respondTo(msg) unless qry.nil?
-    end
-
-    def hasPendingQuery(message_id)
-        qry = @pendingQueries[message_id]
-        return false if qry.nil?
-        return true
-    end
     
-    def getPendingQuery(message_id)
-        @pendingQueries[message_id]
     end
     
     def handleTextMessage(msg)
