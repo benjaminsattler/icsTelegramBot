@@ -1,3 +1,0 @@
-class AbstractStep
-    
-end
