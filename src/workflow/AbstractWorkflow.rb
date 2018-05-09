@@ -1,8 +1,12 @@
-require '../AbstractClass'
+require 'AbstractClass'
 
 class AbstractWorkflow < AbstractClass
 
-    @currentStep = nil
+    def self::start(state, incoming)
+        state.currentStep = 0
+        state.owner = incoming.author
+        state.chat = incoming.chat
+    end
 
     def self::progress(state, incoming)
         raise NotImplementedError

@@ -1,33 +1,51 @@
-require 'AbstractWorkflow'
-require 'state/Subscribe'
-require '../IncomingMessage'
-require '../IncomingInlineQuery'
+require 'workflow/AbstractWorkflow'
+require 'workflow/state/Subscribe'
+require 'IncomingMessage'
+require 'IncomingInlineQuery'
+require 'MessageSender'
 
 class SubscribeWorkflow < AbstractWorkflow
 
-    def self::progress(state, incoming)
-        if state.@calendar.nil?
-            if incoming < IncomingInlineQuery
-                state.@calendar = incoming.data
+    @messageSender = nil
+    def initialize(messageSender)
+        @messageSender = messageSender
+    end
+
+    def start(state, incoming)
+        AbstractWorkflow::start(state, incoming)
+        return self.progress(state, incoming)
+    end
+
+    def progress(state, incoming)
+        if state.calendar.nil? then
+            if incoming::class <= IncomingInlineQuery then
+                state.calendar = incoming.data
             end
-            if incoming < IncomingMessage
+            if incoming::class <= IncomingMessage then
                 fragments = incoming.text.split(/\s+/)
-                state.@calendar = fragments[1]
+                # TODO: check calendar reference
+                if fragments.length > 1 then
+                    state.calendar = fragments[1]
+                    return self.finish(state)
+                end
+                @messageSender.process('Du musst noch einen calendar eingeben!', state.chat.id)
             end
         end
 
         return state
     end
 
-    def self::regress(state)
-        state.@calendar = nil
+    def regress(state)
+        state.calendar = nil
         return state
     end
 
-    def self::reset(state)
-        state.@calendar = nil
+    def reset(state)
+        state.calendar = nil
+        return state
     end
 
-    def self::finish(state)
+    def finish(state)
+        @messageSender.process('ich würde jetzt fertig machen', state.chat.id)
     end
 end

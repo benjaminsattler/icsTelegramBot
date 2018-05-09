@@ -4,6 +4,7 @@ require 'query/SetDayQuery'
 require 'util'
 require 'commandBuilder'
 require 'AbstractClass'
+require 'workflow/SubscribeWorkflow'
 
 require 'telegram/bot'
 require 'i18n'
@@ -42,20 +43,21 @@ class Bot < AbstractClass
             #self.pingAdminUsers(@adminUsers)
             while not Thread.current[:stop]
                 @bot_instance.listen do |message| 
-                    self.handleIncoming({msg: message})
+                    self.handleIncoming(message)
                 end
             end
         end
+    end
 
     def handleSubscribeMessage(msg, userid, chatid)
         CommandBuilder::build('SubscribeCommand')
             .process(msg, userid, chatid, false)
     end
 
-    #def handleUnsubscribeMessage(msg, userid, chatid)
-    #    CommandBuilder::build('UnsubscribeCommand')
-    #        .process(msg, userid, chatid, false)
-    #end
+    def handleUnsubscribeMessage(msg, userid, chatid)
+        CommandBuilder::build('UnsubscribeCommand')
+            .process(msg, userid, chatid, false)
+    end
     
     def notify(event)
         self.dataStore.getAllSubscribers.each do |subscriber|
@@ -66,8 +68,12 @@ class Bot < AbstractClass
         end
     end
 
-    def handleIncoming(interaction)
-    
+    def handleIncoming(incoming)
+        if !incoming.text.nil? then
+            # Text message always means we have to start a new workflow
+            msg = IncomingMessage.new(incoming.text, incoming.from, incoming.chat);
+            self.handleTextMessage(msg)
+        end
     end
     
     def handleTextMessage(msg)
@@ -79,23 +85,25 @@ class Bot < AbstractClass
         log("command target is #{commandTarget}")
         case command
         when '/start', "/start@#{@botname}"
-            self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
+            #self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
         when '/subscribe', "/subscribe@#{@botname}"
-            self.handleSubscribeMessage(msg.text, msg.from.id, msg.chat.id)
+            state = SubscribeState.new
+            state = SubscribeWorkflow.new(MessageSender.new(@bot_instance)).start(state, msg)
+            #self.handleSubscribeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/setday'
-            self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
         when '/settime', "/settime@#{@botname}"
-            self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/unsubscribe', "/unsubscribe@#{@botname}"
-            self.handleUnsubscribeMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleUnsubscribeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/mystatus', "/mystatus@#{@botname}"
-            self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
-            self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/events', "/events@#{@botname}"
-            self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
         when '/help', "/help@#{@botname}"
-            self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
+            #self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
         else
             if commandTarget == @botname then
                 self.pushMessage(I18n.t('unknown_command'), msg.chat.id)

@@ -1,10 +1,13 @@
 class IncomingMessage
+
+    attr_reader :text, :author, :chat
+
     @text = nil
-    @authorid = nil
-    @chatid = nil
-    def initialize(text, authorid, chatid)
+    @author = nil
+    @chat = nil
+    def initialize(text, author, chat)
         @text = text
-        @authorid = authorid
-        @chatid = chatid
+        @author = author
+        @chat = chat
     end
 end
