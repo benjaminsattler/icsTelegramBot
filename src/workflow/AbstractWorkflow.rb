@@ -2,25 +2,25 @@ require 'AbstractClass'
 
 class AbstractWorkflow < AbstractClass
 
-    def self::start(state, incoming)
+    def start(state, incoming)
         state.currentStep = 0
         state.owner = incoming.author
         state.chat = incoming.chat
     end
 
-    def self::progress(state, incoming)
+    def progress(state, incoming)
         raise NotImplementedError
     end
 
-    def self::regress(state)
+    def regress(state)
         raise NotImplementedError
     end
 
-    def self::reset()
+    def reset()
         raise NotImplementedError
     end
 
-    def self::finish()
+    def finish()
         raise NotImplementedError
     end
 end
