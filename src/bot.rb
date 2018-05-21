@@ -56,6 +56,11 @@ class Bot
         cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid, false)
     end
+
+    def handleMyStatusMessage(msg, userid, chatid)
+        cmd = MyStatusCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid, false)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -99,7 +104,7 @@ class Bot
         when '/unsubscribe', "/unsubscribe@#{@botname}"
             self.handleUnsubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/mystatus', "/mystatus@#{@botname}"
-            #self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleMyStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
             #self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/events', "/events@#{@botname}"
