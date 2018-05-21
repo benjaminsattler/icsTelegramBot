@@ -1,15 +1,20 @@
 require 'commands/command'
+require 'Container'
 
 require 'i18n'
 
 class BotStatusCommand < Command
-    def process(msg, userid, chatid, silent)
+    def process(msg, userid, chatid)
+        calendars = Container::get(:calendars)
+        dataStore = Container::get(:dataStore)
+        bot = Container::get(:bot)
         text = Array.new
-        text << I18n.t('botstatus.uptime', uptime: self.bot.uptime_start.strftime('%d.%m.%Y %H:%M:%S'))
-        self.calendars.each do |key, value|
-            text << I18n.t('botstatus.event_count', event_count: value.getEvents.length)
-            text << I18n.t('botstatus.subscribers_count', subscribers_count: self.dataStore.getAllSubscribers(key).length)
+        text << I18n.t('botstatus.intro', uptime: bot.uptime_start.strftime('%d.%m.%Y %H:%M:%S'), calendar_count: calendars.length)
+        calendars.each do |calendar|
+            events_count = calendar[:eventlist].getEvents.length
+            subscribers_count = dataStore.getAllSubscribers(calendar[:id]).length
+            text << I18n.t('botstatus.calendar_info', calendar_name: calendar[:description], event_count: events_count, subscribers_count: subscribers_count)
         end
-        self.bot.pushMessage(text.join("\n"), chatid, nil, silent)
+        @messageSender.process(text.join("\n"), chatid)
     end
 end

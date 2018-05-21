@@ -18,9 +18,8 @@ de:
     subscribed_precedingday: Für %{calendar_name} werde ich dich am Vortrag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
     subscribed_otherday: Für %{calendar_name} werde ich dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
   botstatus:
-    uptime: Ich bin online seit %{uptime}.
-    event_count: Ich kenne %{event_count} Events.
-    subscribers_count: Ich habe %{subscribers_count} angemeldete Personen.
+    intro: Ich bin online seit %{uptime} und kenne Events von %{calendar_count} Müllkalendern.
+    calendar_info: Für %{calendar_name} kenne ich %{event_count} Events für %{subscribers_count} angemeldete Personen.
   start: |
     Hallo, ich bin %{botname} 😊
     Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.

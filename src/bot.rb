@@ -62,6 +62,11 @@ class Bot
         cmd.process(msg, userid, chatid, false)
     end
 
+    def handleBotStatusMessage(msg, userid, chatid)
+        cmd = BotStatusCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid)
+    end
+
     def handleStartMessage(msg, userid, chatid)
         cmd = StartCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid)
@@ -116,7 +121,7 @@ class Bot
         when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
-            #self.handleBotStatusMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleBotStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/events', "/events@#{@botname}"
             #self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
         when '/help', "/help@#{@botname}"
