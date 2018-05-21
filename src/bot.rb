@@ -36,12 +36,18 @@ class Bot
             @bot_instance = bot
             @botname = me['result']['username']
             log("Botname is #{@botname}")
-            #self.pingAdminUsers(@adminUsers)
+            self.pingAdminUsers(@adminUsers)
             while not Thread.current[:stop]
                 @bot_instance.listen do |message| 
                     self.handleIncoming(message)
                 end
             end
+        end
+    end
+
+    def pingAdminUsers(users)
+        users.each do |user|
+            self.handleBotStatusMessage(user, true)
         end
     end
 
@@ -60,9 +66,9 @@ class Bot
         cmd.process(msg, userid, chatid, false)
     end
 
-    def handleBotStatusMessage(msg, userid, chatid)
+    def handleBotStatusMessage(chatid, silent = false)
         cmd = BotStatusCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid)
+        cmd.process(chatid, silent)
     end
 
     def handleStartMessage(msg, userid, chatid)
@@ -134,7 +140,7 @@ class Bot
         when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
-            self.handleBotStatusMessage(msg.text, msg.author.id, msg.chat.id)
+            self.handleBotStatusMessage(msg.chat.id)
         when '/events', "/events@#{@botname}"
             self.handleEventsMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/help', "/help@#{@botname}"

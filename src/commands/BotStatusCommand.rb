@@ -4,7 +4,7 @@ require 'Container'
 require 'i18n'
 
 class BotStatusCommand < Command
-    def process(msg, userid, chatid)
+    def process(chatid, silent = false)
         calendars = Container::get(:calendars)
         dataStore = Container::get(:dataStore)
         bot = Container::get(:bot)
@@ -15,6 +15,6 @@ class BotStatusCommand < Command
             subscribers_count = dataStore.getAllSubscribers(calendar_id).length
             text << I18n.t('botstatus.calendar_info', calendar_id: calendar_id, calendar_name: calendar[:description], event_count: events_count, subscribers_count: subscribers_count)
         end
-        @messageSender.process(text.join("\n"), chatid)
+        @messageSender.process(text.join("\n"), chatid, nil, silent)
     end
 end
