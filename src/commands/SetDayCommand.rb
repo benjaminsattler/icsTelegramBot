@@ -1,5 +1,4 @@
 require 'commands/command'
-require 'query/SetDayQuery'
 require 'Container'
 require 'util'
 

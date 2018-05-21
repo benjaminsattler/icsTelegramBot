@@ -1,5 +1,4 @@
 require 'commands/command'
-require 'query/SetTimeQuery'
 require 'util'
 
 require 'i18n'

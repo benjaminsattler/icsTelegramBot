@@ -1,6 +1,4 @@
 require 'log'
-require 'query/SetTimeQuery'
-require 'query/SetDayQuery'
 require 'util'
 require 'commands'
 require 'IncomingMessage'
