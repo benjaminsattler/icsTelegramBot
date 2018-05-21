@@ -64,7 +64,7 @@ class MainThread
                 while(not Thread.current[:stop]) do
                     calendars.each_value do |calendar|
                         calendar[:eventlist].getEvents.each do |event|
-                            #bot.notify(event)
+                            bot.notify(calendar[:calendar_id], event)
                         end
                         sleep 1
                     end

@@ -90,13 +90,14 @@ class Bot
         cmd.process(msg, userid, chatid, orig)
     end
     
-    def notify(event)
-        Container::get(:calendars).each do |calendar|
-            calendar.getAllSubscribers.each do |subscriber|
-                if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
-                    self.pushMessage(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
-                    subscriber[:notifiedEvents].push(event.id)
-                end
+    def notify(calendar_id, event)
+        calendar = Container::get(:calendars)[calendar_id]
+        dataStore = Container::get(:dataStore)
+        messageSender = MessageSender.new(@bot_instance)
+        dataStore.getAllSubscribers.each do |subscriber|
+            if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
+                messageSender.process(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
+                subscriber[:notifiedEvents].push(event.id)
             end
         end
     end
@@ -140,18 +141,8 @@ class Bot
             self.handleHelpMessage(msg.text, msg.author.id, msg.chat.id)
         else
             if commandTarget == @botname then
-                self.pushMessage(I18n.t('unknown_command'), msg.chat.id)
+                MessageSender.new(@bot_instance).process(I18n.t('unknown_command'), msg.chat.id)
             end
-        end
-    end
-
-    def pushMessage(msg, chatId, reply_markup = nil, silent = false)
-        log("silent is #{silent} for #{msg}") if silent
-        reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: [%w(/subscribe /help /setday /botstatus), %w(/unsubscribe /events /settime /mystatus)], one_time_keyboard: false) if reply_markup.nil?
-        begin
-            @bot_instance.api.send_message(chat_id: chatId, text: msg, reply_markup: reply_markup, disable_notification: silent) unless @bot_instance.nil?
-        rescue Exception => e
-            log("Exception received #{e}")
         end
     end
 end
