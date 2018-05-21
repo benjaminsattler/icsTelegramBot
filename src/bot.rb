@@ -61,6 +61,11 @@ class Bot
         cmd = MyStatusCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid, false)
     end
+
+    def handleStartMessage(msg, userid, chatid)
+        cmd = StartCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -94,7 +99,7 @@ class Bot
         log("command target is #{commandTarget}")
         case command
         when '/start', "/start@#{@botname}"
-            #self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
+            self.handleStartMessage(msg.text, msg.author.id, msg.chat.id)
         when '/subscribe', "/subscribe@#{@botname}"
             self.handleSubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/setday'

@@ -7,6 +7,7 @@ require 'commands/EventsCommand'
 require 'commands/HelpCommand'
 require 'commands/SubscribeCommand'
 require 'commands/UnsubscribeCommand'
+require 'commands/StartCommand'
 
 class CommandBuilder
 
