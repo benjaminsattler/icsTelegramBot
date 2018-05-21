@@ -16,8 +16,8 @@ class SetTimeCommand < Command
             return
         end
         calendar_id = Integer(calendar_id) rescue -1
-        if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
+        if calendars[calendar_id].nil? then
+            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: calendars.keys.first, calendar_name: calendars.values.first[:description]), chatid)
             return
         end
         begin
@@ -46,7 +46,7 @@ class SetTimeCommand < Command
         min = 0
         matcher = /^([0-9]{2})([0-9]{2})$/.match(time)
         if matcher.nil? then
-            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
+            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: calendars.keys.first, calendar_name: calendars.values.first[:description]), chatid)
             return
         end
         if matcher[1].to_i < 0 || matcher[1].to_i > 23 || matcher[2].to_i < 0 || matcher[2].to_i > 59 then
@@ -71,7 +71,7 @@ class SetTimeCommand < Command
 
     def getCalendarButtons
         calendars = Container::get(:calendars)
-        btns = (0..calendars.length - 1).map { |n| [Telegram::Bot::Types::InlineKeyboardButton.new(text: calendars[n][:description], callback_data: "/settime #{n}")] }        
+        btns = calendars.values.map { |calendar| [Telegram::Bot::Types::InlineKeyboardButton.new(text: calendar[:description], callback_data: "/settime #{calendar[:calendar_id]}")] }        
         Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: btns)
     end
 

@@ -7,7 +7,7 @@ class HelpCommand < Command
     def process(msg, userid, chatid)
         calendars = Container::get(:calendars)
         text = Array.new
-        text << I18n.t('help.intro', calendars_count: calendars.length)
+        text << I18n.t('help.intro', calendars_count: calendars.keys.length)
         text << I18n.t('help.start')
         text << ""
         text << I18n.t('help.subscribe')

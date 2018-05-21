@@ -66,6 +66,11 @@ class DataStore
     end
 
     def getCalendars
-        @db.execute('SELECT * FROM eventslists').map { |calendar| DataStore::fixDatabaseCalendarObject(calendar) }
+        calendars = Hash.new
+        @db.execute('SELECT * FROM eventslists').each do |calendar|
+            cal_fixed = DataStore::fixDatabaseCalendarObject(calendar)
+            calendars[cal_fixed[:calendar_id]] = cal_fixed
+        end
+        calendars
     end
 end

@@ -22,8 +22,8 @@ class EventsCommand < Command
         rescue
         end
         calendar_id = Integer(calendar_id) rescue -1
-        if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
+        if calendars[calendar_id].nil? then
+            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: calendars.keys.first, calendar_name: calendars.values.first[:description]), chatid)
             return
         end
         if count.nil? then
@@ -31,7 +31,7 @@ class EventsCommand < Command
         end
         count = Integer(count) rescue -1
         if count < 0 then
-            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
+            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: calendars.keys.first, calendar_name: calendars.values.first[:description]), chatid)
             return
         end
         self.pushEventsDescription(calendar_id, count, userid, chatid)
@@ -39,7 +39,7 @@ class EventsCommand < Command
 
     def getCalendarButtons
         calendars = Container::get(:calendars)
-        btns = (0..calendars.length - 1).map { |n| [Telegram::Bot::Types::InlineKeyboardButton.new(text: calendars[n][:description], callback_data: "/events #{n}")] }        
+        btns = calendars.values.map { |calendar| [Telegram::Bot::Types::InlineKeyboardButton.new(text: calendar[:description], callback_data: "/events #{calendar[:calendar_id]}")] }        
         Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: btns)
     end
 end

@@ -43,7 +43,7 @@ class MainThread
 
     def run
         data = DataStore.new(File.join(File.dirname(__FILE__), '..', @config['db_path']))
-        calendars = data.getCalendars.map do |calendar_desc|
+        calendars = data.getCalendars.each_value do |calendar_desc|
             events = ICS::Calendar.new
             events.loadEvents(ICS::FileParser::parseICS(File.join(File.dirname(__FILE__), '..', calendar_desc[:ics_path])))
             calendar_desc[:eventlist] = events
@@ -62,7 +62,7 @@ class MainThread
         eventThreadBlock  = lambda do
             begin
                 while(not Thread.current[:stop]) do
-                    calendars.each do |calendar|
+                    calendars.each_value do |calendar|
                         calendar[:eventlist].getEvents.each do |event|
                             #bot.notify(event)
                         end
