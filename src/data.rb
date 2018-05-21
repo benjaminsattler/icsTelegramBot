@@ -60,7 +60,7 @@ class DataStore
         unless @subscribers.nil?
             @subscribers.each do |subscriber|
                 notificationtime = subscriber[:notificationtime][:hrs] * 100 + subscriber[:notificationtime][:min]
-                @db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE id = ?', subscriber[:notificationday], notificationtime, subscriber[:id])
+                @db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE telegram_id = ? AND eventlist_id = ?', subscriber[:notificationday], notificationtime, subscriber[:telegram_id], subscriber[:eventlist_id])
             end
         end
     end
