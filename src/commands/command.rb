@@ -1,5 +1,4 @@
 class Command
-
     def initialize(messageSender)
         @messageSender = messageSender
     end

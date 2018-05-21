@@ -2,7 +2,7 @@ require 'log'
 require 'query/SetTimeQuery'
 require 'query/SetDayQuery'
 require 'util'
-require 'commandBuilder'
+require 'commands'
 require 'IncomingMessage'
 require 'MessageSender'
 

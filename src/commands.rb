@@ -8,13 +8,3 @@ require 'commands/HelpCommand'
 require 'commands/SubscribeCommand'
 require 'commands/UnsubscribeCommand'
 require 'commands/StartCommand'
-
-class CommandBuilder
-
-    def self::build(commandClass)
-        if Object.const_get(commandClass) < Command then
-            return Object.const_get(commandClass).new
-        end
-    end
-
-end
