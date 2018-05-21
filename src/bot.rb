@@ -4,7 +4,8 @@ require 'query/SetDayQuery'
 require 'util'
 require 'commandBuilder'
 require 'AbstractClass'
-require 'workflow/SubscribeWorkflow'
+require 'IncomingMessage'
+require 'MessageSender'
 
 require 'telegram/bot'
 require 'i18n'
@@ -19,12 +20,10 @@ class Bot < AbstractClass
     @uptime_start = nil
     @adminUsers = nil
     @botname = nil
-    @pendingWorkflows = nil
 
     def initialize(token, dataStore, calendars, adminUsers)
         super()
         @token = token
-        @pendingWorkflows = {}
         @adminUsers = adminUsers
     end
 
@@ -70,7 +69,6 @@ class Bot < AbstractClass
 
     def handleIncoming(incoming)
         if incoming.respond_to?('text') then
-            # Text message always means we have to start a new workflow
             msg = IncomingMessage.new(incoming.text, incoming.from, incoming.chat);
             self.handleTextMessage(msg)
         elsif incoming.respond_to?('data') then
