@@ -22,7 +22,7 @@ class EventsCommand < Command
             return
         end
         if count.nil? then
-            count = 10
+            count = 5
         end
         count = Integer(count)
         self.pushEventsDescription(calendar_id, count, userid, chatid)

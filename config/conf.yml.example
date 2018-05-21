@@ -1,5 +1,4 @@
 bot_token: <telegram bot token>
-ics_path: <path to ics file>
 db_path: <path to desired db file>
 flush_interval: <interval in seconds>
 admin_users:

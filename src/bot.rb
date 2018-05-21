@@ -20,7 +20,7 @@ class Bot
     @adminUsers = nil
     @botname = nil
 
-    def initialize(token, dataStore, calendars, adminUsers)
+    def initialize(token, adminUsers)
         super()
         @token = token
         @adminUsers = adminUsers
@@ -111,7 +111,6 @@ class Bot
         end
         command, *args = msg.text.split(/\s+/)
         commandTarget = command.include?('@') ? command.split('@')[1] : nil
-        log("command target is #{commandTarget}")
         case command
         when '/start', "/start@#{@botname}"
             self.handleStartMessage(msg.text, msg.author.id, msg.chat.id)

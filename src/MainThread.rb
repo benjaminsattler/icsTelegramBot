@@ -49,7 +49,7 @@ class MainThread
             calendar_desc[:eventlist] = events
             calendar_desc
         end
-        bot = Bot.new(@config['bot_token'], data, calendars, @config['admin_users'])
+        bot = Bot.new(@config['bot_token'], @config['admin_users'])
         
         Container::set(:bot, bot)
         Container::set(:calendars, calendars)
