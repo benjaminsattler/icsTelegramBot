@@ -1,6 +1,4 @@
-require 'AbstractClass'
-
-class Command < AbstractClass
+class Command
 
     def initialize(messageSender)
         @messageSender = messageSender

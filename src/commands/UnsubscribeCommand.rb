@@ -11,7 +11,7 @@ class UnsubscribeCommand < Command
             @messageSender.process(I18n.t('unsubscribe.choose_calendar'), chatid, self.getCalendarButtons);
             return
         end
-        self.dataStore.removeSubscriber({telegram_id: userid, eventlist_id: Integer(args[0])})
+        Container::get(:dataStore).removeSubscriber({telegram_id: userid, eventlist_id: Integer(args[0])})
         @messageSender.process(I18n.t('confirmations.unsubscribe_success'), chatid)
     end
 

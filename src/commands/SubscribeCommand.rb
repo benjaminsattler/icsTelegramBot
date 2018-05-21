@@ -12,8 +12,9 @@ class SubscribeCommand < Command
     end
 
     def process(msg, userid, chatid, silent)
+        dataStore = Container::get(:dataStore)
         command, *args = msg.split(/\s+/)
-        isSubbed = self.dataStore.getSubscriberById(userid, args[0])
+        isSubbed = dataStore.getSubscriberById(userid, args[0])
         if (!isSubbed.nil?) then
             self.bot.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
             return
@@ -23,7 +24,7 @@ class SubscribeCommand < Command
             @messageSender.process(I18n.t('subscribe.choose_calendar'), chatid, self.getCalendarButtons);
             return
         end
-        self.dataStore.addSubscriber({telegram_id: userid, eventlist_id: args[0], notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
+        dataStore.addSubscriber({telegram_id: userid, eventlist_id: args[0], notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
         @messageSender.process(I18n.t('confirmations.subscribe_success'), chatid)
         #self.pushEventsDescription(self.calendars[1].getEvents(args[1]), userid, chatid)
     end

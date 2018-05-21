@@ -3,7 +3,6 @@ require 'query/SetTimeQuery'
 require 'query/SetDayQuery'
 require 'util'
 require 'commandBuilder'
-require 'AbstractClass'
 require 'IncomingMessage'
 require 'MessageSender'
 
@@ -11,7 +10,7 @@ require 'telegram/bot'
 require 'i18n'
 require 'multitrap'
 
-class Bot < AbstractClass
+class Bot
 
     attr_reader :bot_instance, :uptime_start
     
@@ -59,10 +58,12 @@ class Bot < AbstractClass
     end
     
     def notify(event)
-        self.dataStore.getAllSubscribers.each do |subscriber|
-            if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
-                self.pushMessage(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
-                subscriber[:notifiedEvents].push(event.id)
+        Container::get(:calendars).each do |calendar|
+            calendar.getAllSubscribers.each do |subscriber|
+                if !subscriber[:notifiedEvents].include?(event.id) && (event.date - Date.today()).to_i == subscriber[:notificationday] && subscriber[:notificationtime][:hrs] == Time.new.hour && subscriber[:notificationtime][:min] == Time.new.min then
+                    self.pushMessage(I18n.t('event.reminder', summary: event.summary, days_to_event: subscriber[:notificationday], date_of_event: event.date.strftime('%d.%m.%Y')), subscriber[:telegram_id])
+                    subscriber[:notifiedEvents].push(event.id)
+                end
             end
         end
     end

@@ -75,7 +75,7 @@ module ICS
     end
 
     class Event
-        attr_accessor :date, :summary, :id
+        attr_accessor :date, :summary, :id, :calendar_id
     end
 
     class Calendar

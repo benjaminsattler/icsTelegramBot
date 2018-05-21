@@ -43,6 +43,10 @@ class DataStore
         {telegram_id: sub[1], notificationday:sub[2], eventlist_id:sub[4], notificationtime: {hrs: notificationhour, min: notificationminute}, notifiedEvents: []}
     end
 
+    def self.fixDatabaseCalendarObject(sub)
+        {calendar_id: sub[0], description: sub[1], ics_path: sub[2]}
+    end
+
     def updateSubscriber(sub)
         @subscribers = @subscribers.map { |subscriber|
             subscriber[:notificationday] = sub[:notificationday] if sub[:telegram_id] == subscriber[:telegram_id] and subscriber[:eventlist_id] == sub[:eventlist_id]
@@ -59,5 +63,9 @@ class DataStore
                 @db.execute('UPDATE subscribers SET notificationday = ?, notificationtime = ? WHERE id = ?', subscriber[:notificationday], notificationtime, subscriber[:id])
             end
         end
+    end
+
+    def getCalendars
+        @db.execute('SELECT * FROM eventslists').map { |calendar| DataStore::fixDatabaseCalendarObject(calendar) }
     end
 end
