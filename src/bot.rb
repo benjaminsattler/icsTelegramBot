@@ -50,13 +50,13 @@ class Bot < AbstractClass
     end
 
     def handleSubscribeMessage(msg, userid, chatid)
-        CommandBuilder::build('SubscribeCommand')
-            .process(msg, userid, chatid, false)
+        cmd = SubscribeCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid, false)
     end
 
     def handleUnsubscribeMessage(msg, userid, chatid)
-        CommandBuilder::build('UnsubscribeCommand')
-            .process(msg, userid, chatid, false)
+        cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid, false)
     end
     
     def notify(event)
@@ -69,15 +69,20 @@ class Bot < AbstractClass
     end
 
     def handleIncoming(incoming)
-        if !incoming.text.nil? then
+        if incoming.respond_to?('text') then
             # Text message always means we have to start a new workflow
             msg = IncomingMessage.new(incoming.text, incoming.from, incoming.chat);
+            self.handleTextMessage(msg)
+        elsif incoming.respond_to?('data') then
+            msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat);
+           # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
+            @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
             self.handleTextMessage(msg)
         end
     end
     
     def handleTextMessage(msg)
-        if msg.nil? or msg.text.nil? then
+        if msg.nil? or !msg.respond_to?('text') then
             return
         end
         command, *args = msg.text.split(/\s+/)
@@ -87,15 +92,13 @@ class Bot < AbstractClass
         when '/start', "/start@#{@botname}"
             #self.pushMessage(I18n.t('start', botname: @bot_instance.api.getMe()['result']['username']), msg.chat.id)
         when '/subscribe', "/subscribe@#{@botname}"
-            state = SubscribeState.new
-            state = SubscribeWorkflow.new(MessageSender.new(@bot_instance)).start(state, msg)
-            #self.handleSubscribeMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleSubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/setday'
             #self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
         when '/settime', "/settime@#{@botname}"
             #self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/unsubscribe', "/unsubscribe@#{@botname}"
-            #self.handleUnsubscribeMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleUnsubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/mystatus', "/mystatus@#{@botname}"
             #self.handleMyStatusMessage(msg.text, msg.from.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"

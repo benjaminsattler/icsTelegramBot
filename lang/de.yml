@@ -23,6 +23,10 @@ de:
   start: |
     Hallo, ich bin %{botname} 😊
     Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
+  subscribe:
+    choose_calendar: Für welchen Kalender möchtest du Erinnerungen erhalten?
+  unsubscribe:
+    choose_calendar: Von welchem Kalender möchtest du keine Erinnerungen mehr erhalten?
   settime:
     command_inline: |
       Um welche Uhrzeit möchtest du benachrichtigt werden?

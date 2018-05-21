@@ -12,15 +12,14 @@ class DataStore
     end
 
     def addSubscriber(sub)
-        sub[:eventlist_id] = 1 if sub[:eventlist_id].nil?
         @subscribers.push(sub)
         notificationtime = sub[:notificationtime][:hrs] * 100 + sub[:notificationtime][:min]
         @db.execute('INSERT INTO subscribers(telegram_id, notificationday, notificationtime, eventlist_id) VALUES(?, ?, ?, ?)', [sub[:telegram_id], sub[:notificationday], notificationtime, sub[:eventlist_id]])
     end
 
-    def removeSubscriber(id, eventlist = 1)
-        @subscribers.reject! { |subscriber| subscriber[:telegram_id] == id and subscriber[:eventlist_id] == eventlist}
-        @db.execute('DELETE FROM subscribers WHERE telegram_id = ? AND eventlist_id = ?', [id, eventlist])
+    def removeSubscriber(sub)
+        @subscribers.reject! { |subscriber| subscriber[:telegram_id] == sub[:telegram_id] and subscriber[:eventlist_id] == sub[:eventlist_id]}
+        @db.execute('DELETE FROM subscribers WHERE telegram_id = ? AND eventlist_id = ?', [sub[:telegram_id], sub[:eventlist_id]])
     end
 
     def getSubscriberById(id, eventlist = 1)
