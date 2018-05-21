@@ -81,6 +81,11 @@ class Bot
         cmd = EventsCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid)
     end
+
+    def handleSetDayMessage(msg, userid, chatid)
+        cmd = SetDayCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -117,7 +122,7 @@ class Bot
         when '/subscribe', "/subscribe@#{@botname}"
             self.handleSubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/setday'
-            #self.handleSetDayMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleSetDayMessage(msg.text, msg.author.id, msg.chat.id)
         when '/settime', "/settime@#{@botname}"
             #self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
         when '/unsubscribe', "/unsubscribe@#{@botname}"

@@ -2,10 +2,10 @@ de:
   event:
     reminder: ❗️📢 %{summary} ist in %{days_to_event} Tag(en) fällig am %{date_of_event}!
   confirmations:
-    setdatetime_success_sameday: Ich werde dich ab jetzt am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
-    setdatetime_success_precedingday: Ich werde dich ab jetzt am Vortag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
-    setdatetime_success_otherday: Ich werde dich ab jetzt %{reminder_day_count} Tage vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
-    subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen für %{calendar_name} 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setdate ändern.
+    setdatetime_success_sameday: Für %{calendar_name} werde ich dich ab jetzt am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    setdatetime_success_precedingday: Für %{calendar_name} werde ich dich ab jetzt am Vortag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
+    setdatetime_success_otherday: Für %{calendar_name} werde ich dich ab jetzt %{reminder_day_count} Tage vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen für %{calendar_name} 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setday ändern.
     unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen für %{calendar_name} mehr von mir! 👍
   events:
     choose_calendar: Für welchen Kalendar möchtest du Events sehen?
@@ -34,10 +34,7 @@ de:
 
       Deine Eingabe: %{response} Uhr
   setday:
-    command_inline: |
-      Wieviel Tage im Voraus möchtest du benachrichtigt werden?
-
-      Deine Eingabe: %{response} Tag(e)
+    command_inline: Wieviel Tage im Voraus möchtest du benachrichtigt werden?
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
