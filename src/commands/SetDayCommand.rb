@@ -5,10 +5,11 @@ require 'util'
 require 'i18n'
 
 class SetDayCommand < Command
-    def process(msg, userid, chatid)
+    def process(msg, userid, chatid, orig)
         command, *args = msg.split(/\s+/)
         calendars = Container::get(:calendars)
         dataStore = Container::get(:dataStore)
+        bot = Container::get(:bot)
         calendar_id = args[0]
         days = args[1]
         if calendar_id.nil?
@@ -19,6 +20,10 @@ class SetDayCommand < Command
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
             @messageSender.process(I18n.t('errors.setday.command_invalid'), chatid)
             return
+        end
+        begin
+            bot.bot_instance.api.editMessageReplyMarkup(chat_id: orig.message.chat.id, message_id: orig.message.message_id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
+        rescue
         end
         subscriber = dataStore.getSubscriberById(userid, calendar_id)
         if subscriber.nil? then

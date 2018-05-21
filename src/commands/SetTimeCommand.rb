@@ -20,6 +20,10 @@ class SetTimeCommand < Command
             @messageSender.process(I18n.t('errors.settime.command_invalid'), chatid)
             return
         end
+        begin
+            bot.bot_instance.api.editMessageReplyMarkup(chat_id: orig.message.chat.id, message_id: orig.message.message_id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
+        rescue
+        end
         subscriber = dataStore.getSubscriberById(userid, calendar_id)
         if subscriber.nil? then
             @messageSender.process(I18n.t('errors.no_subscription_teaser', command: '/settime'), chatid)

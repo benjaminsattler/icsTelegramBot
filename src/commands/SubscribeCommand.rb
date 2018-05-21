@@ -11,13 +11,18 @@ class SubscribeCommand < Command
         super(messageSender)
     end
 
-    def process(msg, userid, chatid)
+    def process(msg, userid, chatid, orig)
         dataStore = Container::get(:dataStore)
         calendars = Container::get(:calendars)
+        bot = Container::get(:bot)
         command, *args = msg.split(/\s+/)
         if args.length == 0 then
             @messageSender.process(I18n.t('subscribe.choose_calendar'), chatid, self.getCalendarButtons);
             return
+        end
+        begin
+            bot.bot_instance.api.editMessageReplyMarkup(chat_id: orig.message.chat.id, message_id: orig.message.message_id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
+        rescue
         end
         calendar_id = Integer(args[0])
         isSubbed = dataStore.getSubscriberById(userid, calendar_id)

@@ -45,14 +45,14 @@ class Bot
         end
     end
 
-    def handleSubscribeMessage(msg, userid, chatid)
+    def handleSubscribeMessage(msg, userid, chatid, orig)
         cmd = SubscribeCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid)
+        cmd.process(msg, userid, chatid, orig)
     end
 
-    def handleUnsubscribeMessage(msg, userid, chatid)
+    def handleUnsubscribeMessage(msg, userid, chatid, orig)
         cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid)
+        cmd.process(msg, userid, chatid, orig)
     end
 
     def handleMyStatusMessage(msg, userid, chatid)
@@ -75,14 +75,14 @@ class Bot
         cmd.process(msg, userid, chatid)
     end
 
-    def handleEventsMessage(msg, userid, chatid)
+    def handleEventsMessage(msg, userid, chatid, orig)
         cmd = EventsCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid)
+        cmd.process(msg, userid, chatid, orig)
     end
 
-    def handleSetDayMessage(msg, userid, chatid)
+    def handleSetDayMessage(msg, userid, chatid, orig)
         cmd = SetDayCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid)
+        cmd.process(msg, userid, chatid, orig)
     end
 
     def handleSetTimeMessage(msg, userid, chatid, orig)
@@ -107,8 +107,8 @@ class Bot
             self.handleTextMessage(msg)
         elsif incoming.respond_to?('data') then
             msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat, incoming);
-           # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
-            @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
+           # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: [])) 
+           @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id)) rescue nil
             self.handleTextMessage(msg)
         end
     end
@@ -123,19 +123,19 @@ class Bot
         when '/start', "/start@#{@botname}"
             self.handleStartMessage(msg.text, msg.author.id, msg.chat.id)
         when '/subscribe', "/subscribe@#{@botname}"
-            self.handleSubscribeMessage(msg.text, msg.author.id, msg.chat.id)
+            self.handleSubscribeMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/setday'
-            self.handleSetDayMessage(msg.text, msg.author.id, msg.chat.id)
+            self.handleSetDayMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/settime', "/settime@#{@botname}"
             self.handleSetTimeMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/unsubscribe', "/unsubscribe@#{@botname}"
-            self.handleUnsubscribeMessage(msg.text, msg.author.id, msg.chat.id)
+            self.handleUnsubscribeMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/mystatus', "/mystatus@#{@botname}"
             self.handleMyStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/botstatus', "/botstatus@#{@botname}"
             self.handleBotStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/events', "/events@#{@botname}"
-            self.handleEventsMessage(msg.text, msg.author.id, msg.chat.id)
+            self.handleEventsMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/help', "/help@#{@botname}"
             self.handleHelpMessage(msg.text, msg.author.id, msg.chat.id)
         else
