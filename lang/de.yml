@@ -33,8 +33,10 @@ de:
       Um welche Uhrzeit möchtest du benachrichtigt werden?
 
       Deine Eingabe: %{response} Uhr
+    choose_calendar: Für welchen Kalender möchtest du die Zeit der Erinnerungen ändern?
   setday:
     command_inline: Wieviel Tage im Voraus möchtest du benachrichtigt werden?
+    choose_calendar: Für welchen Kalender möchtest du den Zeitpunkt der Erinnerungen ändern?
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:

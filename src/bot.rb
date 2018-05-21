@@ -86,6 +86,11 @@ class Bot
         cmd = SetDayCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid)
     end
+
+    def handleSetTimeMessage(msg, userid, chatid, orig)
+        cmd = SetTimeCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid, orig)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -100,10 +105,10 @@ class Bot
 
     def handleIncoming(incoming)
         if incoming.respond_to?('text') then
-            msg = IncomingMessage.new(incoming.text, incoming.from, incoming.chat);
+            msg = IncomingMessage.new(incoming.text, incoming.from, incoming.chat, incoming);
             self.handleTextMessage(msg)
         elsif incoming.respond_to?('data') then
-            msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat);
+            msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat, incoming);
            # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
             @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
             self.handleTextMessage(msg)
@@ -124,7 +129,7 @@ class Bot
         when '/setday'
             self.handleSetDayMessage(msg.text, msg.author.id, msg.chat.id)
         when '/settime', "/settime@#{@botname}"
-            #self.handleSetTimeMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleSetTimeMessage(msg.text, msg.author.id, msg.chat.id, msg.origObj)
         when '/unsubscribe', "/unsubscribe@#{@botname}"
             self.handleUnsubscribeMessage(msg.text, msg.author.id, msg.chat.id)
         when '/mystatus', "/mystatus@#{@botname}"
