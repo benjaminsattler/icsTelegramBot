@@ -18,7 +18,7 @@ class SetDayCommand < Command
         end
         calendar_id = Integer(calendar_id) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.setday.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.setday.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         begin
@@ -26,8 +26,9 @@ class SetDayCommand < Command
         rescue
         end
         subscriber = dataStore.getSubscriberById(userid, calendar_id)
+        calendar_name = calendars[calendar_id][:description]
         if subscriber.nil? then
-            @messageSender.process(I18n.t('errors.no_subscription_teaser', command: '/setday'), chatid)
+            @messageSender.process(I18n.t('errors.no_subscription_teaser', command: '/setday', calendar_name: calendar_name), chatid)
             return
         end
         if days.nil?
@@ -48,7 +49,6 @@ class SetDayCommand < Command
         subscriber[:notifiedEvents].clear
         dataStore.updateSubscriber(subscriber)
         reminder_time = "#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
-        calendar_name = calendars[calendar_id][:description]
         if subscriber[:notificationday] == 0 then
             @messageSender.process(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: reminder_time, calendar_name: calendar_name), chatid)
         elsif subscriber[:notificationday] == 1 then

@@ -23,7 +23,7 @@ class EventsCommand < Command
         end
         calendar_id = Integer(calendar_id) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.events.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         if count.nil? then
@@ -31,7 +31,7 @@ class EventsCommand < Command
         end
         count = Integer(count) rescue -1
         if count < 0 then
-            @messageSender.process(I18n.t('errors.events.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.events.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         self.pushEventsDescription(calendar_id, count, userid, chatid)

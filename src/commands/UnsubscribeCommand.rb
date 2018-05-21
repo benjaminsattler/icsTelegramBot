@@ -19,7 +19,7 @@ class UnsubscribeCommand < Command
         end
         calendar_id = Integer(args[0]) rescue -1
         if calendar_id < 0 || calendar_id >= calendars.length then
-            @messageSender.process(I18n.t('errors.unsubscribe.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.unsubscribe.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         Container::get(:dataStore).removeSubscriber({telegram_id: userid, eventlist_id: calendar_id})

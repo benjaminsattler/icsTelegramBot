@@ -17,7 +17,7 @@ class SetTimeCommand < Command
         end
         calendar_id = Integer(calendar_id) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.settime.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         begin
@@ -25,8 +25,9 @@ class SetTimeCommand < Command
         rescue
         end
         subscriber = dataStore.getSubscriberById(userid, calendar_id)
+        calendar_name = calendars[calendar_id][:description]
         if subscriber.nil? then
-            @messageSender.process(I18n.t('errors.no_subscription_teaser', command: '/settime'), chatid)
+            @messageSender.process(I18n.t('errors.no_subscription_teaser', command: '/settime', calendar_name: calendar_name), chatid)
             return
         end
         response = I18n.t('settime.command_inline', response: time)
@@ -45,7 +46,7 @@ class SetTimeCommand < Command
         min = 0
         matcher = /^([0-9]{2})([0-9]{2})$/.match(time)
         if matcher.nil? then
-            @messageSender.process(I18n.t('errors.settime.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.settime.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         if matcher[1].to_i < 0 || matcher[1].to_i > 23 || matcher[2].to_i < 0 || matcher[2].to_i > 59 then
@@ -59,7 +60,6 @@ class SetTimeCommand < Command
         subscriber[:eventlist_id] = calendar_id
         dataStore.updateSubscriber(subscriber)
         reminder_time ="#{pad(subscriber[:notificationtime][:hrs], 2)}:#{pad(subscriber[:notificationtime][:min], 2)}"
-        calendar_name = calendars[calendar_id][:description]
         if subscriber[:notificationday] == 0 then
             @messageSender.process(I18n.t('confirmations.setdatetime_success_sameday', reminder_time: reminder_time, calendar_name: calendar_name), chatid)
         elsif subscriber[:notificationday] == 1 then

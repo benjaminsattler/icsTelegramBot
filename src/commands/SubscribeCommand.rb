@@ -26,12 +26,12 @@ class SubscribeCommand < Command
         end
         calendar_id = Integer(args[0]) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
-            @messageSender.process(I18n.t('errors.subscribe.command_invalid'), chatid)
+            @messageSender.process(I18n.t('errors.subscribe.command_invalid', calendar_id: 0, calendar_name: calendars[0][:description]), chatid)
             return
         end
         isSubbed = dataStore.getSubscriberById(userid, calendar_id)
         if (!isSubbed.nil?) then
-            @messageSender.process(I18n.t('errors.subscribe.double_subscription'), chatid);
+            @messageSender.process(I18n.t('errors.subscribe.double_subscription', calendar_name: calendars[calendar_id][:description]), chatid);
             return
         end
         dataStore.addSubscriber({telegram_id: userid, eventlist_id: calendar_id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
