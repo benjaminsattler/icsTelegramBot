@@ -8,9 +8,10 @@ de:
     subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen für %{calendar_name} 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setdate ändern.
     unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen für %{calendar_name} mehr von mir! 👍
   events:
-    listing_intro_one: Hier ist der nächste Termin
-    listing_intro_multiple: Hier sind die nächsten %{total} Termine
-    listing_intro_empty: Es scheint keine Termine zu geben (oder du wolltest 0 Termine von mir sehen 😂)
+    choose_calendar: Für welchen Kalendar möchtest du Events sehen?
+    listing_intro_one: Hier ist der nächste Termin für %{calendar_name}
+    listing_intro_multiple: Hier sind die nächsten %{total} Termine für %{calendar_name}
+    listing_intro_empty: Es scheint keine Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
   status:
     intro: "Du erhälst Erinnerungen für die folgenden Einträge:"
     not_subscribed: Du erhälst von mir keine Erinnerungen. Mit /subscribe kannst du das ändern! 😇

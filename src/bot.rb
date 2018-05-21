@@ -76,6 +76,11 @@ class Bot
         cmd = HelpCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid)
     end
+
+    def handleEventsMessage(msg, userid, chatid)
+        cmd = EventsCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -95,7 +100,7 @@ class Bot
         elsif incoming.respond_to?('data') then
             msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat);
            # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
-           # @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
+            @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
             self.handleTextMessage(msg)
         end
     end
@@ -123,7 +128,7 @@ class Bot
         when '/botstatus', "/botstatus@#{@botname}"
             self.handleBotStatusMessage(msg.text, msg.author.id, msg.chat.id)
         when '/events', "/events@#{@botname}"
-            #self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleEventsMessage(msg.text, msg.author.id, msg.chat.id)
         when '/help', "/help@#{@botname}"
             self.handleHelpMessage(msg.text, msg.author.id, msg.chat.id)
         else

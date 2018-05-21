@@ -27,7 +27,7 @@ class SubscribeCommand < Command
         end
         dataStore.addSubscriber({telegram_id: userid, eventlist_id: calendar_id, notificationday: 1, notificationtime: {hrs: 20, min: 0}, notifiedEvents: []})
         @messageSender.process(I18n.t('confirmations.subscribe_success', calendar_name: calendars[calendar_id][:description]), chatid)
-        #self.pushEventsDescription(self.calendars[1].getEvents(args[1]), userid, chatid)
+        self.pushEventsDescription(calendar_id, 1, userid, chatid)
     end
 
     def getCalendarButtons

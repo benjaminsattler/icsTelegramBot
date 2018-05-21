@@ -1,36 +1,36 @@
 require 'commands/command'
 require 'commands/mixins/EventMessagePusher'
+require 'Container'
 require 'util'
 
 require 'i18n'
 
 class EventsCommand < Command
     include EventMessagePusher
-    def process(msg, userid, chatid, silent)
+    def process(msg, userid, chatid)
         command, *args = msg.split(/\s+/)
-        count = 10
-        calendar = 1
-        if /^[0-9]+$/.match(args[0]) then
-            count = args[0].to_i
-        else
-            unless args.empty? then
-                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
-                return
-            end
+        calendars = Container::get(:calendars)
+        calendar_id = args[0]
+        count = args[1]
+        if calendar_id.nil?
+            @messageSender.process(I18n.t('events.choose_calendar'), chatid, self.getCalendarButtons);
+            return
         end
+        calendar_id = Integer(calendar_id)
+        if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
+            @messageSender.process(I18n.t('errors.events.command_invalid'), chatid)
+            return
+        end
+        if count.nil? then
+            count = 10
+        end
+        count = Integer(count)
+        self.pushEventsDescription(calendar_id, count, userid, chatid)
+    end
 
-        if /^[0-9]+$/.match(args[1]) then
-            calendar = args[1].to_i
-            if calendar > self.calendars.length or calendar < 1 or self.calendars[calendar].nil? then
-                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
-                return
-            end
-        else
-            unless args.empty? then
-                self.bot.pushMessage(I18n.t('errors.events.command_invalid'), chatid)
-                return
-            end
-        end
-        self.pushEventsDescription(self.calendars[calendar].getEvents(count), userid, chatid)
+    def getCalendarButtons
+        calendars = Container::get(:calendars)
+        btns = (0..calendars.length - 1).map { |n| [Telegram::Bot::Types::InlineKeyboardButton.new(text: calendars[n][:description], callback_data: "/events #{n}")] }        
+        Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: btns)
     end
 end
