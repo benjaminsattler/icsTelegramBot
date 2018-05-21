@@ -17,7 +17,7 @@ class UnsubscribeCommand < Command
             bot.bot_instance.api.editMessageReplyMarkup(chat_id: orig.message.chat.id, message_id: orig.message.message_id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
         rescue
         end
-        calendar_id = Integer(args[0])
+        calendar_id = Integer(args[0]) rescue -1
         if calendar_id < 0 || calendar_id >= calendars.length then
             @messageSender.process(I18n.t('errors.unsubscribe.command_invalid'), chatid)
             return

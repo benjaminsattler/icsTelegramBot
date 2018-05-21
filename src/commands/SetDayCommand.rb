@@ -16,7 +16,7 @@ class SetDayCommand < Command
             @messageSender.process(I18n.t('events.choose_calendar'), chatid, self.getCalendarButtons)
             return
         end
-        calendar_id = Integer(calendar_id)
+        calendar_id = Integer(calendar_id) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
             @messageSender.process(I18n.t('errors.setday.command_invalid'), chatid)
             return
@@ -34,7 +34,7 @@ class SetDayCommand < Command
             @messageSender.process(I18n.t('setday.command_inline'), chatid, self.getDaysButtons(calendar_id))
             return
         end
-        days = Integer(days)
+        days = Integer(days) rescue -1
         if days > 14 then
             @messageSender.process(I18n.t('errors.setday.day_too_early'), chatid)
             return

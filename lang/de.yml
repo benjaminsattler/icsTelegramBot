@@ -49,6 +49,7 @@ de:
       command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/events 3" um die nächsten 3 Termin zu erhalten.
     subscribe:
       double_subscription: Du scheinst schon Benachrichtigungen von mir zu erhalten! 🤔
+      command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/subscribe 0" um Benachrichtigungnen zu dem entsprechenden Kalender zu erhalten.
     unsubscribe:
       command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/unsubscribe 0" um keine Benachrichtigungnen mehr zu dem entsprechenden Kalender zu erhalten.
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳

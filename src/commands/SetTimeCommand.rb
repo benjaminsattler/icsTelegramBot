@@ -15,7 +15,7 @@ class SetTimeCommand < Command
             @messageSender.process(I18n.t('settime.choose_calendar'), chatid, self.getCalendarButtons)
             return
         end
-        calendar_id = Integer(calendar_id)
+        calendar_id = Integer(calendar_id) rescue -1
         if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
             @messageSender.process(I18n.t('errors.settime.command_invalid'), chatid)
             return

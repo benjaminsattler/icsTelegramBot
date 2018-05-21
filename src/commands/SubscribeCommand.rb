@@ -24,7 +24,11 @@ class SubscribeCommand < Command
             bot.bot_instance.api.editMessageReplyMarkup(chat_id: orig.message.chat.id, message_id: orig.message.message_id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
         rescue
         end
-        calendar_id = Integer(args[0])
+        calendar_id = Integer(args[0]) rescue -1
+        if calendar_id > calendars.length or calendar_id < 0 or calendars[calendar_id].nil? then
+            @messageSender.process(I18n.t('errors.subscribe.command_invalid'), chatid)
+            return
+        end
         isSubbed = dataStore.getSubscriberById(userid, calendar_id)
         if (!isSubbed.nil?) then
             @messageSender.process(I18n.t('errors.subscribe.double_subscription'), chatid);
