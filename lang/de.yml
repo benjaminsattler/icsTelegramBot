@@ -13,11 +13,11 @@ de:
     listing_intro_multiple: Hier sind die nächsten %{total} Termine für %{calendar_name}
     listing_intro_empty: Es scheint keine Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
   status:
-    intro: "Du erhälst Erinnerungen für die folgenden Einträge:"
+    intro: "Du erhälst Erinnerungen für die folgenden Einträge 🙃"
     not_subscribed: Du erhälst von mir keine Erinnerungen. Mit /subscribe kannst du das ändern! 😇
-    subscribed_sameday: Für %{calendar_name} werde dich am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
-    subscribed_precedingday: Für %{calendar_name} werde ich dich am Vortrag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
-    subscribed_otherday: Für %{calendar_name} werde ich dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
+    subscribed_sameday: Für %{calendar_name} werde dich am Tag der Termine um %{reminder_time} Uhr benachrichtigen!
+    subscribed_precedingday: Für %{calendar_name} werde ich dich am Vortrag der Termine um %{reminder_time} Uhr benachrichtigen!
+    subscribed_otherday: Für %{calendar_name} werde ich dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen!
   botstatus:
     intro: Ich bin online seit %{uptime} und kenne Events von %{calendar_count} Müllkalendern.
     calendar_info: Für %{calendar_name} kenne ich %{event_count} Events für %{subscribers_count} angemeldete Personen.
