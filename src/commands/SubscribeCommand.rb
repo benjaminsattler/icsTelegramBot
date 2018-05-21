@@ -12,12 +12,13 @@ class SubscribeCommand < Command
     end
 
     def process(msg, userid, chatid, silent)
-        isSubbed = self.dataStore.getSubscriberById(userid)
+        command, *args = msg.split(/\s+/)
+        isSubbed = self.dataStore.getSubscriberById(userid, args[0])
         if (!isSubbed.nil?) then
             self.bot.pushMessage(I18n.t('errors.subscribe.double_subscription'), chatid);
             return
         end
-        command, *args = msg.split(/\s+/)
+        
         if args.length == 0 then
             @messageSender.process(I18n.t('subscribe.choose_calendar'), chatid, self.getCalendarButtons);
             return
