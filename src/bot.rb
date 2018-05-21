@@ -66,6 +66,11 @@ class Bot
         cmd = StartCommand.new(MessageSender.new(@bot_instance))
         cmd.process(msg, userid, chatid)
     end
+
+    def handleHelpMessage(msg, userid, chatid)
+        cmd = HelpCommand.new(MessageSender.new(@bot_instance))
+        cmd.process(msg, userid, chatid)
+    end
     
     def notify(event)
         Container::get(:calendars).each do |calendar|
@@ -115,7 +120,7 @@ class Bot
         when '/events', "/events@#{@botname}"
             #self.handleEventsMessage(msg.text, msg.from.id, msg.chat.id)
         when '/help', "/help@#{@botname}"
-            #self.handleHelpMessage(msg.text, msg.from.id, msg.chat.id)
+            self.handleHelpMessage(msg.text, msg.author.id, msg.chat.id)
         else
             if commandTarget == @botname then
                 self.pushMessage(I18n.t('unknown_command'), msg.chat.id)

@@ -55,7 +55,7 @@ de:
     intro: |
       Hi! 😃
       Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
-      Ich kenne alle Daten des Müllkalenders bis zum %{last_event_date} 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
+      Ich kenne alle Daten von %{calendars_count} Müllkalendern 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
     start: /start Ich stelle mich vor 😊
     settime: /settime HH:mm Stelle die Uhrzeit ein, zu der ich dich benachrichtigen soll (z.B. "/settime 22:00" wenn ich dich um 22 Uhr benachrichtigen soll)
     setday: /setday N Stelle den Tag ein, am dem ich dich benachrichtigen soll (z.B. "/setday 1" wenn ich dich 1 Tag vorher benachrichtigen soll)

@@ -1,11 +1,13 @@
 require 'commands/command'
+require 'Container'
 
 require 'i18n'
 
 class HelpCommand < Command
-    def process(msg, userid, chatid, silent)
+    def process(msg, userid, chatid)
+        calendars = Container::get(:calendars)
         text = Array.new
-        text << I18n.t('help.intro', last_event_date: self.calendars[1].getLeastRecentEvent.date.strftime("%d.%m.%Y"))
+        text << I18n.t('help.intro', calendars_count: calendars.length)
         text << I18n.t('help.start')
         text << ""
         text << I18n.t('help.subscribe')
@@ -20,6 +22,6 @@ class HelpCommand < Command
         text << I18n.t('help.mystatus')
         text << ""
         text << I18n.t('help.help')
-        self.bot.pushMessage(text.join("\n"), chatid)
+        @messageSender.process(text.join("\n"), chatid)
     end
 end
