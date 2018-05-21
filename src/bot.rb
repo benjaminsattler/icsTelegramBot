@@ -114,7 +114,7 @@ class Bot
     end
     
     def handleTextMessage(msg)
-        if msg.nil? or !msg.respond_to?('text') then
+        if msg.nil? or !msg.respond_to?('text') or msg.text.nil? then
             return
         end
         command, *args = msg.text.split(/\s+/)
