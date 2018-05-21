@@ -5,8 +5,8 @@ de:
     setdatetime_success_sameday: Ich werde dich ab jetzt am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
     setdatetime_success_precedingday: Ich werde dich ab jetzt am Vortag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
     setdatetime_success_otherday: Ich werde dich ab jetzt %{reminder_day_count} Tage vor den Terminen um %{reminder_time} Uhr benachrichtigen! 🙃
-    subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setdate ändern.
-    unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen mehr von mir! 👍
+    subscribe_success: Du erhälst ab nun meine Benachrichtigungen über anstehende Leerungen für %{calendar_name} 1 Tag vorher um 20:00 Uhr 😍 Du kannst den Zeitpunkt der Benachrichtigung mit den Befehlen /settime und /setdate ändern.
+    unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen für %{calendar_name} mehr von mir! 👍
   events:
     listing_intro_one: Hier ist der nächste Termin
     listing_intro_multiple: Hier sind die nächsten %{total} Termine

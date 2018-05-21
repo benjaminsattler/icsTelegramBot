@@ -49,12 +49,12 @@ class Bot
 
     def handleSubscribeMessage(msg, userid, chatid)
         cmd = SubscribeCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid, false)
+        cmd.process(msg, userid, chatid)
     end
 
     def handleUnsubscribeMessage(msg, userid, chatid)
         cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
-        cmd.process(msg, userid, chatid, false)
+        cmd.process(msg, userid, chatid)
     end
 
     def handleMyStatusMessage(msg, userid, chatid)
@@ -95,7 +95,7 @@ class Bot
         elsif incoming.respond_to?('data') then
             msg = IncomingMessage.new(incoming.data, incoming.from, incoming.message.chat);
            # @bot_instance.api.editMessageReplyMarkup(message_id: incoming.message.message_id, chat_id: incoming.message.chat.id, reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: []))
-            @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
+           # @bot_instance.api.answerCallbackQuery(callback_query_id: Integer(incoming.id))
             self.handleTextMessage(msg)
         end
     end
