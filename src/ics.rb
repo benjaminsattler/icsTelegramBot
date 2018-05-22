@@ -1,4 +1,5 @@
 require 'log'
+require 'Date'
 
 module ICS
     class FileParser
@@ -81,6 +82,10 @@ module ICS
     class Calendar
         @events
 
+        def initialize
+            @events = Array.new
+        end
+
         def loadEvents(events)
             @events = events.sort_by { |event| [event.date.year, event.date.yday] }
         end
@@ -100,6 +105,5 @@ module ICS
         def getLeastRecentEvent
             @events.last
         end
-        
     end
 end
