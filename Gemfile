@@ -6,3 +6,7 @@ gem 'telegram-bot-ruby'
 gem 'i18n'
 gem 'sqlite3'
 gem 'multitrap'
+
+group :test do
+  gem 'rspec'
+end
