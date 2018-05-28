@@ -97,7 +97,6 @@ class Bot
     end
     
     def notify(calendar_id, event)
-        calendar = Container::get(:calendars)[calendar_id]
         dataStore = Container::get(:dataStore)
         messageSender = MessageSender.new(@bot_instance)
         dataStore.getAllSubscribers.each do |subscriber|
@@ -124,7 +123,7 @@ class Bot
         if msg.nil? or !msg.respond_to?('text') or msg.text.nil? then
             return
         end
-        command, *args = msg.text.split(/\s+/)
+        command, _ = msg.text.split(/\s+/)
         commandTarget = command.include?('@') ? command.split('@')[1] : nil
         case command
         when '/start', "/start@#{@botname}"
