@@ -1,12 +1,11 @@
 class Container
+  @@dependencies = {}
 
-    @@dependencies = {}
+  def self.get(dep)
+    @@dependencies.key?(dep) ? @@dependencies[dep] : nil
+  end
 
-    def self::get(dep)
-        return @@dependencies.has_key?(dep) ? @@dependencies[dep] : nil
-    end
-
-    def self::set(dep, cls)
-        @@dependencies[dep] = cls
-    end
+  def self.set(dep, cls)
+    @@dependencies[dep] = cls
+  end
 end
