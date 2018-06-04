@@ -1,31 +1,50 @@
+# frozen_string_literal: true
+
 require 'commands/command'
 require 'Container'
 require 'util'
 
 require 'i18n'
 
+##
+# This class represents the /mystatus command
+# given by the user.
 class MyStatusCommand < Command
   def process(_msg, userid, chatid, _silent)
-    dataStore = Container.get(:dataStore)
+    data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    subscriptions = dataStore.getSubscriptionsForId(userid)
+    subscriptions = data_store.subscriptions_for_id(userid)
     if subscriptions.empty?
-      @messageSender.process(I18n.t('status.not_subscribed'), chatid)
+      @message_sender.process(I18n.t('status.not_subscribed'), chatid)
       return
     end
     text = []
     text << I18n.t('status.intro')
     subscriptions.each do |subscription|
-      reminder_time = "#{pad(subscription[:notificationtime][:hrs], 2)}:#{pad(subscription[:notificationtime][:min], 2)}"
+      reminder_time = "#{Util.pad(subscription[:notificationtime][:hrs], 2)}"\
+                      ":#{Util.pad(subscription[:notificationtime][:min], 2)}"
       calendar_name = calendars[subscription[:eventlist_id]][:description]
-      if subscription[:notificationday] == 0
-        text << I18n.t('status.subscribed_sameday', reminder_time: reminder_time, calendar_name: calendar_name)
-      elsif subscription[:notificationday] == 1
-        text << I18n.t('status.subscribed_precedingday', reminder_time: reminder_time, calendar_name: calendar_name)
-      else
-        text << I18n.t('status.subscribed_otherday', reminder_day_count: subscription[:notificationday], reminder_time: reminder_time, calendar_name: calendar_name)
-      end
+      text << if subscription[:notificationday].zero?
+                I18n.t(
+                  'status.subscribed_sameday',
+                  reminder_time: reminder_time,
+                  calendar_name: calendar_name
+                )
+              elsif subscription[:notificationday] == 1
+                I18n.t(
+                  'status.subscribed_precedingday',
+                  reminder_time: reminder_time,
+                  calendar_name: calendar_name
+                )
+              else
+                I18n.t(
+                  'status.subscribed_otherday',
+                  reminder_day_count: subscription[:notificationday],
+                  reminder_time: reminder_time,
+                  calendar_name: calendar_name
+                )
+              end
     end
-    @messageSender.process(text.join("\n"), chatid)
+    @message_sender.process(text.join("\n"), chatid)
   end
 end

@@ -1,58 +1,64 @@
+# frozen_string_literal: true
+
 require 'log'
 
+##
+# This class represents the watchdog thread, which
+# tries to restart killed threads until it is ended
+# itself.
 class Watchdog
-  @watchThreads = nil
-  @watchInterval = nil
-  @watchThread = nil
+  @watch_threads = nil
+  @watch_interval = nil
+  @watch_thread = nil
   @stop = false
-  @stopTimeout = nil
+  @timeout = nil
 
   def initialize
-    @watchThreads = []
-    @watchInterval = 1
-    @stopTimeout = 15
+    @watch_threads = []
+    @watch_interval = 1
+    @timeout = 15
   end
 
   def stop
-    @watchThread[:stop] = true
-    @watchThread.join(@stopTimeout * (@watchThreads.length + 1))
+    @watch_thread[:stop] = true
+    @watch_thread.join(@timeout * (@watch_threads.length + 1))
     log('Watchthread terminating...')
   end
 
-  def randomKill
-    if Random.new.rand < 0.1
-      which = Random.new.rand(0..@watchThreads.length)
-      @watchThreads[0][:handle].kill
-    end
+  def random_kill
+    return if Random.new.rand >= 0.1
+    which = Random.new.rand(0..@watch_threads.length)
+    @watch_threads[which][:handle].kill
   end
 
   def watch(thread_list)
-    @watchThreads = thread_list.each do |thread_desc|
+    @watch_threads = thread_list.each do |thread_desc|
       thread_desc[:handle] = Thread.new { sleep }
       thread_desc[:handle].kill
     end
 
-    @watchThread = Thread.new(@watchThreads, @stopTimeout) do |threads, stopTimeout|
+    @watch_thread = Thread.new(@watch_threads, @timeout) do |threads, timeout|
       Thread.current[:stop] = false
       stop = false
       until stop
         threads.each do |thread_desc|
           unless thread_desc[:handle].alive?
             log("(Re)starting thread #{thread_desc[:name]}")
-            thread_desc[:handle] = Thread.new &thread_desc[:thr]
-            end
+            thread_desc[:handle] = Thread.new(&thread_desc[:thr])
+          end
         end
         if Thread.current[:stop]
           threads.each do |thread_desc|
-            log("Stopping thread #{thread_desc[:name]} (Timeout #{stopTimeout} seconds)")
+            log("Stopping thread #{thread_desc[:name]}"\
+                " (Timeout #{timeout} seconds)")
             thread_desc[:handle][:stop] = true
-            thread_desc[:handle].join(stopTimeout)
+            thread_desc[:handle].join(timeout)
             thread_desc[:handle].exit if thread_desc[:handle].alive?
           end
           Thread.current[:stop] = false
           stop = true
         else
-          sleep @watchInterval
+          sleep @watch_tnterval
         end
       end
     end

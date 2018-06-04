@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'commands/command'
 require 'commands/BotStatusCommand'
 require 'commands/MyStatusCommand'

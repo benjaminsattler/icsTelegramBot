@@ -1,14 +1,19 @@
+# frozen_string_literal: true
+
+##
+# This class represents an incoming telegram
+# bot message.
 class IncomingMessage
-  attr_reader :text, :author, :chat, :origObj
+  attr_reader :text, :author, :chat, :orig_obj
 
   @text = nil
   @author = nil
   @chat = nil
-  @origObj = nil
-  def initialize(text, author, chat, origObj)
+  @orig_obj = nil
+  def initialize(text, author, chat, orig_obj)
     @text = text
     @author = author
     @chat = chat
-    @origObj = origObj
+    @orig_obj = orig_obj
   end
 end

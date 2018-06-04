@@ -1,23 +1,24 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-def getCommandlineArgument(argname)
+def commandline_argument(argname)
   args = {}
   ARGV.each do |arg|
     matcher = /^([^=]+)=(.+)$/.match(arg)
     if matcher
       args[matcher[1]] = matcher[2]
-    else
-      args[arg] = true if arg == argname
+    elsif arg == argname
+      args[arg] = true
     end
   end
   args[argname]
 end
 
 config = {
-  pid: getCommandlineArgument('--pid'),
-  log: getCommandlineArgument('--log'),
-  daemon: !getCommandlineArgument('--daemon').nil?,
-  main: getCommandlineArgument('--main')
+  pid: commandline_argument('--pid'),
+  log: commandline_argument('--log'),
+  daemon: !commandline_argument('--daemon').nil?,
+  main: commandline_argument('--main')
 }
 
 p = [

@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 require 'i18n'
 require 'fileutils'
 
+##
+# This class configures the runtime environment of the
+# main thread.
 class Server
   attr_reader :options
-  main_instance = nil
+  @main_instance = nil
 
   def initialize(options)
     @options = options
@@ -33,11 +38,11 @@ class Server
     @options[:daemon]
   end
 
-  def mainClass?
+  def main_class?
     !@options[:main].nil?
   end
 
-  def mainClass
+  def main_class
     @options[:main]
   end
 
@@ -62,14 +67,14 @@ class Server
     puts 'Suppressing output'
     $stderr.reopen('/dev/null', 'a')
     $stdout.reopen('/dev/null', 'a')
-    end
+  end
 
   def status_from_pidfile
     return :dead unless pidfile?
     begin
       pid = File.read(pidfile).to_i
-      return :dead if pid == 0
-      return :running unless pid == 0
+      return :dead if pid.zero?
+      return :running unless pid.zero?
     rescue Errno::EPERM, Errno::EACCES
       return :running
     rescue Errno::ENOENT
@@ -82,7 +87,7 @@ class Server
     begin
       FileUtils.mkdir_p(File.dirname(pidfile), mode: 0o755)
       FileUtils.touch pidfile
-      pid = File.open(pidfile, 'w') { |f| f.write(Process.pid) }
+      File.open(pidfile, 'w') { |f| f.write(Process.pid) }
       at_exit do
         File.delete(pidfile) if File.exist?(pidfile)
       end
@@ -97,14 +102,15 @@ class Server
     when :dead
       begin
         File.delete(pidfile)
-      rescue Errno::EPERM, Errno::EACCES
+      rescue Errno::EPERM, Errno::EACCES, Errno::ENOENT
         puts "Cannot delete PIDFILE #{pidfile}: Permission error!"
-        exit -2
-      rescue Errno::ENOENT
+        exit(-2)
       end
     when :running
-      puts "Server is already running! If you think this is a mistake, please delete pidfile #{File.expand_path(pidfile)}"
-      exit -1
+      puts 'Server is already running!'\
+          'If you think this is a mistake,'\
+           "please delete pidfile #{File.expand_path(pidfile)}"
+      exit(-1)
     end
   end
 
@@ -124,7 +130,7 @@ class Server
     suppress_output if !logfile? && daemon? && daemon
 
     puts "Starting with PID #{Process.pid}"
-    puts "Loading main class #{mainClass}"
+    puts "Loading main class #{main_class}"
 
     Signal.trap('SIGUSR1') do
       puts 'Caught signal USR1'
@@ -132,17 +138,19 @@ class Server
     end
 
     begin
-      require mainClass
-      classRef = class_from_string(mainClass)
-      puts "Could not find main class #{mainClass}. Terminating..." if classRef.nil?
+      require main_class
+      class_ref = class_from_string(main_class)
+      if class_ref.nil?
+        puts "Could not find main class #{main_class}. Terminating..."
+      end
     rescue LoadError => e
       puts e.inspect
-      puts "Could not load main class #{mainClass}. Terminating..."
+      puts "Could not load main class #{main_class}. Terminating..."
       exit
     end
     puts 'Instantiating main class'
-    @main_instance = classRef.new unless classRef.nil?
-    @main_instance.run unless @main_instance.nil?
+    @main_instance = class_ref.new unless class_ref.nil?
+    @main_instance&.run
     0
   end
 end

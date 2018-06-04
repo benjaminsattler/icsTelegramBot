@@ -1,8 +1,13 @@
+# frozen_string_literal: true
+
 require 'commands/command'
 require 'Container'
 
 require 'i18n'
 
+##
+# This class represents the /help command
+# given by the user.
 class HelpCommand < Command
   def process(_msg, _userid, chatid)
     calendars = Container.get(:calendars)
@@ -22,6 +27,6 @@ class HelpCommand < Command
     text << I18n.t('help.mystatus')
     text << ''
     text << I18n.t('help.help')
-    @messageSender.process(text.join("\n"), chatid)
+    @message_sender.process(text.join("\n"), chatid)
   end
 end

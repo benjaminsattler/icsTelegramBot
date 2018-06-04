@@ -1,3 +1,11 @@
+# frozen_string_literal: true
+
+# rubocop:disable Style/ClassVars
+##
+# This class stores references to the
+# most frequently used objects and
+# makes them available globally.
+# (Use with caution!)
 class Container
   @@dependencies = {}
 
@@ -9,3 +17,4 @@ class Container
     @@dependencies[dep] = cls
   end
 end
+# rubocop:enable Style/ClassVars

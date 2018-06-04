@@ -13,4 +13,5 @@ end
 
 group :development do
   gem 'rubocop'
+  gem 'rubocop-rspec'
 end
