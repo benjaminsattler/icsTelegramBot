@@ -186,7 +186,12 @@ class Bot
     when '/help', "/help@#{@botname}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
-      if command_target == @botname
+      if command_target.nil?
+        MessageSender.new(@bot_instance).process(
+          I18n.t('unknown_command'),
+          msg.chat.id
+        )
+      elsif command_target == @botname
         MessageSender.new(@bot_instance).process(
           I18n.t('unknown_command'),
           msg.chat.id
