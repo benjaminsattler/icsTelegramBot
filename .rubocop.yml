@@ -1,0 +1,37 @@
+require: rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.3.1
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Performance/Caller:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+Lint/HandleExceptions:
+  Enabled: false

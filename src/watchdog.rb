@@ -1,61 +1,66 @@
+# frozen_string_literal: true
+
 require 'log'
 
+##
+# This class represents the watchdog thread, which
+# tries to restart killed threads until it is ended
+# itself.
 class Watchdog
+  @watch_threads = nil
+  @watch_interval = nil
+  @watch_thread = nil
+  @stop = false
+  @timeout = nil
 
-    @watchThreads = nil
-    @watchInterval = nil
-    @watchThread = nil
-    @stop = false
-    @stopTimeout = nil
+  def initialize
+    @watch_threads = []
+    @watch_interval = 1
+    @timeout = 15
+  end
 
-    def initialize
-        @watchThreads = Array.new
-        @watchInterval = 1
-        @stopTimeout = 15
+  def stop
+    @watch_thread[:stop] = true
+    @watch_thread.join(@timeout * (@watch_threads.length + 1))
+    log('Watchthread terminating...')
+  end
+
+  def random_kill
+    return if Random.new.rand >= 0.1
+    which = Random.new.rand(0..@watch_threads.length)
+    @watch_threads[which][:handle].kill
+  end
+
+  def watch(thread_list)
+    @watch_threads = thread_list.each do |thread_desc|
+      thread_desc[:handle] = Thread.new { sleep }
+      thread_desc[:handle].kill
     end
 
-    def stop
-        @watchThread[:stop] = true
-        @watchThread.join(@stopTimeout * (@watchThreads.length + 1))
-        log("Watchthread terminating...")
-    end
-
-    def randomKill
-        if Random.new.rand < 0.1 then
-            which = Random.new.rand(0..@watchThreads.length)
-            @watchThreads[0][:handle].kill
+    @watch_thread = Thread.new(@watch_threads, @timeout) do |threads, timeout|
+      Thread.current[:stop] = false
+      stop = false
+      until stop
+        threads.each do |thread_desc|
+          unless thread_desc[:handle].alive?
+            log("(Re)starting thread #{thread_desc[:name]}")
+            thread_desc[:handle] = Thread.new(&thread_desc[:thr])
+          end
         end
-    end
-
-    def watch(thread_list)
-        @watchThreads = thread_list.each { |thread_desc|
-            thread_desc[:handle] = Thread.new {sleep()}
-            thread_desc[:handle].kill
-        }
-        
-        @watchThread = Thread.new(@watchThreads, @stopTimeout) do |threads, stopTimeout|
-            Thread.current[:stop] = false
-            stop = false
-            while(not stop) do
-                threads.each do |thread_desc|
-                    unless thread_desc[:handle].alive? then
-                        log("(Re)starting thread #{thread_desc[:name]}")
-                        thread_desc[:handle] = Thread.new &thread_desc[:thr]
-                    end
-                end
-                if Thread.current[:stop] then
-                    threads.each do |thread_desc|
-                        log("Stopping thread #{thread_desc[:name]} (Timeout #{stopTimeout} seconds)")
-                        thread_desc[:handle][:stop] = true
-                        thread_desc[:handle].join(stopTimeout)
-                        thread_desc[:handle].exit  if thread_desc[:handle].alive?
-                    end 
-                    Thread.current[:stop] = false
-                    stop = true
-                else
-                    sleep @watchInterval
-                end
-            end
+        if Thread.current[:stop]
+          threads.each do |thread_desc|
+            log("Stopping thread #{thread_desc[:name]}"\
+                " (Timeout #{timeout} seconds)")
+            thread_desc[:handle][:stop] = true
+            thread_desc[:handle].join(timeout)
+            thread_desc[:handle].exit if thread_desc[:handle].alive?
+          end
+          Thread.current[:stop] = false
+          stop = true
+        else
+          sleep @watch_tnterval
         end
+      end
     end
+  end
 end
