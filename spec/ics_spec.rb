@@ -11,7 +11,7 @@ RSpec.describe ICS do
 
   describe ICS::FileParser do
     let(:ics_file) do
-      <<~ICSEND
+      <<~ICSFILE
         BEGIN:VCALENDAR
         PRODID:-//Grafik-Partner GmbH//Muellmax 7.0 MIMEDIR//EN
         VERSION:2.0
@@ -65,7 +65,7 @@ RSpec.describe ICS do
         URL:http://www.muellmax.de
         END:VEVENT
         END:VCALENDAR
-      ICSEND
+      ICSFILE
     end
 
     describe 'parse_ics_date' do
