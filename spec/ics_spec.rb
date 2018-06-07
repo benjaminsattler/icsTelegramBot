@@ -114,7 +114,7 @@ RSpec.describe ICS do
     end
 
     describe 'parse_ics' do
-      let(:file_path) { Tempfile.new('', './tmp') }
+      let(:file_path) { Tempfile.new }
       let(:dir_path) { File.dirname(file_path) }
 
       before do
