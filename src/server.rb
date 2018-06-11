@@ -125,7 +125,7 @@ class Server
   end
 
   def to_camel_case(str)
-    str = str.gsub(/(.)([A-Z])/,'\1_\2')
+    str = str.gsub(/(.)([A-Z])/, '\1_\2')
     str.downcase
   end
 
