@@ -102,9 +102,11 @@ class Server
     when :dead
       begin
         File.delete(pidfile)
-      rescue Errno::EPERM, Errno::EACCES, Errno::ENOENT
+      rescue Errno::EPERM, Errno::EACCES
         puts "Cannot delete PIDFILE #{pidfile}: Permission error!"
         exit(-2)
+      rescue Errno::ENOENT
+        nil
       end
     when :running
       puts 'Server is already running!'\
@@ -122,6 +124,11 @@ class Server
     nil?
   end
 
+  def to_camel_case(str)
+    str = str.gsub(/(.)([A-Z])/,'\1_\2')
+    str.downcase
+  end
+
   def start
     check_running if pidfile?
     daemonize if daemon? && daemon
@@ -129,8 +136,9 @@ class Server
     redirect_output(logfile) if logfile?
     suppress_output if !logfile? && daemon? && daemon
 
+    main_class_file = to_camel_case(main_class)
     puts "Starting with PID #{Process.pid}"
-    puts "Loading main class #{main_class}"
+    puts "Loading main class #{main_class} from #{main_class_file}"
 
     Signal.trap('SIGUSR1') do
       puts 'Caught signal USR1'
@@ -138,7 +146,7 @@ class Server
     end
 
     begin
-      require main_class
+      require main_class_file
       class_ref = class_from_string(main_class)
       if class_ref.nil?
         puts "Could not find main class #{main_class}. Terminating..."

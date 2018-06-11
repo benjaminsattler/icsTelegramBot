@@ -1,27 +1,30 @@
 # frozen_string_literal: true
 
 require 'commands/command'
-require 'commands/mixins/EventMessagePusher'
-require 'Container'
-require 'util'
+require 'commands/mixins/event_message_pusher'
+require 'container'
 
 require 'i18n'
 
 ##
-# This class represents the /events command
+# This class represents a /subscribe command
 # given by the user.
-class EventsCommand < Command
+class SubscribeCommand < Command
   include EventMessagePusher
+
+  def initialize(message_sender)
+    super(message_sender)
+  end
+
   def process(msg, userid, chatid, orig)
-    _command, *args = msg.split(/\s+/)
+    data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
     bot = Container.get(:bot)
-    calendar_id = args[0]
-    count = args[1]
-    if calendar_id.nil?
+    _command, *args = msg.split(/\s+/)
+    if args.empty?
       @message_sender.process(
         I18n.t(
-          'events.choose_calendar'
+          'subscribe.choose_calendar'
         ),
         chatid,
         calendar_buttons
@@ -39,14 +42,14 @@ class EventsCommand < Command
     rescue StandardError
     end
     calendar_id = begin
-                    Integer(calendar_id)
+                    Integer(args[0])
                   rescue StandardError
                     -1
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
         I18n.t(
-          'errors.events.command_invalid',
+          'errors.subscribe.command_invalid',
           calendar_id: calendars.keys.first,
           calendar_name: calendars.values.first[:description]
         ),
@@ -54,24 +57,32 @@ class EventsCommand < Command
       )
       return
     end
-    count = 5 if count.nil?
-    count = begin
-              Integer(count)
-            rescue StandardError
-              -1
-            end
-    if count.negative?
+    is_subbed = data_store.subscriber_by_id(userid, calendar_id)
+    unless is_subbed.nil?
       @message_sender.process(
         I18n.t(
-          'errors.events.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
+          'errors.subscribe.double_subscription',
+          calendar_name: calendars[calendar_id][:description]
         ),
         chatid
       )
       return
     end
-    push_events_description(calendar_id, count, userid, chatid)
+    data_store.add_subscriber(
+      telegram_id: userid,
+      eventlist_id: calendar_id,
+      notificationday: 1,
+      notificationtime: { hrs: 20, min: 0 },
+      notifiedEvents: []
+    )
+    @message_sender.process(
+      I18n.t(
+        'confirmations.subscribe_success',
+        calendar_name: calendars[calendar_id][:description]
+      ),
+      chatid
+    )
+    push_events_description(calendar_id, 1, userid, chatid)
   end
 
   def calendar_buttons
@@ -80,7 +91,7 @@ class EventsCommand < Command
       [
         Telegram::Bot::Types::InlineKeyboardButton.new(
           text: calendar[:description],
-          callback_data: "/events #{calendar[:calendar_id]}"
+          callback_data: "/subscribe #{calendar[:calendar_id]}"
         )
       ]
     end

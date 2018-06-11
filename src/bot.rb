@@ -3,8 +3,8 @@
 require 'log'
 require 'util'
 require 'commands'
-require 'IncomingMessage'
-require 'MessageSender'
+require 'incoming_message'
+require 'message_sender'
 
 require 'telegram/bot'
 require 'i18n'

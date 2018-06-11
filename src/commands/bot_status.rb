@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
-require 'Container'
+require 'container'
 
 require 'i18n'
 

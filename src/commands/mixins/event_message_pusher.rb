@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'i18n'
-require 'Container'
+require 'container'
 
 ##
 # This module provides a mixing for pushing
