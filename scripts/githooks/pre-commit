@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo Running pre commit hook.
+
+git stash -u --keep-index
+
+rubocop -a && rspec
+result=$?
+
+git clean -df
+git checkout -- .
+git stash pop -q
+
+exit $result

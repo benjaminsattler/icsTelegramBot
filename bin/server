@@ -1,31 +1,30 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-def getCommandlineArgument(argname)
-    args = {}
-    ARGV.each do |arg|
-        matcher = /^([^=]+)=(.+)$/.match(arg)
-        if (matcher) then
-            args[matcher[1]] = matcher[2]
-        else
-            if (arg == argname) then
-                args[arg] = true
-            end
-        end
+def commandline_argument(argname)
+  args = {}
+  ARGV.each do |arg|
+    matcher = /^([^=]+)=(.+)$/.match(arg)
+    if matcher
+      args[matcher[1]] = matcher[2]
+    elsif arg == argname
+      args[arg] = true
     end
-    args[argname]
+  end
+  args[argname]
 end
 
 config = {
-    pid: getCommandlineArgument('--pid'),
-    log: getCommandlineArgument('--log'),
-    daemon: !getCommandlineArgument('--daemon').nil?,
-    main: getCommandlineArgument('--main')
+  pid: commandline_argument('--pid'),
+  log: commandline_argument('--log'),
+  daemon: !commandline_argument('--daemon').nil?,
+  main: commandline_argument('--main')
 }
 
 p = [
-    File.dirname(__FILE__),
-    '..',
-    'src'
+  File.dirname(__FILE__),
+  '..',
+  'src'
 ]
 
 $LOAD_PATH.unshift(File.expand_path(File.join(p)))

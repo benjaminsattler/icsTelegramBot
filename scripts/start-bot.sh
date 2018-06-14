@@ -9,7 +9,7 @@ if [ "$1" = "" ]; then
     exit
 fi
 export ICSBOT_ENV=$1
-${BASE_DIR}bin/server --daemon --log=${LOGFILE} --pid=${PIDFILE} --main=MainThread
+${BASE_DIR}bin/server --daemon --log=${LOGFILE} --pid=${PIDFILE} --main=main_thread
 servercode=$? 
 if [ -f $PIDFILE ] && [ "$servercode" -eq "0" ]; then
     echo "Started with PID `cat $PIDFILE`, ENVIRONMENT $ICSBOT_ENV and LOG $LOGFILE"
