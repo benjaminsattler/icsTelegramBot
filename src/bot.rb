@@ -6,6 +6,7 @@ require 'commands'
 require 'incoming_message'
 require 'message_sender'
 
+require 'date'
 require 'telegram/bot'
 require 'i18n'
 require 'multitrap'

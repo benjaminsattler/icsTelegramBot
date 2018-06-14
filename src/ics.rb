@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'log'
-require 'Date'
+require 'date'
 
 ##
 # This module represents classes used for parsing,
