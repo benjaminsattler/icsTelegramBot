@@ -7,5 +7,5 @@ This repository features a quick-and-dirty telegram-based bot that can load even
 in a Terminal window navigate to the project root and type
 
 ```
-bundle install && bundle
+bundle install
 ```
