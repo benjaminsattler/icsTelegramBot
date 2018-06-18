@@ -105,7 +105,7 @@ class Bot
     calendars = Container.get(:calendars)
     message_sender = MessageSender.new(@bot_instance)
     description = calendars[calendar_id][:description]
-    description = I18n.t('unknown_calendar') if calendar_id >= calendars.length
+    description = I18n.t('event.unknown_calendar') if calendars[calendar_id].nil?
     data_store.all_subscribers.each do |sub|
       next unless !sub[:notifiedEvents].include?(event.id) &&
                   (event.date - Date.today).to_i == sub[:notificationday] &&
