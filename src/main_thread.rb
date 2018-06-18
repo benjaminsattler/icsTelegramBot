@@ -146,7 +146,7 @@ class MainThread
       Process.kill('TERM', Process.pid)
     end
 
-    @watchdog.watch([{
+    th = @watchdog.watch([{
                       name: 'Bot',
                       thr: bot_thread_block
                     }, {
@@ -159,7 +159,7 @@ class MainThread
 
     @is_running = true
 
-    sleep 1 while @is_running
+    th.join
   end
 
   def stop
