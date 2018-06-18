@@ -100,9 +100,12 @@ class Bot
     cmd.process(msg, userid, chatid, orig)
   end
 
-  def notify(_calendar_id, event)
+  def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
+    calendars = Container.get(:calendars)
     message_sender = MessageSender.new(@bot_instance)
+    description = calendars[calendar_id][:description]
+    description = I18n.t('unknown_calendar') if calendar_id >= calendars.length
     data_store.all_subscribers.each do |sub|
       next unless !sub[:notifiedEvents].include?(event.id) &&
                   (event.date - Date.today).to_i == sub[:notificationday] &&
@@ -112,6 +115,7 @@ class Bot
         I18n.t(
           'event.reminder',
           summary: event.summary,
+          calendar_name: description,
           days_to_event: sub[:notificationday],
           date_of_event: event.date.strftime('%d.%m.%Y')
         ),
