@@ -1,6 +1,7 @@
 de:
   event:
-    reminder: ❗️📢 %{summary} ist in %{days_to_event} Tag(en) fällig am %{date_of_event}!
+    reminder: ❗️📢 %{summary} von %{calendar_name} ist in %{days_to_event} Tag(en) fällig am %{date_of_event}!
+    unknown_calendar: einem unbekannten Kalender
   confirmations:
     setdatetime_success_sameday: Für %{calendar_name} werde ich dich ab jetzt am Tag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
     setdatetime_success_precedingday: Für %{calendar_name} werde ich dich ab jetzt am Vortag der Termine um %{reminder_time} Uhr benachrichtigen! 🙃
