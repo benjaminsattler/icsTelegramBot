@@ -5,6 +5,8 @@ require 'util'
 require 'commands'
 require 'incoming_message'
 require 'message_sender'
+require 'events/calendar'
+require 'events/event'
 
 require 'date'
 require 'telegram/bot'
@@ -105,7 +107,9 @@ class Bot
     calendars = Container.get(:calendars)
     message_sender = MessageSender.new(@bot_instance)
     description = calendars[calendar_id][:description]
-    description = I18n.t('event.unknown_calendar') if calendars[calendar_id].nil?
+    if calendars[calendar_id].nil?
+      description = I18n.t('event.unknown_calendar')
+    end
     data_store.all_subscribers.each do |sub|
       next unless !sub[:notifiedEvents].include?(event.id) &&
                   (event.date - Date.today).to_i == sub[:notificationday] &&

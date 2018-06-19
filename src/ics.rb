@@ -2,6 +2,7 @@
 
 require 'log'
 require 'date'
+require 'events/event'
 
 ##
 # This module represents classes used for parsing,
@@ -42,7 +43,7 @@ module ICS
           case v
           when 'VEVENT'
             if current_event.nil?
-              current_event = ICS::Event.new
+              current_event = Events::Event.new
             else
               throw('Error: encountered new event'\
                     ' without closing previous event')
@@ -79,41 +80,6 @@ module ICS
       end
       log("Found #{events.length} events.")
       events
-    end
-  end
-
-  ##
-  # Container class for storing information about
-  # an ics calendar event.
-  class Event
-    attr_accessor :date, :summary, :id, :calendar_id
-  end
-
-  ##
-  # This class holds a collection of ics calendar events.
-  class Calendar
-    def initialize
-      @events = []
-    end
-
-    def load_events(events)
-      @events = events.sort_by { |event| [event.date.year, event.date.yday] }
-    end
-
-    def events(count = -1)
-      result = nil
-      events = @events.reject { |event| event.date <= Date.today }
-      result = events.take(count) if count > -1
-      result = events if count == -1
-      result
-    end
-
-    def add_event(event)
-      @events.push(event)
-    end
-
-    def least_recent_event
-      @events.last
     end
   end
 end
