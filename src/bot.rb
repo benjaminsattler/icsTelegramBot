@@ -159,40 +159,41 @@ class Bot
   def handle_text_message(msg)
     return if msg.nil? || !msg.respond_to?('text') || msg.text.nil?
     command, = msg.text.split(/\s+/)
+    command.downcase!
     command_target = command.include?('@') ? command.split('@')[1] : nil
     case command
-    when '/start', "/start@#{@botname}"
+    when '/start', "/start@#{@botname.downcase}"
       handle_start_message(msg.text, msg.author.id, msg.chat.id)
-    when '/subscribe', "/subscribe@#{@botname}"
+    when '/subscribe', "/subscribe@#{@botname.downcase}"
       handle_subscribe_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/setday'
+    when '/setday', "/setday@#{@botname.downcase}"
       handle_set_day_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
-    when '/settime', "/settime@#{@botname}"
+    when '/settime', "/settime@#{@botname.downcase}"
       handle_set_time_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/unsubscribe', "/unsubscribe@#{@botname}"
+    when '/unsubscribe', "/unsubscribe@#{@botname.downcase}"
       handle_unsubscribe_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/mystatus', "/mystatus@#{@botname}"
+    when '/mystatus', "/mystatus@#{@botname.downcase}"
       handle_my_status_message(msg.text, msg.author.id, msg.chat.id)
-    when '/botstatus', "/botstatus@#{@botname}"
+    when '/botstatus', "/botstatus@#{@botname.downcase}"
       handle_bot_status_message(msg.chat.id)
-    when '/events', "/events@#{@botname}"
+    when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
-    when '/help', "/help@#{@botname}"
+    when '/help', "/help@#{@botname.downcase}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
@@ -200,7 +201,7 @@ class Bot
           I18n.t('unknown_command'),
           msg.chat.id
         )
-      elsif command_target == @botname
+      elsif command_target.downcase == @botname.downcase
         MessageSender.new(@bot_instance).process(
           I18n.t('unknown_command'),
           msg.chat.id
