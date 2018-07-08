@@ -201,7 +201,7 @@ class Bot
           I18n.t('unknown_command'),
           msg.chat.id
         )
-      elsif command_target.downcase == @botname.downcase
+      elsif command_target.casecmp(@botname)
         MessageSender.new(@bot_instance).process(
           I18n.t('unknown_command'),
           msg.chat.id
