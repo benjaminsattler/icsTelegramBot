@@ -169,7 +169,7 @@ class Bot
         msg.text,
         msg.author.id,
         msg.chat.id,
-        msg.orig_obj
+        msg.orig_obj,
       )
     when '/setday', "/setday@#{@botname.downcase}"
       handle_set_day_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
