@@ -4,6 +4,7 @@ require 'watchdog'
 require 'bot'
 require 'data'
 require 'ics'
+require 'events/calendar'
 require 'log'
 require 'container'
 
@@ -69,7 +70,7 @@ class MainThread
       )
     )
     calendars = data.calendars.each_value do |calendar_desc|
-      events = ICS::Calendar.new
+      events = Events::Calendar.new
       events.load_events(
         ICS::FileParser.parse_ics(
           File.join(
@@ -146,20 +147,20 @@ class MainThread
       Process.kill('TERM', Process.pid)
     end
 
-    @watchdog.watch([{
-                      name: 'Bot',
-                      thr: bot_thread_block
-                    }, {
-                      name: 'Database',
-                      thr: database_thread_block
-                    }, {
-                      name: 'Event',
-                      thr: event_thread_block
-                    }])
+    th = @watchdog.watch([{
+                           name: 'Bot',
+                           thr: bot_thread_block
+                         }, {
+                           name: 'Database',
+                           thr: database_thread_block
+                         }, {
+                           name: 'Event',
+                           thr: event_thread_block
+                         }])
 
     @is_running = true
 
-    sleep 1 while @is_running
+    th.join
   end
 
   def stop

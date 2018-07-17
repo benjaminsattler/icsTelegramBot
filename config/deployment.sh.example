@@ -1,3 +1,2 @@
 sshurl='username@ssh.url.host'
 sshlocaldir='/path/to/your/repository/'
-sshafterupdate='./scripts/restart-bot-production.sh'

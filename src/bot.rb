@@ -5,6 +5,8 @@ require 'util'
 require 'commands'
 require 'incoming_message'
 require 'message_sender'
+require 'events/calendar'
+require 'events/event'
 
 require 'date'
 require 'telegram/bot'
@@ -100,9 +102,14 @@ class Bot
     cmd.process(msg, userid, chatid, orig)
   end
 
-  def notify(_calendar_id, event)
+  def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
+    calendars = Container.get(:calendars)
     message_sender = MessageSender.new(@bot_instance)
+    description = calendars[calendar_id][:description]
+    if calendars[calendar_id].nil?
+      description = I18n.t('event.unknown_calendar')
+    end
     data_store.all_subscribers.each do |sub|
       next unless !sub[:notifiedEvents].include?(event.id) &&
                   (event.date - Date.today).to_i == sub[:notificationday] &&
@@ -112,6 +119,7 @@ class Bot
         I18n.t(
           'event.reminder',
           summary: event.summary,
+          calendar_name: description,
           days_to_event: sub[:notificationday],
           date_of_event: event.date.strftime('%d.%m.%Y')
         ),
@@ -151,40 +159,41 @@ class Bot
   def handle_text_message(msg)
     return if msg.nil? || !msg.respond_to?('text') || msg.text.nil?
     command, = msg.text.split(/\s+/)
+    command.downcase!
     command_target = command.include?('@') ? command.split('@')[1] : nil
     case command
-    when '/start', "/start@#{@botname}"
+    when '/start', "/start@#{@botname.downcase}"
       handle_start_message(msg.text, msg.author.id, msg.chat.id)
-    when '/subscribe', "/subscribe@#{@botname}"
+    when '/subscribe', "/subscribe@#{@botname.downcase}"
       handle_subscribe_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/setday'
+    when '/setday', "/setday@#{@botname.downcase}"
       handle_set_day_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
-    when '/settime', "/settime@#{@botname}"
+    when '/settime', "/settime@#{@botname.downcase}"
       handle_set_time_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/unsubscribe', "/unsubscribe@#{@botname}"
+    when '/unsubscribe', "/unsubscribe@#{@botname.downcase}"
       handle_unsubscribe_message(
         msg.text,
         msg.author.id,
         msg.chat.id,
         msg.orig_obj
       )
-    when '/mystatus', "/mystatus@#{@botname}"
+    when '/mystatus', "/mystatus@#{@botname.downcase}"
       handle_my_status_message(msg.text, msg.author.id, msg.chat.id)
-    when '/botstatus', "/botstatus@#{@botname}"
+    when '/botstatus', "/botstatus@#{@botname.downcase}"
       handle_bot_status_message(msg.chat.id)
-    when '/events', "/events@#{@botname}"
+    when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
-    when '/help', "/help@#{@botname}"
+    when '/help', "/help@#{@botname.downcase}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
@@ -192,7 +201,7 @@ class Bot
           I18n.t('unknown_command'),
           msg.chat.id
         )
-      elsif command_target == @botname
+      elsif command_target.casecmp(@botname)
         MessageSender.new(@bot_instance).process(
           I18n.t('unknown_command'),
           msg.chat.id
