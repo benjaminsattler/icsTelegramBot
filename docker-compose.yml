@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app:
+    build: ./docker/app/
+    volumes:
+      - /Users/bsa/repos/muell:/app:ro
+      - /Users/bsa/repos/muell/assets:/assets:ro
+  database:
+    build: ./docker/database/
+    volumes:
+      - /Users/bsa/repos/muell/db:/db:rw

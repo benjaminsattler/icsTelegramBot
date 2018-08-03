@@ -73,11 +73,7 @@ class MainThread
       events = Events::Calendar.new
       events.load_events(
         ICS::FileParser.parse_ics(
-          File.join(
-            File.dirname(__FILE__),
-            '..',
             calendar_desc[:ics_path]
-          )
         )
       )
       calendar_desc[:eventlist] = events
