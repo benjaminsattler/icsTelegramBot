@@ -2,7 +2,7 @@
 
 require 'watchdog'
 require 'bot'
-require 'data'
+require 'persistence/data'
 require 'ics'
 require 'events/calendar'
 require 'log'

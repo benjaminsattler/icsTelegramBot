@@ -2,11 +2,12 @@
 
 require 'log'
 require 'sqlite3'
+require 'persistence/persistence'
 
 ##
 # This class bundles the database functionality
 # for storing and updating subscribers.
-class DataStore
+class DataStore < Persistence
   @db = nil
   @subscribers = nil
 
