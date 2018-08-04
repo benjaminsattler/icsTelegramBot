@@ -2,7 +2,7 @@
 
 require 'watchdog'
 require 'bot'
-require 'persistence/data'
+require 'persistence/sqlite'
 require 'ics'
 require 'events/calendar'
 require 'log'
@@ -62,7 +62,7 @@ class MainThread
   end
 
   def run
-    data = DataStore.new(
+    data = Sqlite.new(
       File.join(
         File.dirname(__FILE__),
         '..',
