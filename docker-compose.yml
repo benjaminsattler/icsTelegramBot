@@ -3,8 +3,9 @@ services:
   app:
     build: ./docker/app/
     volumes:
-      - /Users/bsa/repos/muell:/app:ro
+      - /Users/bsa/repos/muell:/app:rw
       - /Users/bsa/repos/muell/assets:/assets:ro
+      - /Users/bsa/repos/muell/db:/db:rw
   database:
     build: ./docker/database/
     volumes:
