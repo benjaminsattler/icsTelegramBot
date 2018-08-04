@@ -5,8 +5,7 @@ require 'sqlite3'
 require 'persistence/persistence'
 
 ##
-# This class bundles the database functionality
-# for storing and updating subscribers.
+# This class bundles sqlite persistence functionality
 class Sqlite < Persistence
   @db = nil
   @subscribers = nil
