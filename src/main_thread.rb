@@ -2,7 +2,7 @@
 
 require 'watchdog'
 require 'bot'
-require 'data'
+require 'persistence/factory'
 require 'ics'
 require 'events/calendar'
 require 'log'
@@ -62,13 +62,7 @@ class MainThread
   end
 
   def run
-    data = DataStore.new(
-      File.join(
-        File.dirname(__FILE__),
-        '..',
-        @config['db_path']
-      )
-    )
+    data = Factory.new(@config).get(@config['persistence'])
     calendars = data.calendars.each_value do |calendar_desc|
       events = Events::Calendar.new
       events.load_events(
