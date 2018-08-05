@@ -21,6 +21,7 @@ GEM
     inflecto (0.0.2)
     multipart-post (2.0.0)
     multitrap (0.1.0)
+    mysql2 (0.5.2)
     parallel (1.12.1)
     parser (2.5.1.0)
       ast (~> 2.4.0)
@@ -68,6 +69,7 @@ PLATFORMS
 DEPENDENCIES
   i18n
   multitrap
+  mysql2
   rspec
   rubocop
   rubocop-rspec
@@ -75,4 +77,4 @@ DEPENDENCIES
   telegram-bot-ruby
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
