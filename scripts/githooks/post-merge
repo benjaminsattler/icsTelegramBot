@@ -5,6 +5,7 @@ editor=`git config --get core.editor`
 if [ "$editor" == "" ]; then
 	editor=${FCEDIT:-${VISUAL:-${EDITOR:-vi}}}
 fi
+exec < /dev/tty
 function getAnswer {
 	while true; do
 		echo "$1 (y/n)"
@@ -41,7 +42,6 @@ do
 		continue
 	fi
 	echo "Updating configs."
-	exec < /dev/tty
 	for conffile in ${confdir}*.yml
 	do
 		getAnswer "Processing $conffile file..?"
