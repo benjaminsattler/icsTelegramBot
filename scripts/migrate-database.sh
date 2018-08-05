@@ -26,13 +26,24 @@ if [ ! -f $config ]; then
     exit 1
 fi
 
-db_file=${BASE_DIR}`cat $config | grep db_path | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+persistence=`cat $config | grep persistence | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+echo "Persistence is $persistence"
+case "$persistence" in
+    "sqlite")
+        db_path=`cat $config | grep db_path | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_file="sqlite://$db_path"
+        ;;
+    "mysql")
+        db_host=`cat $config | grep host | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_port=`cat $config | grep port | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_username=`cat $config | grep username | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_password=`cat $config | grep password | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_database=`cat $config | grep database | awk -F ":" '{gsub(/[ \t]+/, "", $2);print $2}'`
+        db_file="mysql://$db_username:$db_password@$db_host:$db_port/$db_database"
+        ;;
+esac
 
 echo Database file is $db_file
-if [ ! -f $db_file ]; then
-    echo Could not find database file $db_file.
-    #exit 1
-fi
 
 if [ "$DBMATE_BINARY" != "" ]; then
     dbmate_binary=$DBMATE_BINARY
@@ -49,5 +60,5 @@ fi
 echo Migration binary is $dbmate_binary
 
 echo Executing migrations
-DB="sqlite://${db_file}" ${dbmate_binary} --migrations-dir "${BASE_DIR}/db/migrations/" -e DB $*
+DB=$db_file $dbmate_binary --migrations-dir "${BASE_DIR}/db/migrations/$persistence/" -e DB $*
 echo Finished executing migrations

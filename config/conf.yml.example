@@ -2,6 +2,12 @@ bot_token: <telegram bot token>
 flush_interval: <interval in seconds>
 admin_users:
   - <telegram user id, copy this line if you want multiple users>
-persistence: sqlite
+persistence: sqlite|mysql
 sqlite:
   db_path: <path to desired db file>
+mysql:
+  host: <mysql host>
+  port: <mysql host port>
+  username: <mysql username>
+  password: <mysql password>
+  database: <mysql database>
