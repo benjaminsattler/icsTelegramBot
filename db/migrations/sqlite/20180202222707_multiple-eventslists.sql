@@ -12,8 +12,6 @@ UPDATE subscribers SET eventlist_id=last_insert_rowid();
 -- migrate:down
 PRAGMA foreign_keys=off;
 
-BEGIN TRANSACTION;
-
 ALTER TABLE subscribers RENAME TO subscribers_temp;
 CREATE TABLE subscribers (
     id INTEGER PRIMARY KEY,
@@ -27,8 +25,7 @@ INSERT INTO subscribers (id, telegram_id, notificationday, notificationtime)
   FROM subscribers_temp;
  
  DROP table subscribers_temp;
- 
- COMMIT;
+
  
  PRAGMA foreign_keys=on;
 
