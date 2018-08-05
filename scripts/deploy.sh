@@ -6,6 +6,7 @@ echo dir is $sshlocaldir
 cd $sshlocaldir
 git fetch --tags
 git checkout master
+git pull
 bundle install
 ICSBOT_ENV=production ./scripts/migrate-database.sh migrate
 ./scripts/restart-bot-production.sh
