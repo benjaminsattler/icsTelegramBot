@@ -2,11 +2,11 @@
 
 require 'log'
 require 'sqlite3'
+require 'persistence/persistence'
 
 ##
-# This class bundles the database functionality
-# for storing and updating subscribers.
-class DataStore
+# This class bundles sqlite persistence functionality
+class Sqlite < Persistence
   @db = nil
   @subscribers = nil
 
@@ -14,7 +14,7 @@ class DataStore
     @db = SQLite3::Database.new file
     @subscribers = @db
                    .execute('SELECT * from subscribers')
-                   .map { |sub| DataStore.fix_database_object(sub) }
+                   .map { |sub| Sqlite.fix_database_object(sub) }
   end
 
   def add_subscriber(sub)
@@ -131,7 +131,7 @@ class DataStore
   def calendars
     calendars = {}
     @db.execute('SELECT * FROM eventslists').each do |calendar|
-      cal_fixed = DataStore.fix_database_calendar_object(calendar)
+      cal_fixed = Sqlite.fix_database_calendar_object(calendar)
       calendars[cal_fixed[:calendar_id]] = cal_fixed
     end
     calendars
