@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 gem 'i18n'
 gem 'multitrap'
+gem 'mysql2'
 gem 'sqlite3'
 gem 'telegram-bot-ruby'
 
