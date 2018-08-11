@@ -18,6 +18,7 @@ class EventsCommand < Command
     bot = Container.get(:bot)
     calendar_id = args[0]
     count = args[1]
+    skip = args[2]
     if calendar_id.nil?
       @message_sender.process(
         I18n.t(
@@ -71,7 +72,14 @@ class EventsCommand < Command
       )
       return
     end
-    push_events_description(calendar_id, count, userid, chatid)
+    skip = 0 if skip.nil?
+    skip = begin
+      Integer(skip)
+    rescue StandardError
+      -1
+    end
+    skip = 0 if skip.negative?
+    push_events_description(calendar_id, count, userid, chatid, skip)
   end
 
   def calendar_buttons

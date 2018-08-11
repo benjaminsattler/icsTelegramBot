@@ -7,40 +7,70 @@ require 'container'
 # This module provides a mixing for pushing
 # event information to the user.
 module EventMessagePusher
-  def push_events_description(calendar_id, eventcount, _userid, chatid)
+  def push_events_description(
+    calendar_id,
+    eventcount,
+    _userid,
+    chatid,
+    eventskip = 0
+  )
     calendars = Container.get(:calendars)
-    events = calendars[calendar_id][:eventlist].events(eventcount)
+    eventskip = 0 if eventskip.negative?
+    events = calendars[calendar_id][:eventlist].events
+                                               .drop(eventskip)
+                                               .take(eventcount)
     calendar_name = calendars[calendar_id][:description]
     text = []
-    unless eventcount == 1
+    unless events.count == 1
       text << I18n.t(
         'events.listing_intro_multiple',
         total: eventcount,
         calendar_name: calendar_name
       )
     end
-    if eventcount == 1
+    if events.count == 1
       text << I18n.t(
         'events.listing_intro_one',
         calendar_name: calendar_name
       )
     end
-    if eventcount.zero?
+    if events.count.zero?
       text << I18n.t(
         'events.listing_intro_empty',
         calendar_name: calendar_name
       )
     end
     @message_sender.process(text.join("\n"), chatid)
-    events
-      .take(eventcount)
-      .each { |event| push_event_description(event, chatid) }
+    events.each { |event| push_event_description(event, chatid) }
+    return if events.count <= 0
+    @message_sender.process(
+      I18n.t(
+        'events.listing_outro_more'
+      ),
+      chatid,
+      more_events_keyboard_markup(
+        calendar_id,
+        eventcount,
+        eventcount + event_skip
+      )
+    )
   end
 
   def push_event_description(event, chatid)
     @message_sender.process(
       "#{event.date.strftime('%d.%m.%Y')}: #{event.summary}",
       chatid
+    )
+  end
+
+  def more_events_keyboard_markup(calendar_id, event_count, event_skip)
+    btn = Telegram::Bot::Types::InlineKeyboardButton.new(
+      text: I18n.t('events.show_more_button', count: event_count),
+      callback_data: "/events #{calendar_id} #{event_count} #{event_skip}"
+    )
+
+    Telegram::Bot::Types::InlineKeyboardMarkup.new(
+      inline_keyboard: [[btn]]
     )
   end
 end
