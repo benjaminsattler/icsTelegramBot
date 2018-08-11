@@ -40,26 +40,26 @@ module EventMessagePusher
         calendar_name: calendar_name
       )
     end
-    @message_sender.process(text.join("\n"), chatid)
-    events.each { |event| push_event_description(event, chatid) }
-    return if events.count <= 0
-    @message_sender.process(
-      I18n.t(
-        'events.listing_outro_more'
-      ),
-      chatid,
-      more_events_keyboard_markup(
+    text << ''
+    events.each do |event|
+      text << "#{event.date.strftime('%d.%m.%Y')}: #{event.summary}"
+    end
+
+    markup = nil
+    if events.count.positive?
+      text << ''
+      text << I18n.t('events.listing_outro_more')
+      markup = more_events_keyboard_markup(
         calendar_id,
         eventcount,
-        eventcount + event_skip
+        eventcount + eventskip
       )
-    )
-  end
+    end
 
-  def push_event_description(event, chatid)
     @message_sender.process(
-      "#{event.date.strftime('%d.%m.%Y')}: #{event.summary}",
-      chatid
+      text.join("\n"),
+      chatid,
+      markup
     )
   end
 
