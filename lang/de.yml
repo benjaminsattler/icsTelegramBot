@@ -12,7 +12,9 @@ de:
     choose_calendar: Für welchen Kalendar möchtest du Events sehen?
     listing_intro_one: Hier ist der nächste Termin für %{calendar_name}
     listing_intro_multiple: Hier sind die nächsten %{total} Termine für %{calendar_name}
-    listing_intro_empty: Es scheint keine Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
+    listing_intro_empty: Es scheint keine weiteren Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
+    listing_outro_more: Möchtest du weitere Einträge sehen? 🤓
+    show_more_button: Weitere %{count} Einträge
   status:
     intro: "Du erhälst Erinnerungen für die folgenden Einträge 🙃"
     not_subscribed: Du erhälst von mir keine Erinnerungen. Mit /subscribe kannst du das ändern! 😇
