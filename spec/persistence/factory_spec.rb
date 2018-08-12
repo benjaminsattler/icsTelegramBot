@@ -5,10 +5,12 @@ require 'persistence/factory'
 RSpec.describe Factory do
   let(:config_map) do
     { 'sqlite' => {
-      'db_path' => './db/test.db'
+      'db_path' => './db/sqlite/factory_tests.db'
     } }
   end
   let(:factory) { described_class.new(config_map) }
+
+  after(:all) { File.delete('./db/sqlite/factory_tests.db') }
 
   describe 'get' do
     it 'returns a Sqlite instance' do
