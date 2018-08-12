@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require 'tempfile'
+require 'date'
+
 require 'ics'
 require 'events/event'
-require 'Tempfile'
-require 'Date'
 
 RSpec.describe ICS do
   before(:all) do
