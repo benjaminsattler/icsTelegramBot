@@ -15,6 +15,9 @@ services:
       - /Users/bsa/repos/muell/db:/db:rw
     networks:
       - test
+    restart: on-failure
+    environment:
+      - DATABASE_URL=mysql://root:example@muell_mysql_1/icstelegrambot
     #networks:
     #  - frontend
   mysql:
