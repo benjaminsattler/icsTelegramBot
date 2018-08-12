@@ -5,4 +5,4 @@ VOLUME /assets
 VOLUME /log
 ENV ICSBOT_ENV=testing
 WORKDIR /app
-CMD bundle install && /app/bin/server --main=MainThread
+CMD bundle install --without=development,testing && /app/bin/server --main=MainThread
