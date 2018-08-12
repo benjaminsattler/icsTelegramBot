@@ -6,7 +6,49 @@ services:
       - /Users/bsa/repos/muell:/app:rw
       - /Users/bsa/repos/muell/assets:/assets:ro
       - /Users/bsa/repos/muell/db:/db:rw
+    networks:
+      - test
+     # - frontend
   database:
     build: ./docker/database/
     volumes:
       - /Users/bsa/repos/muell/db:/db:rw
+    networks:
+      - test
+    #networks:
+    #  - frontend
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - 3306:3306
+    networks:
+      - test
+    #networks:
+     # - frontend
+      #- backend
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    networks:
+      - test
+    environment:
+      - PMA_HOST=muell_mysql_1
+      
+    #networks:
+    #  - maintenance
+    #  - backend
+networks:
+  maintenance:
+    driver: host
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+  test:
+    driver: bridge
