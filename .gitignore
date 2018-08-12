@@ -6,6 +6,7 @@ config/backup/
 *.log
 log/*.log
 log/*.gz
-db/*
-!db/migrations
+db/mysql/*
+db/sqlite/*
+db/backup/*
 *.pid
