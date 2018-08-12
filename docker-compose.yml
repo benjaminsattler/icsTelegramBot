@@ -3,15 +3,15 @@ services:
   app:
     build: ./docker/app/
     volumes:
-      - /Users/bsa/repos/muell:/app:rw
-      - /Users/bsa/repos/muell/assets:/assets:ro
-      - /Users/bsa/repos/muell/db:/db:rw
+      - .:/app:rw
+      - ./assets:/assets:ro
+      - ./db:/db:rw
     networks:
       - frontend
   migrations:
     build: ./docker/migrations/
     volumes:
-      - /Users/bsa/repos/muell/db:/db:rw
+      - ./db:/db:rw
     restart: on-failure
     environment:
       - DATABASE_URL=mysql://root:example@muell_mysql_1/icstelegrambot
