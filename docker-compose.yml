@@ -6,6 +6,7 @@ services:
       - .:/app:rw
       - ./assets:/assets:ro
       - ./db:/db:rw
+      - ./log:/log:rw
     networks:
       - frontend
   migrations:
