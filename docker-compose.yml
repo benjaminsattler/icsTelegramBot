@@ -8,8 +8,8 @@ services:
       - /Users/bsa/repos/muell/db:/db:rw
     networks:
       - frontend
-  database:
-    build: ./docker/database/
+  migrations:
+    build: ./docker/migrations/
     volumes:
       - /Users/bsa/repos/muell/db:/db:rw
     restart: on-failure
