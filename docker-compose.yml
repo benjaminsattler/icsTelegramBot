@@ -10,6 +10,8 @@ services:
       - ./log:/log:rw
     networks:
       - frontend
+    environment:
+      - ICSBOT_ENV=testing
   migrations:
     build: ./docker/migrations/
     volumes:
@@ -28,6 +30,8 @@ services:
     networks:
       - frontend
       - backend
+    volumes:
+      - ./db/mysql:/var/lib/mysql
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always

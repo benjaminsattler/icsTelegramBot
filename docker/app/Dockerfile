@@ -3,6 +3,5 @@ RUN apk update && apk add -v ruby-dev build-base sqlite-dev mysql-dev
 VOLUME /app
 VOLUME /assets
 VOLUME /log
-ENV ICSBOT_ENV=testing
 WORKDIR /app
 CMD bundle install --without=development,testing && /app/bin/server --main=MainThread
