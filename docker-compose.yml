@@ -7,32 +7,27 @@ services:
       - /Users/bsa/repos/muell/assets:/assets:ro
       - /Users/bsa/repos/muell/db:/db:rw
     networks:
-      - test
-     # - frontend
+      - frontend
   database:
     build: ./docker/database/
     volumes:
       - /Users/bsa/repos/muell/db:/db:rw
-    networks:
-      - test
     restart: on-failure
     environment:
       - DATABASE_URL=mysql://root:example@muell_mysql_1/icstelegrambot
-    #networks:
-    #  - frontend
+    networks:
+      - frontend
   mysql:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: example
-    ports:
-      - 3306:3306
     networks:
       - test
-    #networks:
-     # - frontend
-      #- backend
+    networks:
+      - frontend
+      - backend
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
@@ -41,17 +36,11 @@ services:
     networks:
       - test
     environment:
-      - PMA_HOST=muell_mysql_1
-      
-    #networks:
-    #  - maintenance
-    #  - backend
+      - PMA_HOST=muell_mysql_1  
+    networks:
+      - backend
 networks:
-  maintenance:
-    driver: host
   frontend:
     driver: bridge
   backend:
-    driver: bridge
-  test:
     driver: bridge
