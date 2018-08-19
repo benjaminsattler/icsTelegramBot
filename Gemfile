@@ -13,6 +13,8 @@ group :test do
 end
 
 group :development do
+  gem 'debase'
   gem 'rubocop'
   gem 'rubocop-rspec'
+  gem 'ruby-debug-ide'
 end

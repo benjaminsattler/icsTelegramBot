@@ -4,4 +4,6 @@ VOLUME /app
 VOLUME /assets
 VOLUME /log
 WORKDIR /app
-CMD bundle install --without=development,testing && /app/bin/server --main=MainThread
+EXPOSE 1234
+EXPOSE 26162
+CMD bundle install --without=testing && rdebug-ide --host 0.0.0.0 --port 1234 --dispatcher-port 26162 -- /app/bin/server --main=MainThread

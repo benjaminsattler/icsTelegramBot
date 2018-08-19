@@ -9,6 +9,9 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
+    debase (0.2.2)
+      debase-ruby_core_source (>= 0.10.2)
+    debase-ruby_core_source (0.10.3)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.3)
@@ -27,6 +30,7 @@ GEM
       ast (~> 2.4.0)
     powerpack (0.1.1)
     rainbow (3.0.0)
+    rake (12.3.1)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
       rspec-expectations (~> 3.7.0)
@@ -49,6 +53,8 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     rubocop-rspec (1.25.1)
       rubocop (>= 0.53.0)
+    ruby-debug-ide (0.6.1)
+      rake (>= 0.8.1)
     ruby-progressbar (1.9.0)
     sqlite3 (1.3.13)
     telegram-bot-ruby (0.8.6.1)
@@ -67,14 +73,16 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  debase
   i18n
   multitrap
   mysql2
   rspec
   rubocop
   rubocop-rspec
+  ruby-debug-ide
   sqlite3
   telegram-bot-ruby
 
 BUNDLED WITH
-   1.16.2
+   1.16.3
