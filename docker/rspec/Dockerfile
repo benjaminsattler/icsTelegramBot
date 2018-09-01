@@ -1,7 +1,7 @@
-FROM ruby:2.4.4-alpine3.7 
-VOLUME /app
+FROM ruby:2.4.4-alpine3.7
+COPY Gemfile .
 WORKDIR /app
-COPY Gemfile /app
+VOLUME /app
 RUN apk update && \
     apk add -v ruby-dev build-base sqlite-dev mysql-dev && \
     bundle install --without=development

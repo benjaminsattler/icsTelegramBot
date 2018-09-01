@@ -25,7 +25,7 @@ services:
     env_file:
       - ./docker/migrations/docker.env
     networks:
-      - frontend
+      - backend
   mysql:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
@@ -37,27 +37,6 @@ services:
       - backend
     volumes:
       - ./db/mysql:/var/lib/mysql
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - 8080:80
-    networks:
-      - backend
-    environment:
-      - PMA_HOST=muell_mysql_1  
-    networks:
-      - backend
-  rspec:
-    build:
-      context: ./
-      dockerfile: ./docker/rspec/Dockerfile
-    volumes:
-      - .:/app
-  rubocop:
-    build: ./docker/rubocop/
-    volumes:
-      - .:/app
 networks:
   frontend:
     driver: bridge
