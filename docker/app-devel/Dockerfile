@@ -1,9 +1,7 @@
 ARG DEBUGGER_PORT
-FROM ruby:2.4.4-alpine3.7
+FROM muell:latest
 COPY ./Gemfile .
-RUN apk update && \
-    apk add -v ruby-dev build-base sqlite-dev mysql-dev && \
-    bundle install --without=testing
+RUN bundle install --with=development
 
 WORKDIR /app/
 VOLUME /app

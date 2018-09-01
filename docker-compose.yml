@@ -1,12 +1,12 @@
 version: '3'
 services:
-  app:
+  muell-devel:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
+      dockerfile: ./docker/app-devel/Dockerfile
     restart: always
     env_file:
-      - ./docker/app/docker.env
+      - ./docker/app-devel/docker.env
     volumes:
       - .:/app:rw
       - ./assets:/assets:ro

@@ -1,4 +1,4 @@
-FROM ruby:2.4.4-alpine3.7
+FROM muell:latest
 COPY Gemfile .
 WORKDIR /app
 VOLUME /app
