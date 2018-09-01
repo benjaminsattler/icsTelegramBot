@@ -1,3 +1,4 @@
 #!/bin/bash
 
-`dirname $BASH_SOURCE`/start-bot.sh production
+echo "Starting muell service"
+docker run -v $PWD/:/app -v $PWD/assets/:/assets -v $PWD/db/:/db -v $PWD/log/:/log --network=muell_frontend muell
