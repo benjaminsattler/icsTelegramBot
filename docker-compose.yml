@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    build: ./docker/app/
+    build: .
     restart: always
     volumes:
       - .:/app:rw
@@ -46,6 +46,16 @@ services:
       - PMA_HOST=muell_mysql_1  
     networks:
       - backend
+  rspec:
+    build:
+      context: ./
+      dockerfile: ./docker/rspec/Dockerfile
+    volumes:
+      - .:/app
+  rubocop:
+    build: ./docker/rubocop/
+    volumes:
+      - .:/app
 networks:
   frontend:
     driver: bridge
