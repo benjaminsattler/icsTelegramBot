@@ -10,3 +10,4 @@ db/mysql/*
 db/sqlite/*
 db/backup/*
 *.pid
+*.env
