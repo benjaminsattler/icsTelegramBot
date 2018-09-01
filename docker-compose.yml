@@ -20,8 +20,8 @@ services:
     volumes:
       - ./db:/db:rw
     restart: on-failure
-    environment:
-      - DATABASE_URL=mysql://root:example@muell_mysql_1/icstelegrambot
+    env_file:
+      - ./docker/migrations/docker.env
     networks:
       - frontend
   mysql:
@@ -41,7 +41,7 @@ services:
     ports:
       - 8080:80
     networks:
-      - test
+      - backend
     environment:
       - PMA_HOST=muell_mysql_1  
     networks:
