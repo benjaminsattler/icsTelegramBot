@@ -3,6 +3,8 @@ services:
   app:
     build: .
     restart: always
+    env_file:
+      - ./docker/app/docker.env
     volumes:
       - .:/app:rw
       - ./assets:/assets:ro
