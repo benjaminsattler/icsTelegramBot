@@ -1,14 +1,12 @@
 version: '3'
 services:
   devel:
-    build:
-      context: .
-      dockerfile: ./docker/app-devel/Dockerfile
+    image: muell_dev
     restart: always
     depends_on:
       - "mysql"
-    env_file:
-      - ./docker/app-devel/docker.env
+    environment:
+      ICSBOT_ENV: testing
     volumes:
       - .:/app:rw
       - ./assets:/assets:ro
