@@ -6,6 +6,7 @@ group :prod do
   gem 'i18n'
   gem 'multitrap'
   gem 'mysql2'
+  gem 'rake'
   gem 'sqlite3'
   gem 'telegram-bot-ruby'
 end
