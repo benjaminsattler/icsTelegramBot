@@ -118,9 +118,9 @@ namespace :git do
         if File.symlink?(file)
           puts "#{file} exists. Overwrite? (Y/n): "
           next if STDIN.gets.chomp.casecmp('n')
+          File.delete(file)
         end
         puts "Installing #{file}"
-        File.delete(file)
         File.symlink(fullfile, file)
       end
     end
