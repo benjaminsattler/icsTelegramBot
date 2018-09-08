@@ -121,7 +121,7 @@ class Server
       mod.const_get(class_name)
     end
   rescue NameError
-    nil?
+    nil
   end
 
   def to_camel_case(str)
