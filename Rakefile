@@ -28,6 +28,10 @@ LOCAL_USER_NAME = `whoami | tr -d '\n'`.freeze
 
 LOCAL_HOST_NAME = `hostname | tr -d '\n'`.freeze
 
+DB_MIGRATIONS_DIR = '/db/migrations/mysql/'
+
+DB_URL = 'mysql://root:example@muell_mysql_1/icstelegrambot'
+
 BUILD_USER_INFO = \
   "#{GIT_USER_NAME} <#{GIT_USER_EMAIL}> "\
   "(#{LOCAL_USER_NAME}@#{LOCAL_HOST_NAME})"
@@ -236,5 +240,78 @@ namespace :checks do
   desc 'Run all analyses and checks'
   task :run_all do
     sh("docker run --rm --volume #{PWD}:/app muell_rubocop")
+  end
+end
+
+namespace :migration do
+  desc 'Generate a new migration'
+  task :new do
+    if ARGV.shift.empty?
+      puts 'Usage: rake db:migration:new -- <name>'
+      exit
+    end
+    ARGV.each { |a| task(a.to_sym) { ; } }
+    sh(
+      'docker run --rm '\
+      "-v #{PWD}/db/:/db "\
+      '--network=muell_backend '\
+      "--env DATABASE_URL=#{DB_URL} "\
+      'muell_dbmate '\
+      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      '--no-dump-schema '\
+      "new #{ARGV[1]}"\
+    )
+  end
+
+  desc 'Reset database and migrate to latest version'
+  task :reset do
+    sh(
+      'docker run --rm '\
+      "-v #{PWD}/db/:/db "\
+      '--network=muell_backend '\
+      "--env DATABASE_URL=#{DB_URL} "\
+      'muell_dbmate '\
+      '--no-dump-schema '\
+      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      'drop'
+    )
+    sh(
+      'docker run --rm '\
+      "-v #{PWD}/db/:/db "\
+      '--network=muell_backend '\
+      "--env DATABASE_URL=#{DB_URL} "\
+      'muell_dbmate '\
+      '--no-dump-schema '\
+      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      'up'
+    )
+  end
+
+  desc 'Migrate to latest version'
+  task :migrate do
+    sh(
+      'docker run --rm '\
+      "-v #{PWD}/db/:/db "\
+      '--network=muell_backend '\
+      "--env DATABASE_URL=#{DB_URL} "\
+      'muell_dbmate '\
+      '--no-dump-schema '\
+      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      'migrate'
+    )
+  end
+
+  desc 'Rollback the to latest migration'
+  task :rollback do
+    sh(
+      'docker run --rm '\
+      "-v #{PWD}/db/:/db "\
+      '--network=muell_backend '\
+      "--env DATABASE_URL=#{DB_URL} "\
+      'muell_dbmate '\
+      '--no-dump-schema '\
+      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      'rollback'
+    )
   end
 end
