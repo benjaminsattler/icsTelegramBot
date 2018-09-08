@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rake'
+require 'optparse'
 
 PWD = File.dirname(__FILE__).freeze
 
@@ -10,6 +11,8 @@ GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
 # because git is going to resolve relative filenames
 # while it is cd'ed in the .git/hooks dir!
 GITHOOKS_SRCDIR = '../../scripts/githooks'
+
+GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD | tr -d '\n'`.freeze
 
 PROD_CONTAINER_NAME = 'muell_prod'
 
@@ -163,32 +166,56 @@ namespace :prod do
   task restart: %i[stop start]
 end
 
+latest_tag = ''
+next_tag = ''
+task :prepare_tag, [:type] do |_, args|
+  type = args[:type]
+  sh('git fetch --tags')
+  latest_tag = `git tag -l --sort=v:refname | tail -n 1`
+  ver_info = latest_tag.split('.').map(&:to_i)
+  if type == :major
+    ver_info[0] = ver_info[0] + 1
+    ver_info[1] = 0
+    ver_info[2] = 0
+  end
+  if type == :minor
+    ver_info[1] = ver_info[1] + 1
+    ver_info[2] = 0
+  end
+  ver_info[2] = ver_info[2] + 1 if type == :patch
+  next_tag = ver_info.join('.')
+end
+
 desc 'Create a new release'
 task :release do
-  ARGV.each { |a| task(a.to_sym) { ; } }
-  if ARGV.empty? || !%i[major minor patch].include?(ARGV[1].to_sym)
-    puts 'Invocation: rake release major|minor|patch'
+  type = nil
+  optparser = OptionParser.new do |opts|
+    opts.banner = 'Usage: rake release -- <options>'
+    opts.on('--patch') { type = :patch }
+    opts.on('--minor') { type = :minor }
+    opts.on('--major') { type = :major }
   end
-  type = ARGV[1].to_sym
+  args = optparser.order!(ARGV) {}
+  optparser.parse!(args)
+  if type.nil?
+    puts optparser.help
+    exit
+  end
+
+  Rake::Task[:prepare_tag].invoke(type)
   Dir.chdir(PWD) do
-    sh('git fetch --tags')
-    latest_tag = `git tag -l --sort=v:refname | tail -n 1`
-    ver_info = latest_tag.split('.').map(&:to_i)
-    ver_info[0] = ver_info[0] + 1 if type == :major
-    ver_info[1] = ver_info[1] + 1 if type == :minor
-    ver_info[2] = ver_info[2] + 1 if type == :patch
-    next_tag = ver_info.join('.')
     puts "Latest tag is #{latest_tag}"
     puts "Next Version Tag is #{next_tag}"
 
-    active_branch = `git rev-parse --abbrev-ref HEAD`
-    `git stash -u --keep-index; \
-    git checkout master; \
-    git merge -S --no-ff origin/development; \
-    git tag -a -s -m "Release Version #{next_tag}" #{next_tag}; \
-    git push --tags origin master; \
-    git clean -df; \
-    git checkout #{active_branch}; \
-    git stash pop -q`
+    sh(
+      'git stash -u --keep-index && '\
+      'git checkout master && '\
+      'git merge -S --no-ff origin/development && '\
+      "git tag -a -s -m \"Release Version #{next_tag}\" #{next_tag} && "\
+      'git push --tags origin master && '\
+      'git clean -df; '\
+      "git checkout \"#{GIT_ACTIVE_BRANCH}\" && "\
+      'git stash pop -q'
+    )
   end
 end
