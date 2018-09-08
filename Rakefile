@@ -10,6 +10,8 @@ GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
 # while it is cd'ed in the .git/hooks dir!
 GITHOOKS_SRCDIR = '../../scripts/githooks'
 
+PROD_CONTAINER_NAME = 'muell_prod'
+
 namespace :docker do
   desc 'Build docker production image'
   task :build_prod do
@@ -110,10 +112,40 @@ namespace :dev do
   task restart: %i[stop start]
 end
 
+namespace :prod do
+  desc 'Start production environment'
+  task :start do
+    sh(
+      'docker run '\
+      "-v #{PWD}/:/app "\
+      "-v #{PWD}/assets/:/assets "\
+      "-v #{PWD}/db/:/db "\
+      "-v #{PWD}/log/:/log "\
+      '--network=muell_frontend '\
+      "--name #{PROD_CONTAINER_NAME} "\
+      '-e ICSBOT_ENV=production '\
+      '--rm '\
+      '-d '\
+      'muell '\
+      '/app/bin/server '\
+      '--main=MainThread '\
+      '--log=/log/bot_production.log'
+    )
+  end
+
+  desc 'Stop production environment'
+  task :stop do
+    sh("docker stop #{PROD_CONTAINER_NAME}")
+  end
+
+  desc 'Restart production environment'
+  task restart: %i[stop start]
+end
+
 desc 'Create a new release'
 task :release do
   ARGV.each { |a| task(a.to_sym) { ; } }
-  if ARGV.empty? || !%w[:major :minor :patch].include?(ARGV[1].to_sym)
+  if ARGV.empty? || !%i[major minor patch].include?(ARGV[1].to_sym)
     puts 'Invocation: rake release major|minor|patch'
   end
   type = ARGV[1].to_sym
