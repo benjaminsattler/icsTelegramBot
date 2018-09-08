@@ -138,6 +138,11 @@ namespace :dev do
   task restart: %i[stop start]
 end
 
+desc 'Print status information about the bot'
+task :status do
+  sh('docker ps')
+end
+
 namespace :prod do
   desc 'Start production environment'
   task :start do
