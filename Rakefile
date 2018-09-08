@@ -2,15 +2,34 @@
 
 require 'rake'
 
-PWD = File.dirname(__FILE__)
+PWD = File.dirname(__FILE__).freeze
 
 GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
+
 # below path needs to be relative to GITHOOKS_TRGTDIR
 # because git is going to resolve relative filenames
 # while it is cd'ed in the .git/hooks dir!
 GITHOOKS_SRCDIR = '../../scripts/githooks'
 
 PROD_CONTAINER_NAME = 'muell_prod'
+
+GIT_TAG = `git describe --tags | tr -d  '\n'`.freeze
+
+GIT_REPO = `git remote get-url origin | tr -d '\n'`.freeze
+
+GIT_USER_NAME = `git config user.name | tr -d '\n'`.freeze
+
+GIT_USER_EMAIL = `git config user.email | tr -d '\n'`.freeze
+
+LOCAL_USER_NAME = `whoami | tr -d '\n'`.freeze
+
+LOCAL_HOST_NAME = `hostname | tr -d '\n'`.freeze
+
+BUILD_USER_INFO = \
+  "#{GIT_USER_NAME} <#{GIT_USER_EMAIL}> "\
+  "(#{LOCAL_USER_NAME}@#{LOCAL_HOST_NAME})"
+
+BUILD_TIME = `date +"%d%m%Y-%H%M%S" | tr -d '\n'`.freeze
 
 namespace :docker do
   desc 'Build docker production image'
@@ -20,6 +39,10 @@ namespace :docker do
       '-t muell '\
       '--rm '\
       '-f docker/app-production/Dockerfile '\
+      "--build-arg GIT_TAG=\"#{GIT_TAG}\" "\
+      "--build-arg GIT_REPO=\"#{GIT_REPO}\" "\
+      "--build-arg BUILD_USER=\"#{BUILD_USER_INFO}\" "\
+      "--build-arg BUILD_TIME=\"#{BUILD_TIME}\" "\
       "#{PWD}"
     )
   end
@@ -121,15 +144,13 @@ namespace :prod do
       "-v #{PWD}/assets/:/assets "\
       "-v #{PWD}/db/:/db "\
       "-v #{PWD}/log/:/log "\
+      "-v #{PWD}/config/:/config "\
       '--network=muell_frontend '\
       "--name #{PROD_CONTAINER_NAME} "\
       '-e ICSBOT_ENV=production '\
       '--rm '\
       '-d '\
-      'muell '\
-      '/app/bin/server '\
-      '--main=MainThread '\
-      '--log=/log/bot_production.log'
+      'muell '
     )
   end
 

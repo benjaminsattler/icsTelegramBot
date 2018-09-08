@@ -10,8 +10,8 @@ services:
     volumes:
       - .:/app:rw
       - ./assets:/assets:ro
-      - ./db:/db:rw
       - ./log:/log:rw
+      - ./config:/config:ro
     networks:
       - frontend
     ports:
