@@ -219,3 +219,17 @@ task :release do
     )
   end
 end
+
+namespace :tests do
+  desc 'Run all tests'
+  task :run_all do
+    sh("docker run --rm -v #{PWD}:/app muell_rspec")
+  end
+end
+
+namespace :checks do
+  desc 'Run all analyses and checks'
+  task :run_all do
+    sh("docker run --rm --volume #{PWD}:/app muell_rubocop")
+  end
+end
