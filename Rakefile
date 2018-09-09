@@ -197,21 +197,13 @@ end
 
 desc 'Create a new release'
 task :release do
-  type = nil
-  optparser = OptionParser.new do |opts|
-    opts.banner = 'Usage: rake release -- <options>'
-    opts.on('--patch') { type = :patch }
-    opts.on('--minor') { type = :minor }
-    opts.on('--major') { type = :major }
-  end
-  args = optparser.order!(ARGV) {}
-  optparser.parse!(args)
+  type = ENV['TYPE']
   if type.nil?
-    puts optparser.help
+    puts 'Usage: TYPE=<major|minor|patch> rake release'
     exit
   end
-
-  Rake::Task[:prepare_tag].invoke(type)
+  Rake::Task[:prepare_tag].invoke(type.downcase.to_sym)
+  exit if next_tag.eql?(latest_tag)
   Dir.chdir(PWD) do
     puts "Latest tag is #{latest_tag}"
     puts "Next Version Tag is #{next_tag}"
@@ -246,11 +238,11 @@ end
 namespace :migration do
   desc 'Generate a new migration'
   task :new do
-    if ARGV.shift.empty?
-      puts 'Usage: rake db:migration:new -- <name>'
+    name = ENV['NAME']
+    if name.nil?
+      puts 'Usage: NAME=<migration name> rake migration:new'
       exit
     end
-    ARGV.each { |a| task(a.to_sym) { ; } }
     sh(
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
@@ -259,7 +251,7 @@ namespace :migration do
       'muell_dbmate '\
       "--migrations-dir #{DB_MIGRATIONS_DIR} "\
       '--no-dump-schema '\
-      "new #{ARGV[1]}"\
+      "new #{name}"\
     )
   end
 
