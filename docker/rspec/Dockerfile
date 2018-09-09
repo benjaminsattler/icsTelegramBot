@@ -1,5 +1,6 @@
-FROM muell:latest
-COPY Gemfile .
+FROM ruby:2.4.4-alpine3.7
+
+COPY ./Gemfile ./Gemfile.lock ./
 WORKDIR /app
 VOLUME /app
 RUN apk update && \

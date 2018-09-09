@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rake'
-require 'optparse'
 
 PWD = File.dirname(__FILE__).freeze
 
@@ -39,8 +38,27 @@ BUILD_USER_INFO = \
 BUILD_TIME = `date +"%d%m%Y-%H%M%S" | tr -d '\n'`.freeze
 
 namespace :docker do
+  desc 'Push a new docker production image'
+  task :push_prod do
+    sh(
+      'docker login && '\
+      'docker tag muell_prod benjaminsattler/net.benjaminsattler && '\
+      'docker push benjaminsattler/net.benjaminsattler'
+    )
+  end
+
   desc 'Build docker production image'
   task :build_prod do
+    tmpfs = "tmpfs_#{Time.now.to_i}.tar.bz2"
+    Dir.chdir(PWD) do
+      sh(
+        "tar cvvfj #{tmpfs} "\
+        './bin ' \
+        './lang ' \
+        './scripts ' \
+        './src'
+      )
+    end
     sh(
       'docker build '\
       '-t muell '\
@@ -50,12 +68,17 @@ namespace :docker do
       "--build-arg GIT_REPO=\"#{GIT_REPO}\" "\
       "--build-arg BUILD_USER=\"#{BUILD_USER_INFO}\" "\
       "--build-arg BUILD_TIME=\"#{BUILD_TIME}\" "\
+      "--build-arg TMPFS=\"#{tmpfs}\" "\
       "#{PWD}"
     )
+    FileUtils.rm(tmpfs)
   end
 
+  desc 'Build and push a new docker production image'
+  task build_push_prod: %i[build_prod push_prod]
+
   desc 'Build docker development image'
-  task build_dev: [:build_prod] do
+  task :build_dev do
     sh(
       'docker build '\
       '-t muell_dev '\
@@ -66,7 +89,7 @@ namespace :docker do
   end
 
   desc 'Build docker tests image'
-  task build_tests: [:build_prod] do
+  task :build_tests do
     sh(
       'docker build '\
       '-t muell_rspec '\
@@ -77,7 +100,7 @@ namespace :docker do
   end
 
   desc 'Build docker linter image'
-  task build_lint: [:build_prod] do
+  task :build_lint do
     sh(
       'docker build '\
       '-t muell_rubocop '\
@@ -152,7 +175,6 @@ namespace :prod do
   task :start do
     sh(
       'docker run '\
-      "-v #{PWD}/:/app "\
       "-v #{PWD}/assets/:/assets "\
       "-v #{PWD}/db/:/db "\
       "-v #{PWD}/log/:/log "\

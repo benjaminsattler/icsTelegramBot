@@ -45,16 +45,7 @@ class MainThread
                       when 'testing'
                         'test.yml'
                       end
-    load_config(
-      File.join(
-        [
-          File.dirname(__FILE__),
-          '..',
-          'config',
-          config_filename
-        ]
-      )
-    )
+    load_config("/config/#{config_filename}")
   end
 
   def load_config(config_file)
