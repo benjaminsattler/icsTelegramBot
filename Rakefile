@@ -42,7 +42,7 @@ namespace :docker do
   task :push_prod do
     sh(
       'docker login && '\
-      'docker tag muell_prod benjaminsattler/net.benjaminsattler && '\
+      'docker tag muell benjaminsattler/net.benjaminsattler && '\
       'docker push benjaminsattler/net.benjaminsattler'
     )
   end
