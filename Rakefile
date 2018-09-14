@@ -11,21 +11,21 @@ GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
 # while it is cd'ed in the .git/hooks dir!
 GITHOOKS_SRCDIR = '../../scripts/githooks'
 
-GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD | tr -d '\n'`.freeze
+GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
 
 PROD_CONTAINER_NAME = 'muell_prod'
 
-GIT_TAG = `git describe --tags | tr -d  '\n'`.freeze
+GIT_TAG = `git describe --tags`.chomp.freeze
 
-GIT_REPO = `git remote get-url origin | tr -d '\n'`.freeze
+GIT_REPO = `git remote get-url origin`.chomp.freeze
 
-GIT_USER_NAME = `git config user.name | tr -d '\n'`.freeze
+GIT_USER_NAME = `git config user.name `.chomp.freeze
 
-GIT_USER_EMAIL = `git config user.email | tr -d '\n'`.freeze
+GIT_USER_EMAIL = `git config user.email`.chomp.freeze
 
-LOCAL_USER_NAME = `whoami | tr -d '\n'`.freeze
+LOCAL_USER_NAME = `whoami`.chomp.freeze
 
-LOCAL_HOST_NAME = `hostname | tr -d '\n'`.freeze
+LOCAL_HOST_NAME = `hostname`.chomp.freeze
 
 DB_MIGRATIONS_DIR = '/db/migrations/mysql/'
 
@@ -35,7 +35,7 @@ BUILD_USER_INFO = \
   "#{GIT_USER_NAME} <#{GIT_USER_EMAIL}> "\
   "(#{LOCAL_USER_NAME}@#{LOCAL_HOST_NAME})"
 
-BUILD_TIME = `date +"%d%m%Y-%H%M%S" | tr -d '\n'`.freeze
+BUILD_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 
 namespace :docker do
   desc 'Push a new docker production image'
@@ -148,6 +148,52 @@ namespace :git do
       end
     end
   end
+
+  latest_tag = ''
+  next_tag = ''
+  task :prepare_tag, [:type] do |_, args|
+    type = args[:type]
+    sh('git fetch --tags')
+    latest_tag = `git tag -l --sort=v:refname | tail -n 1`
+    ver_info = latest_tag.split('.').map(&:to_i)
+    if type == :major
+      ver_info[0] = ver_info[0] + 1
+      ver_info[1] = 0
+      ver_info[2] = 0
+    end
+    if type == :minor
+      ver_info[1] = ver_info[1] + 1
+      ver_info[2] = 0
+    end
+    ver_info[2] = ver_info[2] + 1 if type == :patch
+    next_tag = ver_info.join('.')
+  end
+
+  desc 'Create a new release'
+  task :release do
+    type = ENV['TYPE']
+    if type.nil?
+      puts 'Usage: TYPE=<major|minor|patch> rake git:release'
+      exit
+    end
+    Rake::Task['git:prepare_tag'].invoke(type.downcase.to_sym)
+    exit if next_tag.eql?(latest_tag)
+    Dir.chdir(PWD) do
+      puts "Latest tag is #{latest_tag}"
+      puts "Next Version Tag is #{next_tag}"
+
+      sh(
+        'git stash -u --keep-index && '\
+        'git checkout master && '\
+        'git merge -S --no-ff origin/development && '\
+        "git tag -a -s -m \"Release Version #{next_tag}\" #{next_tag} && "\
+        'git push --tags origin master && '\
+        'git clean -df; '\
+        "git checkout \"#{GIT_ACTIVE_BRANCH}\" && "\
+        'git stash pop -q'
+      )
+    end
+  end
 end
 
 namespace :dev do
@@ -195,52 +241,6 @@ namespace :prod do
 
   desc 'Restart production environment'
   task restart: %i[stop start]
-end
-
-latest_tag = ''
-next_tag = ''
-task :prepare_tag, [:type] do |_, args|
-  type = args[:type]
-  sh('git fetch --tags')
-  latest_tag = `git tag -l --sort=v:refname | tail -n 1`
-  ver_info = latest_tag.split('.').map(&:to_i)
-  if type == :major
-    ver_info[0] = ver_info[0] + 1
-    ver_info[1] = 0
-    ver_info[2] = 0
-  end
-  if type == :minor
-    ver_info[1] = ver_info[1] + 1
-    ver_info[2] = 0
-  end
-  ver_info[2] = ver_info[2] + 1 if type == :patch
-  next_tag = ver_info.join('.')
-end
-
-desc 'Create a new release'
-task :release do
-  type = ENV['TYPE']
-  if type.nil?
-    puts 'Usage: TYPE=<major|minor|patch> rake release'
-    exit
-  end
-  Rake::Task[:prepare_tag].invoke(type.downcase.to_sym)
-  exit if next_tag.eql?(latest_tag)
-  Dir.chdir(PWD) do
-    puts "Latest tag is #{latest_tag}"
-    puts "Next Version Tag is #{next_tag}"
-
-    sh(
-      'git stash -u --keep-index && '\
-      'git checkout master && '\
-      'git merge -S --no-ff origin/development && '\
-      "git tag -a -s -m \"Release Version #{next_tag}\" #{next_tag} && "\
-      'git push --tags origin master && '\
-      'git clean -df; '\
-      "git checkout \"#{GIT_ACTIVE_BRANCH}\" && "\
-      'git stash pop -q'
-    )
-  end
 end
 
 namespace :tests do
