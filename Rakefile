@@ -56,7 +56,8 @@ namespace :docker do
         './bin ' \
         './lang ' \
         './scripts ' \
-        './src'
+        './src ' \
+        './db/migrations '
       )
     end
     sh(

@@ -33,7 +33,7 @@ class MainThread
     env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
     @is_running = true
 
-    unless %w[production testing].include?(env)
+    unless %w[production development testing].include?(env)
       log("Unknown environment #{env}. Terminating...")
       exit
     end
@@ -44,6 +44,8 @@ class MainThread
                         'prod.yml'
                       when 'testing'
                         'test.yml'
+                      when 'development'
+                        'dev.yml'
                       end
     load_config("/config/#{config_filename}")
   end

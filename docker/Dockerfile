@@ -7,7 +7,7 @@ COPY --from=amacneil/dbmate /usr/local/bin/dbmate /usr/local/bin/dbmate
 RUN apk update && \
     apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat && \
     bundle install --without="development testing"
-VOLUME /db /assets /log /config
+VOLUME /assets /log /config
 
 # development image
 FROM base AS development
@@ -17,6 +17,7 @@ COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \
     bundle install --with="development" && \
     apk del build-base
+VOLUME /db
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "/app/bin/server", "--main=MainThread" ]
 
@@ -51,5 +52,6 @@ LABEL net.benjaminsattler.icsbot.git_url=$GIT_REPO
 LABEL net.benjaminsattler.icsbot.build_time=$BUILD_TIME
 LABEL net.benjaminsattler.icsbot.build_user=$BUILD_USER
 
-ENV ICSBOT_ENV production
+ENV ICSBOT_ENV=production MIGRATIONS_DIR=/app/db/migrations/mysql/
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "/app/bin/server", "--main=MainThread" , "--log=/log/icsbot.log"]
