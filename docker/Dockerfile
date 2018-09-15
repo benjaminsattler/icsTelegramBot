@@ -17,15 +17,17 @@ COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \
     bundle install --with="development" && \
     apk del build-base
-VOLUME /db
+VOLUME /db /app
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "/app/bin/server", "--main=MainThread" ]
 
 # testing image
-FROM base AS testing
+FROM development AS testing
 RUN bundle install --with="testing"
 ENV ICSBOT_ENV=testing
+WORKDIR /app/
 ENTRYPOINT ["rspec"]
+CMD [ "/app/spec/" ]
 
 # linting image
 FROM cagedata/rubocop AS linting
