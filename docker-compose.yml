@@ -6,6 +6,7 @@ services:
     depends_on:
       - "mysql"
     environment:
+      ENABLE_DEBUG: 1
       ICSBOT_ENV: testing
       MIGRATIONS_DIR: /db/migrations/mysql/
       DATABASE_URL: mysql://root:example@muell_mysql_1/icstelegrambot
