@@ -6,7 +6,6 @@ services:
     depends_on:
       - "mysql"
     environment:
-      ICSBOT_ENV: production
       MIGRATIONS_DIR: /db/migrations/mysql/
       DATABASE_URL: mysql://root:example@muell_mysql_1/icstelegrambot
     volumes:
