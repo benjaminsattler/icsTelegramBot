@@ -73,10 +73,10 @@ class EventsCommand < Command
       return
     end
     skip = 0 if skip.nil?
-    skip = begin
-      Integer(skip)
+    begin
+      skip = Integer(skip)
     rescue StandardError
-      -1
+      skip = -1
     end
     skip = 0 if skip.negative?
     push_events_description(calendar_id, count, userid, chatid, skip)

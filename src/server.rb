@@ -71,6 +71,7 @@ class Server
 
   def status_from_pidfile
     return :dead unless pidfile?
+
     begin
       pid = File.read(pidfile).to_i
       return :dead if pid.zero?

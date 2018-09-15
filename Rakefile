@@ -63,7 +63,8 @@ namespace :docker do
       'docker build '\
       '-t muell '\
       '--rm '\
-      '-f docker/app-production/Dockerfile '\
+      '-f docker/Dockerfile '\
+      '--target production ' \
       "--build-arg GIT_TAG=\"#{GIT_TAG}\" "\
       "--build-arg GIT_REPO=\"#{GIT_REPO}\" "\
       "--build-arg BUILD_USER=\"#{BUILD_USER_INFO}\" "\
@@ -83,29 +84,32 @@ namespace :docker do
       'docker build '\
       '-t muell_dev '\
       '--rm '\
-      '-f docker/app-devel/Dockerfile '\
+      '-f docker/Dockerfile '\
+      '--target development '\
       "#{PWD}"
     )
   end
 
   desc 'Build docker tests image'
-  task :build_tests do
+  task :build_testing do
     sh(
       'docker build '\
       '-t muell_rspec '\
       '--rm '\
-      '-f docker/rspec/Dockerfile '\
+      '-f docker/Dockerfile '\
+      '--target testing '\
       "#{PWD}"
     )
   end
 
   desc 'Build docker linter image'
-  task :build_lint do
+  task :build_linting do
     sh(
       'docker build '\
       '-t muell_rubocop '\
       '--rm '\
-      '-f docker/rubocop/Dockerfile '\
+      '-f docker/Dockerfile '\
+      '--target linting '\
       "#{PWD}"
     )
   end
@@ -141,6 +145,7 @@ namespace :git do
         if File.symlink?(file)
           puts "#{file} exists. Overwrite? (Y/n): "
           next if STDIN.gets.chomp.casecmp('n')
+
           File.delete(file)
         end
         puts "Installing #{file}"
@@ -199,7 +204,7 @@ end
 namespace :dev do
   desc 'Start development environment'
   task :start do
-    sh('docker-compose up --build -d')
+    sh('docker-compose up --build')
   end
 
   desc 'Stop development environment'

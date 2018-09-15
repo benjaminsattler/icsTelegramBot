@@ -1,7 +1,6 @@
 .vscode/
 config/
 db/
-docker/
 log/
 spec/
 .*

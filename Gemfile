@@ -11,7 +11,7 @@ group :prod do
   gem 'telegram-bot-ruby'
 end
 
-group :test do
+group :testing do
   gem 'rspec'
 end
 

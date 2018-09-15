@@ -7,8 +7,11 @@ services:
       - "mysql"
     environment:
       ICSBOT_ENV: testing
+      MIGRATIONS_DIR: /db/migrations/mysql/
+      DATABASE_URL: mysql://root:example@muell_mysql_1/icstelegrambot
     volumes:
       - .:/app:rw
+      - ./db:/db:ro
       - ./assets:/assets:ro
       - ./log:/log:rw
       - ./config:/config:ro
