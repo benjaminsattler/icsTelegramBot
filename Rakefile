@@ -35,13 +35,15 @@ BUILD_USER_INFO = \
 
 BUILD_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 
+DOCKER_IMAGE_TAG = 'benjaminsattler/net.benjaminsattler'
+
 namespace :docker do
   desc 'Push a new docker production image'
   task :push_prod do
     sh(
       'docker login && '\
-      'docker tag muell benjaminsattler/net.benjaminsattler && '\
-      'docker push benjaminsattler/net.benjaminsattler'
+      "docker tag muell #{DOCKER_IMAGE_TAG} && "\
+      "docker push #{DOCKER_IMAGE_TAG}"
     )
   end
 
