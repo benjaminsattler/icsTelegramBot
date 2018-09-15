@@ -1,39 +1,13 @@
 version: '3'
 services:
-  devel:
-    image: muell_dev
-    restart: always
-    depends_on:
-      - "mysql"
-    environment:
-      ENABLE_DEBUG: 1
-      ICSBOT_ENV: testing
-      MIGRATIONS_DIR: /db/migrations/mysql/
-      DATABASE_URL: mysql://root:example@muell_mysql_1/icstelegrambot
-    volumes:
-      - .:/app:rw
-      - ./db:/db:ro
-      - ./assets:/assets:ro
-      - ./log:/log:rw
-      - ./config:/config:ro
-    networks:
-      - frontend
-    ports:
-      - 1234:1234
-      - 26162:26162
   mysql:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: example
     networks:
-      - frontend
       - backend
     volumes:
       - ./db/mysql:/var/lib/mysql
 networks:
-  frontend:
-    driver: bridge
   backend:
     driver: bridge

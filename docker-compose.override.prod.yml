@@ -1,0 +1,24 @@
+version: '3'
+services:
+  prod:
+    image: muell
+    restart: always
+    depends_on:
+      - "mysql"
+    environment:
+      ICSBOT_ENV: production
+      MIGRATIONS_DIR: /db/migrations/mysql/
+      DATABASE_URL: mysql://root:example@muell_mysql_1/icstelegrambot
+    volumes:
+      - ./db:/db:ro
+      - ./assets:/assets:ro
+      - ./log:/log:rw
+      - ./config:/config:ro
+    networks:
+      - backend
+    ports:
+      - 1234:1234
+      - 26162:26162
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: example

@@ -13,8 +13,6 @@ GITHOOKS_SRCDIR = '../../scripts/githooks'
 
 GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
 
-PROD_CONTAINER_NAME = 'muell_prod'
-
 GIT_TAG = `git describe --tags`.chomp.freeze
 
 GIT_REPO = `git remote get-url origin`.chomp.freeze
@@ -204,12 +202,22 @@ end
 namespace :dev do
   desc 'Start development environment'
   task :start do
-    sh('docker-compose up --build')
+    sh(
+      'docker-compose '\
+      "-f #{PWD}/docker-compose.yml "\
+      "-f #{PWD}/docker-compose.override.dev.yml "\
+      'up --build'
+    )
   end
 
   desc 'Stop development environment'
   task :stop do
-    sh('docker-compose down')
+    sh(
+      'docker-compose '\
+      "-f #{PWD}/docker-compose.yml "\
+      "-f #{PWD}/docker-compose.override.dev.yml "\
+      'down'
+    )
   end
 
   desc 'Restart development environment'
@@ -225,23 +233,22 @@ namespace :prod do
   desc 'Start production environment'
   task :start do
     sh(
-      'docker run '\
-      "-v #{PWD}/assets/:/assets "\
-      "-v #{PWD}/db/:/db "\
-      "-v #{PWD}/log/:/log "\
-      "-v #{PWD}/config/:/config "\
-      '--network=muell_frontend '\
-      "--name #{PROD_CONTAINER_NAME} "\
-      '-e ICSBOT_ENV=production '\
-      '--rm '\
-      '-d '\
-      'muell '
+      'docker-compose '\
+      "-f #{PWD}/docker-compose.yml "\
+      "-f #{PWD}/docker-compose.override.prod.yml "\
+      'up --build '\
+      '-d'
     )
   end
 
   desc 'Stop production environment'
   task :stop do
-    sh("docker stop #{PROD_CONTAINER_NAME}")
+    sh(
+      'docker-compose '\
+      "-f #{PWD}/docker-compose.yml "\
+      "-f #{PWD}/docker-compose.override.prod.yml "\
+      'down'
+    )
   end
 
   desc 'Restart production environment'
