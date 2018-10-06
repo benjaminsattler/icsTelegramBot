@@ -20,7 +20,7 @@ class YamlFileConfiguration < Configuration
     fragments = name.split(/\./)
     needle = @config
     while !fragments.nil? && !fragments.empty? && needle.respond_to?(:[])
-      needle = needle[fragments.slice!(0).to_sym]
+      needle = needle[fragments.slice!(0)]
     end
     needle
   end

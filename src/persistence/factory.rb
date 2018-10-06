@@ -13,25 +13,25 @@ class Factory
   def get(persistence)
     case persistence
     when 'sqlite'
-      get_sqlite(@config_map['sqlite'])
+      sqlite
     when 'mysql'
-      get_mysql(@config_map['mysql'])
+      mysql
     else
       raise NotImplementedError
     end
   end
 
-  def get_sqlite(config)
-    Sqlite.new(config['db_path'])
+  def sqlite
+    Sqlite.new(@config_map.get('sqlite.db_path'))
   end
 
-  def get_mysql(config)
+  def mysql
     Mysql.new(
-      config['host'],
-      config['port'],
-      config['username'],
-      config['password'],
-      config['database']
+      @config_map.get('mysql.host'),
+      @config_map.get('mysql.port'),
+      @config_map.get('mysql.username'),
+      @config_map.get('mysql.password'),
+      @config_map.get('mysql.database')
     )
   end
 end

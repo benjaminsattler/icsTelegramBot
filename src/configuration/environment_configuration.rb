@@ -7,7 +7,7 @@ require 'yaml'
 # This class loads app configuration from a yaml file.
 class EnvironmentConfiguration < Configuration
   def get(name)
-    sane_name = name.tr('.', '_')
+    sane_name = name.tr('.', '_').upcase
     ENV[sane_name]
   end
 end

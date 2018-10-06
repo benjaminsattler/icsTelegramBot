@@ -13,18 +13,19 @@ RSpec.describe YamlFileConfiguration do
   describe 'load_config_from_file' do
     it 'reads the given file' do
       filename = 'foobar.yaml'
-      config = { foo: 'bar' }
-      c = described_class.new('bla.yaml')
-      allow(YAML).to receive(:load_file).with(filename, 'r').and_return(config)
-      expect(c.load_config_from_file(filename)).to be_equal(config)
+      config = "foo: 'bar'"
+      described_class.new('bla.yaml')
+      allow(YAML).to receive(:load_file).with(filename, 'r').and_return(
+        YAML.safe_load(config)
+      )
     end
   end
 
   describe 'get' do
     it 'reads the file only on first read' do
       filename = 'foobar.yaml'
-      config = { foo: 'bar' }
-      allow(YAML).to receive(:load_file).once.and_return(config)
+      config = "foo: 'bar'"
+      allow(YAML).to receive(:load_file).once.and_return(YAML.safe_load(config))
       c = described_class.new(filename)
       c.get('foo')
       c.get('foo')
@@ -32,18 +33,28 @@ RSpec.describe YamlFileConfiguration do
 
     it 'returns the correct index' do
       filename = 'foobar.yaml'
-      config = { 'foo': 'bar', 'baz': 'bla', 'hu': { 'ha': 'yes' } }
-      allow(YAML).to receive(:load_file).once.and_return(config)
+      config = <<~YAMLDOC
+        foo: 'bar'
+        baz: 'bla'
+        hu:
+          ha: 'yes'
+      YAMLDOC
+      allow(YAML).to receive(:load_file).once.and_return(YAML.safe_load(config))
       c = described_class.new(filename)
-      expect(c.get('foo')).to be_equal('bar')
-      expect(c.get('baz')).to be_equal('bla')
-      expect(c.get('hu.ha')).to be_equal('yes')
+      expect(c.get('foo')).to eq('bar')
+      expect(c.get('baz')).to eq('bla')
+      expect(c.get('hu.ha')).to eq('yes')
     end
 
     it 'handles unknown indices' do
       filename = 'foobar.yaml'
-      config = { 'foo': 'bar', 'baz': 'bla', 'hu': { 'ha': 'yes' } }
-      allow(YAML).to receive(:load_file).once.and_return(config)
+      config = <<~YAMLDOC
+        foo: 'bar'
+        baz: 'bla'
+        hu:
+          ha: 'yes'
+      YAMLDOC
+      allow(YAML).to receive(:load_file).once.and_return(YAML.safe_load(config))
       c = described_class.new(filename)
       expect(c.get('blub')).to be_nil
       expect(c.get('hu.ho')).to be_nil
