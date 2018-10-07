@@ -8,7 +8,7 @@ require 'events/calendar'
 require 'log'
 require 'container'
 
-require 'yaml'
+require 'configuration/yaml_file_configuration'
 
 ##
 # This class represents the main thread which
@@ -51,11 +51,11 @@ class MainThread
   end
 
   def load_config(config_file)
-    @config = YAML.load_file(config_file)
+    @config = YamlFileConfiguration.new(config_file)
   end
 
   def run
-    data = Factory.new(@config).get(@config['persistence'])
+    data = Factory.new(@config).get(@config.get('persistence'))
     calendars = data.calendars.each_value do |calendar_desc|
       events = Events::Calendar.new
       events.load_events(
@@ -66,7 +66,7 @@ class MainThread
       calendar_desc[:eventlist] = events
       calendar_desc
     end
-    bot = Bot.new(@config['bot_token'], @config['admin_users'])
+    bot = Bot.new(@config.get('bot_token'), @config.get('admin_users'))
 
     Container.set(:bot, bot)
     Container.set(:calendars, calendars)
@@ -93,7 +93,7 @@ class MainThread
       begin
         run = true
         while run
-          seconds = @config['flush_interval']
+          seconds = @config.get('flush_interval')
           while seconds.positive? && run
             sleep 1
             seconds -= 1
