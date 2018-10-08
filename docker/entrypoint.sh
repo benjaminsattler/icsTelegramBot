@@ -1,4 +1,6 @@
 #!/bin/sh
+echo "Setting timezone to ${TIMEZONE}"
+cp /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo "${TIMEZONE}" > /etc/timezone
 if [[ "$ICSBOT_ENV" == "development" ]]; then
   echo "Waiting for database..." && dbmate wait && echo "Database is reachable."
 fi

@@ -1,11 +1,12 @@
 # base system image with all deps
 FROM ruby:2.4.4-alpine3.7 AS base
+ARG TIMEZONE=Europe/Berlin
 
 COPY ./Gemfile ./Gemfile.lock ./
 
 COPY --from=amacneil/dbmate /usr/local/bin/dbmate /usr/local/bin/dbmate
 RUN apk update && \
-    apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat && \
+    apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
     bundle install --without="development testing"
 ENTRYPOINT [ "/usr/local/bin/dbmate" ]
 VOLUME /assets /log
