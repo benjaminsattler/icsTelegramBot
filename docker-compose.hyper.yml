@@ -1,0 +1,12 @@
+version: '2'
+services:
+  prod:
+    image: benjaminsattler/icstelegrambot
+    restart: always
+    env_file:
+      - ./docker/production.env
+    volumes:
+      - botassets:/assets
+      - botlogs:/log
+    fip: muellbot
+    size: s3

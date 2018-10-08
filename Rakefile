@@ -2,8 +2,11 @@
 
 require 'rake'
 
+# directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
 
+# target directory for the git hooks
+# that are installed by the task `rake git:install_hooks`
 GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
 
 # below path needs to be relative to GITHOOKS_TRGTDIR
@@ -11,31 +14,79 @@ GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
 # while it is cd'ed in the .git/hooks dir!
 GITHOOKS_SRCDIR = '../../scripts/githooks'
 
+# name of the currently checkout out git branch
+# will be used in a docker image label when building
+# a new docker image
 GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
 
+# git tag of the current git branch HEAD
+# will be used in a docker image label when building
+# a new docker image
 GIT_TAG = `git describe --tags`.chomp.freeze
 
+# URL of the remote for this repository
+# will be used in a docker image label when building
+# a new docker image
 GIT_REPO = `git remote get-url origin`.chomp.freeze
 
+# current git user name for this repository
+# will be used in a docker image label when building
+# a new docker image
 GIT_USER_NAME = `git config user.name `.chomp.freeze
 
+# current user email for this repository
+# will be used in a docker image label when building
+# a new docker image
 GIT_USER_EMAIL = `git config user.email`.chomp.freeze
 
+# username of the local user
+# will be used in a docker image label when building
+# a new docker image
 LOCAL_USER_NAME = `whoami`.chomp.freeze
 
+# hostname of this machine
+# will be used in a docker image label when building
+# a new docker image
 LOCAL_HOST_NAME = `hostname`.chomp.freeze
 
-DB_MIGRATIONS_DIR = '/db/migrations/mysql/'
-
-DB_URL = 'mysql://root:example@muell_mysql_1/icstelegrambot'
-
+# information about the current user (YOU!)
+# will be used in a docker image label when building
+# a new docker image
 BUILD_USER_INFO = \
   "#{GIT_USER_NAME} <#{GIT_USER_EMAIL}> "\
   "(#{LOCAL_USER_NAME}@#{LOCAL_HOST_NAME})"
 
-BUILD_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
+# current system time. Will be used in a docker image
+# label when building a new docker image
+CURRENT_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 
-DOCKER_IMAGE_TAG = 'benjaminsattler/net.benjaminsattler'
+# Path to the hyper.sh docker compose file.
+# This file is similar to a conventional docker compose
+# file, but has a few caveats and extras. For more information
+# visit https://hyper.sh/
+HYPER_SH_DOCKERFILE = "#{PWD}/docker-compose.hyper.yml"
+
+# Full docker tag that shall be used to tag docker images
+# when pushing the production docker image to the repository
+# with the task `docker:push_prod`
+DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
+
+# Environemnt variables file that shall be used for docker run
+# when developing database migrations locally. Usually you want
+# this to be your development environment to be able to test,
+# migrate and rollback your migrations during development
+MIGRATION_ENV_FILE = './docker/development.env'
+
+# Location of the database migration files from inside the
+# dbmate docker container. Usually you'll want this to equal
+# the environment variable "MIGRATIONS_DIR" in the environment
+# file specified by MIGRATION_ENV_FILE above
+DOCKER_MIGRATIONS_PATH = '/db/migrations/mysql/'
+
+# What to name the project inside hyper.sh.
+# For more information regarding projects please
+# refer to https://hyper.sh
+HYPER_SH_PROJECTNAME = 'icstelegrambot'
 
 namespace :docker do
   desc 'Push a new docker production image'
@@ -69,7 +120,7 @@ namespace :docker do
       "--build-arg GIT_TAG=\"#{GIT_TAG}\" "\
       "--build-arg GIT_REPO=\"#{GIT_REPO}\" "\
       "--build-arg BUILD_USER=\"#{BUILD_USER_INFO}\" "\
-      "--build-arg BUILD_TIME=\"#{BUILD_TIME}\" "\
+      "--build-arg BUILD_TIME=\"#{CURRENT_TIME}\" "\
       "--build-arg TMPFS=\"#{tmpfs}\" "\
       "#{PWD}"
     )
@@ -121,7 +172,8 @@ namespace :docker do
       'docker build '\
       '-t muell_dbmate '\
       '--rm '\
-      '-f docker/migrations/Dockerfile '\
+      '-f docker/Dockerfile '\
+      '--target base '\
       "#{PWD}"
     )
   end
@@ -133,6 +185,68 @@ namespace :docker do
     build_tests
     build_lint
     build_migrations
+  ]
+end
+
+namespace :hyper do
+  desc 'Create docker containers on production system'
+  task :create do
+    sh(
+      'hyper compose create '\
+      '--force-recreate '\
+      "--project-name=#{HYPER_SH_PROJECTNAME} "\
+      "-f #{HYPER_SH_DOCKERFILE}"
+    )
+  end
+
+  desc 'Create and start docker containers on production system'
+  task :up do
+    sh(
+      'hyper compose up '\
+      "--project-name=#{HYPER_SH_PROJECTNAME} "\
+      "-f #{HYPER_SH_DOCKERFILE} "\
+      '-d'
+    )
+  end
+
+  desc 'Stop and remove docker containers, '\
+    'volumes and images on production system'
+  task :down do
+    sh(
+      'hyper compose down '\
+      '--rmi=all '\
+      "--project-name=#{HYPER_SH_PROJECTNAME}"
+    )
+  end
+
+  desc 'Start docker containers on prodution system'
+  task :start do
+    sh(
+      'hyper compose start '\
+      "--project-name=#{HYPER_SH_PROJECTNAME}"
+    )
+  end
+
+  desc 'Stop docker containers on prodution system'
+  task :stop do
+    sh(
+      'hyper compose stop '\
+      "--project-name=#{HYPER_SH_PROJECTNAME}"
+    )
+  end
+
+  desc 'Pull new docker images from the repository'
+  task :pull do
+    sh(
+      'hyper compose pull '\
+      "-f #{HYPER_SH_DOCKERFILE}"
+    )
+  end
+
+  desc 'Pull new docker images and restart containers'
+  task update: %i[
+    pull
+    up
   ]
 end
 
@@ -207,8 +321,7 @@ namespace :dev do
   task :start do
     sh(
       'docker-compose '\
-      "-f #{PWD}/docker-compose.yml "\
-      "-f #{PWD}/docker-compose.override.dev.yml "\
+      "-f #{PWD}/docker-compose.dev.yml "\
       'up --build'
     )
   end
@@ -217,8 +330,7 @@ namespace :dev do
   task :stop do
     sh(
       'docker-compose '\
-      "-f #{PWD}/docker-compose.yml "\
-      "-f #{PWD}/docker-compose.override.dev.yml "\
+      "-f #{PWD}/docker-compose.dev.yml "\
       'down'
     )
   end
@@ -237,8 +349,7 @@ namespace :prod do
   task :start do
     sh(
       'docker-compose '\
-      "-f #{PWD}/docker-compose.yml "\
-      "-f #{PWD}/docker-compose.override.prod.yml "\
+      "-f #{PWD}/docker-compose.prod.yml "\
       'up --build '\
       '-d'
     )
@@ -248,8 +359,7 @@ namespace :prod do
   task :stop do
     sh(
       'docker-compose '\
-      "-f #{PWD}/docker-compose.yml "\
-      "-f #{PWD}/docker-compose.override.prod.yml "\
+      "-f #{PWD}/docker-compose.prod.yml "\
       'down'
     )
   end
@@ -284,9 +394,9 @@ namespace :migration do
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
       '--network=muell_backend '\
-      "--env DATABASE_URL=#{DB_URL} "\
+      "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
-      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
       '--no-dump-schema '\
       "new #{name}"\
     )
@@ -298,20 +408,20 @@ namespace :migration do
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
       '--network=muell_backend '\
-      "--env DATABASE_URL=#{DB_URL} "\
+      "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       '--no-dump-schema '\
-      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
       'drop'
     )
     sh(
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
       '--network=muell_backend '\
-      "--env DATABASE_URL=#{DB_URL} "\
+      "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       '--no-dump-schema '\
-      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
       'up'
     )
   end
@@ -322,10 +432,10 @@ namespace :migration do
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
       '--network=muell_backend '\
-      "--env DATABASE_URL=#{DB_URL} "\
+      "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       '--no-dump-schema '\
-      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
       'migrate'
     )
   end
@@ -336,10 +446,10 @@ namespace :migration do
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
       '--network=muell_backend '\
-      "--env DATABASE_URL=#{DB_URL} "\
+      "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       '--no-dump-schema '\
-      "--migrations-dir #{DB_MIGRATIONS_DIR} "\
+      "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
       'rollback'
     )
   end

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  prod:
+    image: benjaminsattler/icstelegrambot
+    restart: always
+    env_file:
+      - ./docker/production.env
+    volumes:
+      - ./assets:/assets:ro
+      - ./log:/log:rw
