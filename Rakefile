@@ -248,6 +248,13 @@ namespace :hyper do
     pull
     up
   ]
+
+  desc 'Display some information about hyper'
+  task :status do
+    sh(
+      'hyper ps && hyper volume ls && hyper fip ls && hyper info'
+    )
+  end
 end
 
 namespace :git do
