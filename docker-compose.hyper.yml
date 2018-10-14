@@ -1,12 +1,28 @@
+# this is a hyper.sh compose file.
+# this is NOT a docker compose file, although
+# there are a lot of similiarities. For more
+# information about the contents of this file,
+# please refer to the official hyper.sh
+# documentation located at
+# https://docs.hyper.sh/hyper/Reference/compose_file_ref.html
+
+# hyper.sh compose only supports version 2
 version: '2'
 services:
   prod:
     image: benjaminsattler/icstelegrambot
     restart: always
     env_file:
+      # create this file by copying ./docker/environment.env.example
       - ./docker/production.env
     volumes:
+      # volume for ics file storage
       - botassets:/assets
+      # volume for log files
       - botlogs:/log
+    # associate our floating IP to the network stack for firewalling
     fip: muellbot
+    # instance size 's3' should be sufficient for the bot.
+    # find more information about instance sizes at
+    # https://docs.hyper.sh/hyper/FAQ/pricing.html
     size: s3
