@@ -47,6 +47,8 @@ services:
       # modify this variable to change the default
       # root password to whatever you like
       MYSQL_ROOT_PASSWORD: example
+    ports:
+      - 3306:3306
 networks:
   # this network will be used by the bot, mysql, and migrations
   backend:
