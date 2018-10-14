@@ -3,4 +3,5 @@ config/
 db/
 log/
 spec/
+tasks/
 .*
