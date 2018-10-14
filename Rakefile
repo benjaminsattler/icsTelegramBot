@@ -15,6 +15,16 @@ DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
 # directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
 
+# What to name the project inside hyper.sh.
+# For more information regarding projects please
+# refer to https://hyper.sh
+HYPER_SH_PROJECTNAME = 'icstelegrambot'
+
+# Full docker tag that shall be used to tag docker images
+# when pushing the production docker image to the repository
+# with the task `docker:push_prod`
+DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
+
 # target directory for the git hooks
 # that are installed by the task `rake git:install_hooks`
 GITHOOKS_TGTDIR = "#{PWD}/.git/hooks/"
