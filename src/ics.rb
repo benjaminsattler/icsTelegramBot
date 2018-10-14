@@ -24,6 +24,7 @@ module ICS
     def self.split_line(line)
       parts = line.split(':')
       return nil, parts[0] if parts.length == 1
+
       [parts[0], parts[1]]
     end
 

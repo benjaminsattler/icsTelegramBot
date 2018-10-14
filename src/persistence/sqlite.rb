@@ -111,6 +111,7 @@ class Sqlite < Persistence
 
   def flush
     return if @subscribers.nil?
+
     @subscribers.each do |subscriber|
       notificationtime = subscriber[:notificationtime][:hrs] * 100
       notificationtime += subscriber[:notificationtime][:min]

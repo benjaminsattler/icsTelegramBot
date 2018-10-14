@@ -27,6 +27,7 @@ class Watchdog
 
   def random_kill
     return if Random.new.rand >= 0.1
+
     which = Random.new.rand(0..@watch_threads.length - 1)
     log "Killing thread #{@watch_threads[which][:name]}"
     @watch_threads[which][:handle].kill

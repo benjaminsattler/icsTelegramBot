@@ -25,10 +25,10 @@ class SetTimeCommand < Command
       return
     end
     calendar_id = begin
-                      Integer(calendar_id)
-                    rescue StandardError
-                      -1
-                    end
+                    Integer(calendar_id)
+                  rescue StandardError
+                    -1
+                  end
     if calendars[calendar_id].nil?
       @message_sender.process(
         I18n.t(
