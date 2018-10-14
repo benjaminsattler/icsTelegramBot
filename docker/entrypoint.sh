@@ -1,4 +1,22 @@
 #!/bin/sh
+if [[ "$TIMEZONE" == "" ]]; then
+  echo "No timezone set, falling back to UTC."
+  echo "To change timezone, set \$TIMEZONE to any"
+  echo "value as listed here: "
+  echo
+  echo "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+  echo
+  TIMEZONE=UTC
+fi
+
+if [[ ! -f "/usr/share/zoneinfo/$TIMEZONE" ]]; then
+  echo "Invalid \$TIMEZONE value (${TIMEZONE}), falling back to UTC."
+  echo "Valid values are listed here: "
+  echo
+  echo "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+  echo
+  TIMEZONE=UTC
+fi
 echo "Setting timezone to ${TIMEZONE}"
 cp /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo "${TIMEZONE}" > /etc/timezone
 if [[ "$ICSBOT_ENV" == "development" ]]; then

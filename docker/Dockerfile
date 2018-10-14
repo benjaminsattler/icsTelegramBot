@@ -1,6 +1,5 @@
 # base system image with all deps
 FROM ruby:2.4.4-alpine3.7 AS base
-ARG TIMEZONE=Europe/Berlin
 
 COPY ./Gemfile ./Gemfile.lock ./
 
