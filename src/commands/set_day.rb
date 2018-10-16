@@ -28,10 +28,10 @@ class SetDayCommand < Command
       return
     end
     calendar_id = begin
-                      Integer(calendar_id)
-                    rescue StandardError
-                      -1
-                    end
+                    Integer(calendar_id)
+                  rescue StandardError
+                    -1
+                  end
     if calendars[calendar_id].nil?
       @message_sender.process(
         I18n.t(
@@ -74,11 +74,11 @@ class SetDayCommand < Command
       )
       return
     end
-    days = begin
-               Integer(days)
-             rescue StandardError
-               -1
-             end
+    days =  begin
+              Integer(days)
+            rescue StandardError
+              -1
+            end
     if days > 14
       @message_sender.process(I18n.t('errors.setday.day_too_early'), chatid)
       return

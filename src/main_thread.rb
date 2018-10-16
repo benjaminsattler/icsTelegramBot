@@ -8,7 +8,7 @@ require 'events/calendar'
 require 'log'
 require 'container'
 
-require 'yaml'
+require 'configuration/environment_configuration'
 
 ##
 # This class represents the main thread which
@@ -28,56 +28,40 @@ class MainThread
     )]
     I18n.backend.load_translations
     I18n.default_locale = :de
-    I18n.locale = config['locale'] unless ENV['LOCALE'].nil?
+    I18n.locale = ENV['LOCALE'] unless ENV['LOCALE'].nil?
 
     env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
     @is_running = true
 
-    unless %w[production testing].include?(env)
+    unless %w[production development testing].include?(env)
       log("Unknown environment #{env}. Terminating...")
       exit
     end
 
     log("Running in #{env.upcase} environment")
-    config_filename = case env
-                      when 'production'
-                        'prod.yml'
-                      when 'testing'
-                        'test.yml'
-                      end
-    load_config(
-      File.join(
-        [
-          File.dirname(__FILE__),
-          '..',
-          'config',
-          config_filename
-        ]
-      )
-    )
+    load_config(ENV['ICSBOT_CONFIGFILE'])
   end
 
-  def load_config(config_file)
-    @config = YAML.load_file(config_file)
+  def load_config(_config_file)
+    @config = EnvironmentConfiguration.new
   end
 
   def run
-    data = Factory.new(@config).get(@config['persistence'])
+    data = Factory.new(@config).get(@config.get('persistence'))
     calendars = data.calendars.each_value do |calendar_desc|
       events = Events::Calendar.new
       events.load_events(
         ICS::FileParser.parse_ics(
-          File.join(
-            File.dirname(__FILE__),
-            '..',
-            calendar_desc[:ics_path]
-          )
+          calendar_desc[:ics_path]
         )
       )
       calendar_desc[:eventlist] = events
       calendar_desc
     end
-    bot = Bot.new(@config['bot_token'], @config['admin_users'])
+    bot = Bot.new(
+      @config.get('bot_token'),
+      @config.get('admin_users').split(/:/)
+    )
 
     Container.set(:bot, bot)
     Container.set(:calendars, calendars)
@@ -104,7 +88,7 @@ class MainThread
       begin
         run = true
         while run
-          seconds = @config['flush_interval']
+          seconds = @config.get('flush_interval').to_i
           while seconds.positive? && run
             sleep 1
             seconds -= 1

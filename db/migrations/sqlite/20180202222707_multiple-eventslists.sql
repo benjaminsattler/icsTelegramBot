@@ -6,7 +6,7 @@ CREATE TABLE eventslists(
 );
 
 ALTER TABLE subscribers ADD COLUMN eventlist_id INTEGER REFERENCES eventslists(id);
-INSERT INTO eventslists(display_name, filename) VALUES ('default list', 'somefile.ics');
+INSERT INTO eventslists(display_name, filename) VALUES ('default list', '/assets/default.ics');
 UPDATE subscribers SET eventlist_id=last_insert_rowid();
 
 -- migrate:down

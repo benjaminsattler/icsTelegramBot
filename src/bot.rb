@@ -115,6 +115,7 @@ class Bot
                   (event.date - Date.today).to_i == sub[:notificationday] &&
                   sub[:notificationtime][:hrs] == Time.new.hour &&
                   sub[:notificationtime][:min] == Time.new.min
+
       message_sender.process(
         I18n.t(
           'event.reminder',
@@ -158,6 +159,7 @@ class Bot
 
   def handle_text_message(msg)
     return if msg.nil? || !msg.respond_to?('text') || msg.text.nil?
+
     command, = msg.text.split(/\s+/)
     command.downcase!
     command_target = command.include?('@') ? command.split('@')[1] : nil

@@ -2,17 +2,22 @@
 
 source 'https://rubygems.org'
 
-gem 'i18n'
-gem 'multitrap'
-gem 'mysql2'
-gem 'sqlite3'
-gem 'telegram-bot-ruby'
+group :prod do
+  gem 'i18n'
+  gem 'multitrap'
+  gem 'mysql2'
+  gem 'rake'
+  gem 'sqlite3'
+  gem 'telegram-bot-ruby'
+end
 
-group :test do
+group :testing do
   gem 'rspec'
 end
 
 group :development do
+  gem 'debase'
   gem 'rubocop'
   gem 'rubocop-rspec'
+  gem 'ruby-debug-ide'
 end

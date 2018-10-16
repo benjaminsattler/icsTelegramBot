@@ -4,7 +4,7 @@ echo Running pre commit hook.
 
 git stash -u --keep-index
 
-rubocop && rspec
+docker run --rm --volume "$PWD:/app" muell_rubocop && docker run --rm --volume "$PWD:/app" muell_rspec
 result=$?
 
 git clean -df
