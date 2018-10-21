@@ -25,7 +25,6 @@ class Bot
   @botname = nil
 
   def initialize(token, admin_users)
-    super()
     @token = token
     @admin_users = admin_users
   end
@@ -210,5 +209,9 @@ class Bot
         )
       end
     end
+  end
+
+  def admin_user?(user_id)
+    @admin_users.include?(user_id)
   end
 end
