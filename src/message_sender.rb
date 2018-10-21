@@ -13,15 +13,12 @@ class MessageSender
     log("silent is #{silent} for #{text}") if silent
     if reply_markup.nil?
       reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-        keyboard: [
-          %w[/subscribe /help /setday /botstatus],
-          %w[/unsubscribe /events /settime /mystatus]
-        ],
+        keyboard: default_keyboard_markup(chat_id),
         one_time_keyboard: false
       )
     end
     begin
-      @bot.api.send_message(
+      @bot.bot_instance.api.send_message(
         chat_id: chat_id,
         text: text,
         reply_markup: reply_markup,
@@ -29,6 +26,20 @@ class MessageSender
       )
     rescue StandardError => e
       log("StandardError received #{e}")
+    end
+  end
+
+  def default_keyboard_markup(chat_id)
+    if @bot.admin_user?(chat_id)
+      [
+        %w[/subscribe /setday /help /botstatus],
+        %w[/unsubscribe /settime /events /mystatus]
+      ]
+    else
+      [
+        %w[/subscribe /setday /help],
+        %w[/unsubscribe /settime /events /mystatus]
+      ]
     end
   end
 end

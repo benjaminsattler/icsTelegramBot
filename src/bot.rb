@@ -57,54 +57,54 @@ class Bot
   end
 
   def handle_subscribe_message(msg, userid, chatid, orig)
-    cmd = SubscribeCommand.new(MessageSender.new(@bot_instance))
+    cmd = SubscribeCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_unsubscribe_message(msg, userid, chatid, orig)
-    cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
+    cmd = UnsubscribeCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_my_status_message(msg, userid, chatid)
-    cmd = MyStatusCommand.new(MessageSender.new(@bot_instance))
+    cmd = MyStatusCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, false)
   end
 
   def handle_bot_status_message(chatid, silent = false)
-    cmd = BotStatusCommand.new(MessageSender.new(@bot_instance))
+    cmd = BotStatusCommand.new(MessageSender.new(self))
     cmd.process(chatid, silent)
   end
 
   def handle_start_message(msg, userid, chatid)
-    cmd = StartCommand.new(MessageSender.new(@bot_instance))
+    cmd = StartCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_help_message(msg, userid, chatid)
-    cmd = HelpCommand.new(MessageSender.new(@bot_instance))
+    cmd = HelpCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_events_message(msg, userid, chatid, orig)
-    cmd = EventsCommand.new(MessageSender.new(@bot_instance))
+    cmd = EventsCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_day_message(msg, userid, chatid, orig)
-    cmd = SetDayCommand.new(MessageSender.new(@bot_instance))
+    cmd = SetDayCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_time_message(msg, userid, chatid, orig)
-    cmd = SetTimeCommand.new(MessageSender.new(@bot_instance))
+    cmd = SetTimeCommand.new(MessageSender.new(self))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    message_sender = MessageSender.new(@bot_instance)
+    message_sender = MessageSender.new(self)
     description = calendars[calendar_id][:description]
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
@@ -198,12 +198,12 @@ class Bot
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
-        MessageSender.new(@bot_instance).process(
+        MessageSender.new(self).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
       elsif command_target.casecmp(@botname)
-        MessageSender.new(@bot_instance).process(
+        MessageSender.new(self).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
