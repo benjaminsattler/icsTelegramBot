@@ -9,7 +9,7 @@ require 'i18n'
 # This class represents a /botstatus command
 # given by the user.
 class BotStatusCommand < Command
-  def process(chatid, silent = false)
+  def process(_msg, _userid, chatid, silent = false)
     calendars = Container.get(:calendars)
     data_store = Container.get(:dataStore)
     bot = Container.get(:bot)

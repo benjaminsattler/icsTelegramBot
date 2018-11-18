@@ -52,7 +52,7 @@ class Bot
 
   def ping_admin_users(users)
     users.each do |user|
-      handle_bot_status_message(user, true)
+      handle_bot_status_message('', user, user, true)
     end
   end
 
@@ -71,9 +71,9 @@ class Bot
     cmd.process(msg, userid, chatid, false)
   end
 
-  def handle_bot_status_message(chatid, silent = false)
-    cmd = BotStatusCommand.new(MessageSender.new(self))
-    cmd.process(chatid, silent)
+  def handle_bot_status_message(msg, userid, chatid, silent = false)
+    cmd = AdminCommand.new(self, BotStatusCommand.new(MessageSender.new(self)))
+    cmd.process(msg, userid, chatid, silent)
   end
 
   def handle_start_message(msg, userid, chatid)
@@ -191,7 +191,7 @@ class Bot
     when '/mystatus', "/mystatus@#{@botname.downcase}"
       handle_my_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/botstatus', "/botstatus@#{@botname.downcase}"
-      handle_bot_status_message(msg.chat.id)
+      handle_bot_status_message(msg.text, msg.author.id, msg.chat.id, false)
     when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
     when '/help', "/help@#{@botname.downcase}"
@@ -212,6 +212,6 @@ class Bot
   end
 
   def admin_user?(user_id)
-    @admin_users.include?(user_id)
+    @admin_users.include?(user_id.to_s)
   end
 end
