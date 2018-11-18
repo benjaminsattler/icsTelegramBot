@@ -5,12 +5,16 @@
 # a message with the telegram bot API.
 class MessageSender
   @bot = nil
-  def initialize(bot)
+  @statistics = nil
+
+  def initialize(bot, statistics)
     @bot = bot
+    @statistics = statistics
   end
 
   def process(text, chat_id, reply_markup = nil, silent = false)
     log("silent is #{silent} for #{text}") if silent
+    @statistics.sent_msg
     if reply_markup.nil?
       reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
         keyboard: default_keyboard_markup(chat_id),

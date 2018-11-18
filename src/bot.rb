@@ -7,6 +7,7 @@ require 'incoming_message'
 require 'message_sender'
 require 'events/calendar'
 require 'events/event'
+require 'statistics'
 
 require 'date'
 require 'telegram/bot'
@@ -16,21 +17,21 @@ require 'multitrap'
 ##
 # This class represents the telegram bot.
 class Bot
-  attr_reader :bot_instance, :uptime_start
+  attr_reader :bot_instance, :statistics
 
   @bot_instance = nil
   @token = nil
-  @uptime_start = nil
+  @statistics = nil
   @admin_users = nil
   @botname = nil
 
   def initialize(token, admin_users)
     @token = token
     @admin_users = admin_users
+    @statistics = Statistics.new
   end
 
   def run
-    @uptime_start = Time.now
     Telegram::Bot::Client.run(@token) do |bot|
       begin
         me = bot.api.getMe
@@ -57,54 +58,62 @@ class Bot
   end
 
   def handle_subscribe_message(msg, userid, chatid, orig)
-    cmd = SubscribeCommand.new(MessageSender.new(self))
+    cmd = SubscribeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_unsubscribe_message(msg, userid, chatid, orig)
-    cmd = UnsubscribeCommand.new(MessageSender.new(self))
+    cmd = UnsubscribeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_my_status_message(msg, userid, chatid)
-    cmd = MyStatusCommand.new(MessageSender.new(self))
+    cmd = MyStatusCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, false)
   end
 
   def handle_bot_status_message(msg, userid, chatid, silent = false)
-    cmd = AdminCommand.new(self, BotStatusCommand.new(MessageSender.new(self)))
+    cmd = AdminCommand.new(
+      self,
+      BotStatusCommand.new(
+        MessageSender.new(
+          self,
+          @statistics
+        )
+      )
+    )
     cmd.process(msg, userid, chatid, silent)
   end
 
   def handle_start_message(msg, userid, chatid)
-    cmd = StartCommand.new(MessageSender.new(self))
+    cmd = StartCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_help_message(msg, userid, chatid)
-    cmd = HelpCommand.new(MessageSender.new(self))
+    cmd = HelpCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_events_message(msg, userid, chatid, orig)
-    cmd = EventsCommand.new(MessageSender.new(self))
+    cmd = EventsCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_day_message(msg, userid, chatid, orig)
-    cmd = SetDayCommand.new(MessageSender.new(self))
+    cmd = SetDayCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_time_message(msg, userid, chatid, orig)
-    cmd = SetTimeCommand.new(MessageSender.new(self))
+    cmd = SetTimeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    message_sender = MessageSender.new(self)
+    message_sender = MessageSender.new(self, @statistics)
     description = calendars[calendar_id][:description]
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
@@ -115,6 +124,7 @@ class Bot
                   sub[:notificationtime][:hrs] == Time.new.hour &&
                   sub[:notificationtime][:min] == Time.new.min
 
+      @statistics.sent_reminder
       message_sender.process(
         I18n.t(
           'event.reminder',
@@ -130,6 +140,7 @@ class Bot
   end
 
   def handle_incoming(incoming)
+    @statistics.recv_msg
     if incoming.respond_to?('text')
       msg = IncomingMessage.new(
         incoming.text,
@@ -198,12 +209,12 @@ class Bot
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
-        MessageSender.new(self).process(
+        MessageSender.new(self, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
       elsif command_target.casecmp(@botname)
-        MessageSender.new(self).process(
+        MessageSender.new(self, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )

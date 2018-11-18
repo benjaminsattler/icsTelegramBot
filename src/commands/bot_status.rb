@@ -13,12 +13,14 @@ class BotStatusCommand < Command
     calendars = Container.get(:calendars)
     data_store = Container.get(:dataStore)
     bot = Container.get(:bot)
+    statistics = bot.statistics.get
     text = []
     text << I18n.t(
       'botstatus.intro',
-      uptime: bot.uptime_start.strftime('%d.%m.%Y %H:%M:%S'),
+      uptime: statistics[:starttime].strftime('%d.%m.%Y %H:%M:%S'),
       calendar_count: calendars.keys.length
     )
+    text << ''
     calendars.each_pair do |calendar_id, calendar|
       events_count = calendar[:eventlist].events.length
       subscribers_count = data_store.all_subscribers(calendar_id).length
@@ -30,6 +32,14 @@ class BotStatusCommand < Command
         subscribers_count: subscribers_count
       )
     end
+    text << ''
+    text << I18n.t(
+      'botstatus.bot_info',
+      bot_sent_msgs: statistics[:sent_msgs_counter],
+      bot_recvd_msgs: statistics[:recvd_msgs_counter],
+      bot_sent_reminders: statistics[:sent_reminders],
+      bot_uptime: statistics[:uptime]
+    )
     @message_sender.process(text.join("\n"), chatid, nil, silent)
   end
 end
