@@ -8,6 +8,7 @@ require 'message_sender'
 require 'events/calendar'
 require 'events/event'
 require 'statistics'
+require 'sys_info'
 
 require 'date'
 require 'telegram/bot'
@@ -79,7 +80,8 @@ class Bot
         MessageSender.new(
           self,
           @statistics
-        )
+        ),
+        SysInfo.new
       )
     )
     cmd.process(msg, userid, chatid, silent)
