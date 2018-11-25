@@ -5,8 +5,8 @@ namespace :docker do
   task build_all: %i[
     build_prod
     build_dev
-    build_tests
-    build_lint
+    build_testing
+    build_linting
     build_migrations
   ]
 end
