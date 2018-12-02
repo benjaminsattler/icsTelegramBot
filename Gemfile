@@ -9,6 +9,7 @@ group :prod do
   gem 'rake'
   gem 'sqlite3'
   gem 'telegram-bot-ruby'
+  gem 'time_difference'
 end
 
 group :testing do

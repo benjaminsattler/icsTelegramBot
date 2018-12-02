@@ -13,7 +13,7 @@ services:
       # rdebug-ide. Execution of the bot will then
       # be paused until a debugger connects to rdebug-ide
       # on port 1234 on the container.
-      ENABLE_DEBUG: 0
+      ENABLE_DEBUG: 1
       ICSBOT_ENV: development
     env_file:
       # create this file by copying ./docker/environment.env.example
