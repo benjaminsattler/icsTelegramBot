@@ -7,6 +7,8 @@ require 'incoming_message'
 require 'message_sender'
 require 'events/calendar'
 require 'events/event'
+require 'statistics'
+require 'sys_info'
 
 require 'date'
 require 'telegram/bot'
@@ -16,22 +18,21 @@ require 'multitrap'
 ##
 # This class represents the telegram bot.
 class Bot
-  attr_reader :bot_instance, :uptime_start
+  attr_reader :bot_instance, :statistics
 
   @bot_instance = nil
   @token = nil
-  @uptime_start = nil
+  @statistics = nil
   @admin_users = nil
   @botname = nil
 
   def initialize(token, admin_users)
-    super()
     @token = token
     @admin_users = admin_users
+    @statistics = Statistics.new
   end
 
   def run
-    @uptime_start = Time.now
     Telegram::Bot::Client.run(@token) do |bot|
       begin
         me = bot.api.getMe
@@ -52,60 +53,79 @@ class Bot
   end
 
   def ping_admin_users(users)
+    message_sender = MessageSender.new(self, @statistics)
     users.each do |user|
-      handle_bot_status_message(user, true)
+      message_sender.process(
+        I18n.t(
+          'ping',
+          start_time: @statistics.get[:starttime].strftime('%d.%m.%Y %H:%M:%S'),
+          version: SysInfo.new.docker_info[:image_version]
+        ),
+        user,
+        nil,
+        true
+      )
     end
   end
 
   def handle_subscribe_message(msg, userid, chatid, orig)
-    cmd = SubscribeCommand.new(MessageSender.new(@bot_instance))
+    cmd = SubscribeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_unsubscribe_message(msg, userid, chatid, orig)
-    cmd = UnsubscribeCommand.new(MessageSender.new(@bot_instance))
+    cmd = UnsubscribeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_my_status_message(msg, userid, chatid)
-    cmd = MyStatusCommand.new(MessageSender.new(@bot_instance))
+    cmd = MyStatusCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, false)
   end
 
-  def handle_bot_status_message(chatid, silent = false)
-    cmd = BotStatusCommand.new(MessageSender.new(@bot_instance))
-    cmd.process(chatid, silent)
+  def handle_bot_status_message(msg, userid, chatid)
+    cmd = AdminCommand.new(
+      self,
+      BotStatusCommand.new(
+        MessageSender.new(
+          self,
+          @statistics
+        ),
+        SysInfo.new
+      )
+    )
+    cmd.process(msg, userid, chatid)
   end
 
   def handle_start_message(msg, userid, chatid)
-    cmd = StartCommand.new(MessageSender.new(@bot_instance))
+    cmd = StartCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_help_message(msg, userid, chatid)
-    cmd = HelpCommand.new(MessageSender.new(@bot_instance))
+    cmd = HelpCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid)
   end
 
   def handle_events_message(msg, userid, chatid, orig)
-    cmd = EventsCommand.new(MessageSender.new(@bot_instance))
+    cmd = EventsCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_day_message(msg, userid, chatid, orig)
-    cmd = SetDayCommand.new(MessageSender.new(@bot_instance))
+    cmd = SetDayCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_time_message(msg, userid, chatid, orig)
-    cmd = SetTimeCommand.new(MessageSender.new(@bot_instance))
+    cmd = SetTimeCommand.new(MessageSender.new(self, @statistics))
     cmd.process(msg, userid, chatid, orig)
   end
 
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    message_sender = MessageSender.new(@bot_instance)
+    message_sender = MessageSender.new(self, @statistics)
     description = calendars[calendar_id][:description]
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
@@ -116,6 +136,7 @@ class Bot
                   sub[:notificationtime][:hrs] == Time.new.hour &&
                   sub[:notificationtime][:min] == Time.new.min
 
+      @statistics.sent_reminder
       message_sender.process(
         I18n.t(
           'event.reminder',
@@ -131,6 +152,7 @@ class Bot
   end
 
   def handle_incoming(incoming)
+    @statistics.recv_msg
     if incoming.respond_to?('text')
       msg = IncomingMessage.new(
         incoming.text,
@@ -192,23 +214,27 @@ class Bot
     when '/mystatus', "/mystatus@#{@botname.downcase}"
       handle_my_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/botstatus', "/botstatus@#{@botname.downcase}"
-      handle_bot_status_message(msg.chat.id)
+      handle_bot_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
     when '/help', "/help@#{@botname.downcase}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
-        MessageSender.new(@bot_instance).process(
+        MessageSender.new(self, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
       elsif command_target.casecmp(@botname)
-        MessageSender.new(@bot_instance).process(
+        MessageSender.new(self, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
       end
     end
+  end
+
+  def admin_user?(user_id)
+    @admin_users.include?(user_id.to_s)
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './lib/sem_ver'
+
 namespace :git do
   desc 'Create a new release'
   task :release do
@@ -8,7 +10,12 @@ namespace :git do
       puts 'Usage: TYPE=<major|minor|patch> rake git:release'
       exit
     end
-    Rake::Task['git:prepare_tag'].invoke(type.downcase.to_sym)
+
+    sh('git fetch --tags')
+    latest_tag = `git tag -l --sort=v:refname | tail -n 1`
+    sem_ver = SemVer.new
+    next_tag = sem_ver.next(latest_tag, type.downcase.to_sym)
+
     exit if next_tag.eql?(latest_tag)
     Dir.chdir(PWD) do
       puts "Latest tag is #{latest_tag}"

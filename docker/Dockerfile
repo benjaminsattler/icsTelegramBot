@@ -1,13 +1,25 @@
 # base system image with all deps
 FROM ruby:2.4.4-alpine3.7 AS base
 
-COPY ./Gemfile ./Gemfile.lock ./
+ARG GIT_TAG=unknown
+ARG GIT_REPO=unknown
+ARG BUILD_TIME=unknown
+ARG BUILD_USER=unknown
 
+COPY ./Gemfile ./Gemfile.lock ./
 COPY --from=amacneil/dbmate /usr/local/bin/dbmate /usr/local/bin/dbmate
 RUN apk update && \
     apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
     bundle install --without="development testing"
 ENTRYPOINT [ "/usr/local/bin/dbmate" ]
+ENV ICSBOT_GIT_TAG="$GIT_TAG" \
+    ICSBOT_GIT_URL="$GIT_REPO" \
+    ICSBOT_BUILD_TIME="$BUILD_TIME" \
+    ICSBOT_BUILD_USER="$BUILD_USER"
+LABEL "net.benjaminsattler.icsbot.git_tag"="$GIT_TAG" \
+      "net.benjaminsattler.icsbot.git_url"="$GIT_REPO" \
+      "net.benjaminsattler.icsbot.build_time"="$BUILD_TIME" \
+      "net.benjaminsattler.icsbot.build_user"="$BUILD_USER"
 VOLUME /assets /log
 
 # development image
@@ -37,10 +49,6 @@ RUN gem install rubocop-rspec
 # production image
 FROM base AS production
 MAINTAINER "Benjamin Sattler <bsattler.inbox@gmail.com>"
-ARG GIT_TAG=unknown
-ARG GIT_REPO=unknown
-ARG BUILD_TIME=unknown
-ARG BUILD_USER=unknown
 ARG TMPFS=unknown
 
 COPY ./docker/entrypoint.sh /entrypoint.sh
@@ -49,11 +57,6 @@ WORKDIR /app/
 ADD --chown="root:root" $TMPFS /app/
 RUN chmod +x /entrypoint.sh && \
     chown -R root:root /app/
-
-LABEL net.benjaminsattler.icsbot.git_tag=$GIT_TAG
-LABEL net.benjaminsattler.icsbot.git_url=$GIT_REPO
-LABEL net.benjaminsattler.icsbot.build_time=$BUILD_TIME
-LABEL net.benjaminsattler.icsbot.build_user=$BUILD_USER
 
 ENV ICSBOT_ENV=production
 ENTRYPOINT [ "/entrypoint.sh" ]
