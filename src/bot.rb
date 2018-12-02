@@ -53,8 +53,18 @@ class Bot
   end
 
   def ping_admin_users(users)
+    message_sender = MessageSender.new(self, @statistics)
     users.each do |user|
-      handle_bot_status_message('', user, user, true)
+      message_sender.process(
+        I18n.t(
+          'ping',
+          start_time: @statistics.get[:starttime].strftime('%d.%m.%Y %H:%M:%S'),
+          version: SysInfo.new.docker_info[:image_version]
+        ),
+        user,
+        nil,
+        true
+      )
     end
   end
 
@@ -73,7 +83,7 @@ class Bot
     cmd.process(msg, userid, chatid, false)
   end
 
-  def handle_bot_status_message(msg, userid, chatid, silent = false)
+  def handle_bot_status_message(msg, userid, chatid)
     cmd = AdminCommand.new(
       self,
       BotStatusCommand.new(
@@ -84,7 +94,7 @@ class Bot
         SysInfo.new
       )
     )
-    cmd.process(msg, userid, chatid, silent)
+    cmd.process(msg, userid, chatid)
   end
 
   def handle_start_message(msg, userid, chatid)
@@ -204,7 +214,7 @@ class Bot
     when '/mystatus', "/mystatus@#{@botname.downcase}"
       handle_my_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/botstatus', "/botstatus@#{@botname.downcase}"
-      handle_bot_status_message(msg.text, msg.author.id, msg.chat.id, false)
+      handle_bot_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
     when '/help', "/help@#{@botname.downcase}"

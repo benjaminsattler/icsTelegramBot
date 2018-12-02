@@ -54,6 +54,7 @@ de:
   setday:
     command_inline: Wieviel Tage im Voraus möchtest du benachrichtigt werden?
     choose_calendar: Für welchen Kalender möchtest du den Zeitpunkt der Erinnerungen ändern?
+  ping: Version %{version} ist gestartet um %{start_time}
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet für den Kalender %{calendar_name} bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:

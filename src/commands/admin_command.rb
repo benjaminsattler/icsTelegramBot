@@ -11,7 +11,7 @@ class AdminCommand < Command
     @command = command
   end
 
-  def process(msg, userid, chatid, silent)
+  def process(msg, userid, chatid, silent = false)
     return unless @bot.admin_user?(chatid)
 
     @command.process(msg, userid, chatid, silent)
