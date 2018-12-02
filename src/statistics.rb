@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'date'
+require 'time_difference'
+
 ##
 # This class collects various run time statistics
 class Statistics
@@ -34,9 +36,9 @@ class Statistics
     {
       recvd_msgs_counter: @recvd_msgs_counter,
       sent_msgs_counter: @sent_msgs_counter,
-      sent_reminders: @sent_reminders,
+      sent_reminders_counter: @sent_reminders,
       starttime: @start_timestamp,
-      uptime: Time.now - @start_timestamp
+      uptime: TimeDifference.between(@start_timestamp, Time.now)
     }
   end
 end

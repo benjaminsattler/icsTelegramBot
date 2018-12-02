@@ -44,8 +44,8 @@ class BotStatusCommand < Command
       'botstatus.bot_info',
       bot_sent_msgs: statistics[:sent_msgs_counter],
       bot_recvd_msgs: statistics[:recvd_msgs_counter],
-      bot_sent_reminders: statistics[:sent_reminders],
-      bot_uptime: statistics[:uptime]
+      bot_sent_reminders: statistics[:sent_reminders_counter],
+      bot_uptime: statistics[:uptime].humanize
     )
     text << ''
     text << I18n.t(
