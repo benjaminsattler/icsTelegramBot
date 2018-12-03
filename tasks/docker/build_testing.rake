@@ -9,6 +9,10 @@ namespace :docker do
       '--rm '\
       '-f docker/Dockerfile '\
       '--target testing '\
+      "--build-arg GIT_TAG=\"#{GIT_TAG}\" "\
+      "--build-arg GIT_REPO=\"#{GIT_REPO}\" "\
+      "--build-arg BUILD_USER=\"#{BUILD_USER_INFO}\" "\
+      "--build-arg BUILD_TIME=\"#{CURRENT_TIME}\" "\
       "#{PWD}"
     )
   end

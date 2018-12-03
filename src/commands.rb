@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
+require 'commands/admin_command'
 require 'commands/bot_status'
 require 'commands/my_status'
 require 'commands/set_time'

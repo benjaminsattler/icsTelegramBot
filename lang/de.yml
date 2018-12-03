@@ -24,6 +24,20 @@ de:
   botstatus:
     intro: Ich bin online seit %{uptime} und kenne Events von %{calendar_count} Müllkalendern.
     calendar_info: "ID %{calendar_id}: %{calendar_name} (%{event_count} Events, %{subscribers_count} angemeldete Personen)"
+    bot_info: |
+      # ges. Nachrichten: %{bot_sent_msgs}
+      # empf. Nachrichten: %{bot_recvd_msgs}
+      # ges. Erinnerungen: %{bot_sent_reminders}
+      Laufzeit: %{bot_uptime}
+    docker_info: |
+      Docker Image Version: %{docker_image_version}
+      Docker Image Author: %{docker_image_author}
+      Docker Image Build Time: %{docker_image_build_time}
+      Docker Image Source URL: %{docker_image_source_url}
+    os_info: |
+      Öffentl. IP: %{os_public_ip}
+      OS Version: %{os_version}
+      OS Laufzeit: %{os_uptime}
   start: |
     Hallo, ich bin %{botname} 😊
     Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden. Schicke /subscribe und es geht los. Mit /help erfährst du mehr über mich.
@@ -40,6 +54,7 @@ de:
   setday:
     command_inline: Wieviel Tage im Voraus möchtest du benachrichtigt werden?
     choose_calendar: Für welchen Kalender möchtest du den Zeitpunkt der Erinnerungen ändern?
+  ping: Version %{version} ist gestartet um %{start_time}
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet für den Kalender %{calendar_name} bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:

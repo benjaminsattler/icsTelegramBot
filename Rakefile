@@ -42,7 +42,7 @@ GIT_REPO = `git remote get-url origin`.chomp.freeze
 # current git user name for this repository
 # will be used in a docker image label when building
 # a new docker image
-GIT_USER_NAME = `git config user.name `.chomp.freeze
+GIT_USER_NAME = `git config user.name`.chomp.freeze
 
 # current user email for this repository
 # will be used in a docker image label when building
