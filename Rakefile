@@ -74,7 +74,7 @@ CURRENT_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 # This file is similar to a conventional docker compose
 # file, but has a few caveats and extras. For more information
 # visit https://hyper.sh/
-HYPER_SH_DOCKERFILE = "#{PWD}/docker-compose.hyper.yml"
+HYPER_SH_DOCKERFILE = 'docker-compose.hyper.yml'
 
 # Environemnt variables file that shall be used for docker run
 # when developing database migrations locally. Usually you want
