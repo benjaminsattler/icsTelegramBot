@@ -3,6 +3,5 @@ events - Nächste Events anzeigen
 settime - Erinnerungszeit einstellen
 setday - Erinnerungstag einstellen
 mystatus - Status zu mir anzeigen
-botstatus - Status des Bots anzeigen
 subscribe - Erinnerungen erhalten
 unsubscribe - Keine Erinnerungen mehr erhalten
