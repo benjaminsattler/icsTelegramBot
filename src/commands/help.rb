@@ -23,7 +23,6 @@ class HelpCommand < Command
     text << ''
     text << I18n.t('help.events')
     text << ''
-    text << I18n.t('help.botstatus')
     text << I18n.t('help.mystatus')
     text << ''
     text << I18n.t('help.help')
