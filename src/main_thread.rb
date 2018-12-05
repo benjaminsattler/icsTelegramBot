@@ -39,10 +39,6 @@ class MainThread
     end
 
     log("Running in #{env.upcase} environment")
-    load_config(ENV['ICSBOT_CONFIGFILE'])
-  end
-
-  def load_config(_config_file)
     @config = EnvironmentConfiguration.new
   end
 

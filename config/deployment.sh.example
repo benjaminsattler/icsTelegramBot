@@ -1,3 +1,0 @@
-sshurl='username@ssh.url.host'
-sshlocaldir='/path/to/your/repository/'
-sshkeyfile='/path/to/.ssh/id_rsa
