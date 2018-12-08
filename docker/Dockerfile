@@ -7,7 +7,7 @@ ARG BUILD_TIME=unknown
 ARG BUILD_USER=unknown
 
 COPY ./Gemfile ./Gemfile.lock ./
-COPY --from=amacneil/dbmate /usr/local/bin/dbmate /usr/local/bin/dbmate
+COPY --from=amacneil/dbmate:v1.4.1 /dbmate /usr/local/bin/dbmate
 RUN apk update && \
     apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
     bundle install --without="development testing"
