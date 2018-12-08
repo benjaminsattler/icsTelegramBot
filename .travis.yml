@@ -5,7 +5,7 @@ install: bundle install --without="development"
 before_script:
   - rake docker:build_testing
 script:
-  - rake testing:run_all
+  - rake tests:run_all
 deploy:
   provider: script
   script: rake docker:build_push_prod
