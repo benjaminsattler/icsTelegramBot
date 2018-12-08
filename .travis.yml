@@ -6,7 +6,7 @@ before_script:
   - rake docker:build_testing
 script:
   - rake tests:run_all
-before_deploy: sh ./script/ci/before_deploy.sh
+before_deploy: sh ./scripts/ci/before_deploy.sh
 deploy:
   provider: script
   script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
