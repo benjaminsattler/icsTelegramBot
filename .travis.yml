@@ -2,5 +2,13 @@ language: ruby
 services:
   - docker
 install: bundle install --without="development"
-before_script: rspec ./spec/
-script: rake docker:build_prod
+before_script:
+  - rake docker:build_testing
+script:
+  - rake testing:run_all
+deploy:
+  - rake docker:build_push_prod
+stages:
+  - name: deploy
+    # require the branch name to be master (note for PRs this is the base branch name)
+    if: branch != master
