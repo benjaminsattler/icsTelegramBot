@@ -2,6 +2,6 @@ language: ruby
 services:
   - docker
 before_install:
-  - rake docker:build_testing
+  - rake docker:build_all
 script:
   - rake tests:run_all
