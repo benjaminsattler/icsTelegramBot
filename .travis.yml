@@ -6,9 +6,9 @@ before_script:
   - rake docker:build_testing
 script:
   - rake tests:run_all
-before_deploy: sh ./scripts/ci/before_deploy.sh
+before_deploy: bash ./scripts/ci/before_deploy.sh
 deploy:
   provider: script
-  script: sh ./scripts/ci/deploy.sh
+  script: bash ./scripts/ci/deploy.sh
   on:
     branch: feat/ci_cd
