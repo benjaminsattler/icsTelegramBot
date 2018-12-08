@@ -6,7 +6,7 @@ ARG GIT_REPO=unknown
 ARG BUILD_TIME=unknown
 ARG BUILD_USER=unknown
 
-COPY ./Gemfile ./Gemfile.lock ./
+COPY ./Gemfile ./
 RUN apk update && \
     apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
     wget -O /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/download/v1.4.1/dbmate-linux-amd64 && \
