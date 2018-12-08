@@ -8,6 +8,6 @@ script:
   - rake tests:run_all
 deploy:
   provider: script
-  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker:build_push_prod
+  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && rake docker:build_push_prod
   on:
     branch: feat/ci_cd
