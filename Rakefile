@@ -7,6 +7,11 @@ require 'rake'
 # refer to https://hyper.sh
 HYPER_SH_PROJECTNAME = 'icstelegrambot'
 
+# Region to use for spawing the container.
+# For more information regarding available regions
+# please refer to https://hyper.sh
+HYPER_SH_REGION = 'eu-central-1'
+
 # Full docker tag that shall be used to tag docker images
 # when pushing the production docker image to the repository
 # with the task `docker:push_prod`

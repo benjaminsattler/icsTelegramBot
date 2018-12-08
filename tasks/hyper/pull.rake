@@ -4,7 +4,9 @@ namespace :hyper do
   desc 'Pull new docker images from the repository'
   task :pull do
     sh(
-      'hyper compose pull '\
+      'hyper '\
+      "--region=#{HYPER_SH_REGION} "\
+      'compose pull '\
       "-f #{HYPER_SH_DOCKERFILE}"
     )
   end
