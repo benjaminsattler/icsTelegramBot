@@ -9,6 +9,6 @@ script:
 before_deploy: sh ./scripts/ci/before_deploy.sh
 deploy:
   provider: script
-  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  script: sh ./scripts/ci/deploy.sh
   on:
     branch: feat/ci_cd
