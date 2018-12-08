@@ -6,7 +6,7 @@ before_script:
   - rake docker:build_testing
 script:
   - rake tests:run_all
-before_deploy: wget -O hypercli.tar.gz https://github.com/hyperhq/hypercli/archive/v1.10.16.tar.gz && tar xvvf hypercli.tar.gz && chmod +x hypercli-1.10.16/build.sh && ./hypercli-1.10.16/build.sh
+before_deploy: sh ./script/ci/before_deploy.sh
 deploy:
   provider: script
   script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
