@@ -44,34 +44,38 @@ class MainThread
 
   def run
     data = Factory.new(@config).get(@config.get('persistence'))
-    calendars = data.calendars.each_value do |calendar_desc|
-      events = Events::Calendar.new
-      events.load_events(
-        ICS::FileParser.parse_ics(
-          calendar_desc[:ics_path]
-        )
-      )
-      calendar_desc[:eventlist] = events
-      calendar_desc
-    end
     bot = Bot.new(
       @config.get('bot_token'),
       @config.get('admin_users').split(/:/)
     )
+    @watchdog = Watchdog.new
 
     Container.set(:bot, bot)
-    Container.set(:calendars, calendars)
+    Container.set(:calendars, [])
     Container.set(:dataStore, data)
-    @watchdog = Watchdog.new
+    Container.set(:watchdog, @watchdog)
 
     event_thread_block = lambda do
       begin
+        calendars = Container.get(:dataStore).calendars
+        Container.set(:calendars, calendars)
+        calendars.each_value do |calendar_desc|
+          events = Events::Calendar.new
+          events.load_events(
+            ICS::FileParser.parse_ics(
+              calendar_desc[:ics_path]
+            )
+          )
+          calendar_desc[:eventlist] = events
+          calendar_desc
+        end
+
         until Thread.current[:stop]
           calendars.each_value do |calendar|
             calendar[:eventlist].events.each do |event|
               bot.notify(calendar[:calendar_id], event)
             end
-            sleep 1
+            sleep 60
           end
         end
       rescue StandardError => e
@@ -122,13 +126,13 @@ class MainThread
     end
 
     th = @watchdog.watch([{
-                           name: 'Bot',
+                           name: 'bot',
                            thr: bot_thread_block
                          }, {
-                           name: 'Database',
+                           name: 'database',
                            thr: database_thread_block
                          }, {
-                           name: 'Event',
+                           name: 'event',
                            thr: event_thread_block
                          }])
 
