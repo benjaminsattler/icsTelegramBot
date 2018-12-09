@@ -5,7 +5,9 @@ namespace :hyper do
   'volumes and images on production system'
   task :down do
     sh(
-      'hyper compose down '\
+      'hyper '\
+      "--region=#{HYPER_SH_REGION} "\
+      'compose down '\
       '--rmi=all '\
       "--project-name=#{HYPER_SH_PROJECTNAME}"
     )
