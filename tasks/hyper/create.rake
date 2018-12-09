@@ -4,7 +4,9 @@ namespace :hyper do
   desc 'Create docker containers on production system'
   task :create do
     sh(
-      'hyper compose create '\
+      'hyper '\
+      "--region=#{HYPER_SH_REGION} "\
+      'compose create '\
       '--force-recreate '\
       "--project-name=#{HYPER_SH_PROJECTNAME} "\
       "-f #{HYPER_SH_DOCKERFILE}"
