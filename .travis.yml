@@ -1,6 +1,6 @@
 language: ruby
 services:
-  - docker
+- docker
 install: bundle install --without="development"
 before_script: true
   #- rake docker:build_testing
