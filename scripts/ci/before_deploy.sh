@@ -1,3 +1,3 @@
 #!/bin/bash
 
-wget -O hypercli.tar.gz https://github.com/hyperhq/hypercli/archive/v1.10.16.tar.gz && tar xvvf hypercli.tar.gz && chmod -R 777 hypercli-1.10.16 && cd hypercli-1.10.16 && chmod +x ./build.sh && ./build.sh
+wget -O hyper.tar.gz https://hyper-install.s3.amazonaws.com/hyper-linux-x86_64.tar.gz && tar xvvf hyper.tar.gz && mv hyper /usr/local/bin && hyper --version
