@@ -8,6 +8,6 @@ services:
       - ./docker/production.env
     volumes:
       # volume for ics file storage
-      - ./assets:/assets:ro
+      - ./assets:/assets:rw
       # volume for log files
       - ./log:/log:rw

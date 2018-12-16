@@ -33,6 +33,10 @@ class Persistence
     raise NotImplementedError
   end
 
+  def add_calendar(_calendar)
+    raise NotImplementedError
+  end
+
   def calendars
     raise NotImplementedError
   end

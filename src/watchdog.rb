@@ -25,6 +25,13 @@ class Watchdog
     log('Watchthread terminating...')
   end
 
+  def kill_by_name(name)
+    threads = @watch_threads.select { |th| th[:name].casecmp(name).zero? }
+    return if threads.empty?
+
+    threads.each { |th| th[:handle].kill }
+  end
+
   def random_kill
     return if Random.new.rand >= 0.1
 
