@@ -7,6 +7,8 @@ require 'incoming_message'
 require 'message_sender'
 require 'events/calendar'
 require 'events/event'
+require 'file_writer'
+require 'https_file_downloader'
 require 'statistics'
 require 'sys_info'
 
@@ -18,7 +20,7 @@ require 'multitrap'
 ##
 # This class represents the telegram bot.
 class Bot
-  attr_reader :bot_instance, :statistics
+  attr_reader :bot_instance, :statistics, :token
 
   @bot_instance = nil
   @token = nil
@@ -35,7 +37,7 @@ class Bot
   def run
     Telegram::Bot::Client.run(@token) do |bot|
       begin
-        me = bot.api.getMe
+        me = bot.api.get_me
       rescue StandardError => e
         log('Please double check Telegram bot token!')
         raise e
@@ -122,6 +124,16 @@ class Bot
     cmd.process(msg, userid, chatid, orig)
   end
 
+  def handle_document_upload(msg, userid, chatid, orig)
+    cmd = UploadCommand.new(
+      MessageSender.new(self, @statistics),
+      HttpsFileDownloader.new,
+      FileWriter.new,
+      ICS::FileParser
+    )
+    cmd.process(msg, userid, chatid, orig)
+  end
+
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
@@ -153,7 +165,15 @@ class Bot
 
   def handle_incoming(incoming)
     @statistics.recv_msg
-    if incoming.respond_to?('text')
+    if incoming.respond_to?('document') && incoming.document.present?
+      msg = IncomingMessage.new(
+        incoming.document.file_id,
+        incoming.from,
+        incoming.chat,
+        incoming
+      )
+      handle_document_upload(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
+    elsif incoming.respond_to?('text')
       msg = IncomingMessage.new(
         incoming.text,
         incoming.from,
@@ -232,6 +252,10 @@ class Bot
         )
       end
     end
+  end
+
+  def get_file(file_id)
+    @bot_instance.api.get_file(file_id: file_id)
   end
 
   def admin_user?(user_id)

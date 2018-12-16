@@ -27,7 +27,7 @@ class Watchdog
 
   def kill_by_name(name)
     threads = @watch_threads.select { |th| th[:name].casecmp(name).zero? }
-    return if th.empty?
+    return if threads.empty?
 
     threads.each { |th| th[:handle].kill }
   end

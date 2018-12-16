@@ -139,6 +139,20 @@ class Mysql < Persistence
     end
   end
 
+  def add_calendar(calendar)
+    escaped_filename = escape(calendar[:filename])
+    escaped_display_name = escape(calendar[:display_name])
+    @db.query(
+      'INSERT INTO eventslists('\
+      'display_name, '\
+      'filename '\
+      ') VALUES('\
+      "'#{escaped_display_name}', "\
+      "'#{escaped_filename}'"\
+      ')'
+    )
+  end
+
   def calendars
     calendars = {}
     @db.query('SELECT * FROM eventslists').each do |calendar|
@@ -146,5 +160,11 @@ class Mysql < Persistence
       calendars[cal_fixed[:calendar_id]] = cal_fixed
     end
     calendars
+  end
+
+  def escape(input)
+    return nil if input.nil?
+
+    @db.escape(input)
   end
 end

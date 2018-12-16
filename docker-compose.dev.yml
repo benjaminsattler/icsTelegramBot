@@ -24,7 +24,7 @@ services:
       # volume for database and migrations files
       - ./db:/db:ro
       # volume for ics file storage
-      - ./assets:/assets:ro
+      - ./assets:/assets:rw
       # volume for log files
       - ./log:/log:rw
     networks:
