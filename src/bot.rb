@@ -11,6 +11,7 @@ require 'file_writer'
 require 'https_file_downloader'
 require 'statistics'
 require 'sys_info'
+require 'message_broadcaster'
 
 require 'date'
 require 'telegram/bot'
@@ -134,6 +135,24 @@ class Bot
     cmd.process(msg, userid, chatid, orig)
   end
 
+  def handle_broadcast_message(msg, userid, chatid)
+    message_sender = MessageSender.new(
+      self,
+      @statistics
+    )
+    cmd = AdminCommand.new(
+      self,
+      BroadcastCommand.new(
+        MessageBroadcaster.new(
+          message_sender,
+          Container.get(:dataStore)
+        ),
+        message_sender
+      )
+    )
+    cmd.process(msg, userid, chatid, false)
+  end
+
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
@@ -237,6 +256,8 @@ class Bot
       handle_bot_status_message(msg.text, msg.author.id, msg.chat.id)
     when '/events', "/events@#{@botname.downcase}"
       handle_events_message(msg.text, msg.author.id, msg.chat.id, msg.orig_obj)
+    when '/broadcast', "/broadcast@#{@botname.downcase}"
+      handle_broadcast_message(msg.text, msg.author.id, msg.chat.id)
     when '/help', "/help@#{@botname.downcase}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
     else
