@@ -126,11 +126,14 @@ class Bot
   end
 
   def handle_document_upload(msg, userid, chatid, orig)
-    cmd = UploadCommand.new(
-      MessageSender.new(self, @statistics),
-      HttpsFileDownloader.new,
-      FileWriter.new,
-      ICS::FileParser
+    cmd = AdminCommand.new(
+      self,
+      UploadCommand.new(
+        MessageSender.new(self, @statistics),
+        HttpsFileDownloader.new,
+        FileWriter.new,
+        ICS::FileParser
+      )
     )
     cmd.process(msg, userid, chatid, orig)
   end
