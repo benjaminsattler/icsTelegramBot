@@ -145,10 +145,12 @@ class Mysql < Persistence
     @db.query(
       'INSERT INTO eventslists('\
       'display_name, '\
-      'filename '\
+      'filename, '\
+      'owner'\
       ') VALUES('\
       "'#{escaped_display_name}', "\
-      "'#{escaped_filename}'"\
+      "'#{escaped_filename}', "\
+      "#{calendar[:owner]}"\
       ')'
     )
   end

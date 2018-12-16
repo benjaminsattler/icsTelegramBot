@@ -15,7 +15,7 @@ class UploadCommand < Command
     @file_parser = file_parser
   end
 
-  def process(msg, _userid, chatid, orig_obj)
+  def process(msg, userid, chatid, orig_obj)
     bot = Container.get(:bot)
     datastore = Container.get(:dataStore)
     filename = orig_obj.document.file_name
@@ -72,7 +72,8 @@ class UploadCommand < Command
     description = orig_obj.document.file_name if description.nil?
     datastore.add_calendar(
       display_name: description,
-      filename: file_path
+      filename: file_path,
+      owner: userid
     )
 
     @message_sender.process(

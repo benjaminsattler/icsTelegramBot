@@ -1,0 +1,10 @@
+-- migrate:up
+ALTER TABLE eventslists
+ADD COLUMN owner INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN time_added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+
+-- migrate:down
+ALTER TABLE eventslists
+DROP COLUMN owner,
+DROP COLUMN time_added;
