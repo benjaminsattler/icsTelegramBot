@@ -37,7 +37,7 @@ class MessageSender
     if @bot.admin_user?(chat_id)
       [
         %w[/subscribe /setday /help /botstatus],
-        %w[/unsubscribe /settime /events /mystatus]
+        %w[/unsubscribe /settime /events /mystatus /broadcast]
       ]
     else
       [
