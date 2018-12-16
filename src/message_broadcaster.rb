@@ -13,6 +13,8 @@ class MessageBroadcaster
   end
 
   def process(text)
+    return if text.empty?
+
     eventlists = @persistence.calendars
     subscribers = Set.new
     eventlists.each_key do |id|

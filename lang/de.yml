@@ -76,6 +76,8 @@ de:
       empty_file_download: Ich konnte die Datei nicht herunterladen. Versuche es erneut!
       parse_error: Ich konnte diese Datei nicht verstehen. %{error}
       unsupported: Diesen Dateityp verstehe ich nicht. Bitte schicke mir eine .ics-Datei.
+    broadcast:
+      empty_message: Bitte gibt eine Nachricht an. Um "Hallo, Welt!" zu verschicken, schreibe /broadcast Hallo, Welt!
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
   help:
     intro: |

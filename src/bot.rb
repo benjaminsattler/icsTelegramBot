@@ -136,16 +136,18 @@ class Bot
   end
 
   def handle_broadcast_message(msg, userid, chatid)
+    message_sender = MessageSender.new(
+      self,
+      @statistics
+    )
     cmd = AdminCommand.new(
       self,
       BroadcastCommand.new(
         MessageBroadcaster.new(
-          MessageSender.new(
-            self,
-            @statistics
-          ),
+          message_sender,
           Container.get(:dataStore)
-        )
+        ),
+        message_sender
       )
     )
     cmd.process(msg, userid, chatid, false)

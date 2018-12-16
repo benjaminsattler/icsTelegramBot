@@ -60,5 +60,11 @@ RSpec.describe MessageBroadcaster do
       message_broadcaster = described_class.new(message_sender, persistence)
       message_broadcaster.process(expected_message)
     end
+
+    it 'does not send a message when called with an empty text' do
+      allow(message_sender).to receive(:process) { raise('process called') }
+      message_broadcaster = described_class.new(message_sender, persistence)
+      message_broadcaster.process('')
+    end
   end
 end

@@ -10,6 +10,7 @@ RSpec.describe MessageSender do
       message_sender = described_class.new(bot, statistics)
       actual = message_sender.default_keyboard_markup(123)
       expect(actual.flatten).to include('/botstatus')
+      expect(actual.flatten).to include('/broadcast')
     end
 
     it 'omits admin actions for regular users' do
@@ -18,6 +19,7 @@ RSpec.describe MessageSender do
       message_sender = described_class.new(bot, statistics)
       actual = message_sender.default_keyboard_markup(123)
       expect(actual.flatten).not_to include('/botstatus')
+      expect(actual.flatten).not_to include('/broadcast')
     end
   end
 
