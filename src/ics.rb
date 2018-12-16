@@ -13,6 +13,12 @@ module ICS
   # is able to return ruby event objects when given
   # an *.ics file.
   class FileParser
+    def self.supported?(filename)
+      # rubocop:disable Style/DoubleNegation
+      !!/\.ics$/i.match(filename)
+      # rubocop:enable Style/DoubleNegation
+    end
+
     def self.parse_ics_date(date)
       Date.strptime(date, '%Y%m%d')
     end

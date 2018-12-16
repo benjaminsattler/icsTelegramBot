@@ -55,6 +55,8 @@ de:
     command_inline: Wieviel Tage im Voraus möchtest du benachrichtigt werden?
     choose_calendar: Für welchen Kalender möchtest du den Zeitpunkt der Erinnerungen ändern?
   ping: Version %{version} ist gestartet um %{start_time}
+  upload:
+    success: Der Kalender mit %{num_events} Einträgen wurde unter dem Namen %{calendar_name} gespeichert.
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet für den Kalender %{calendar_name} bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
@@ -70,6 +72,10 @@ de:
       command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/subscribe %{calendar_id}" um Benachrichtigungnen zu dem Kalender %{calendar_name} zu erhalten.
     unsubscribe:
       command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/unsubscribe %{calendar_id}" um keine Benachrichtigungnen mehr zu dem Kalender %{calendar_name} zu erhalten.
+    upload:
+      empty_file_download: Ich konnte die Datei nicht herunterladen. Versuche es erneut!
+      parse_error: Ich konnte diese Datei nicht verstehen. %{error}
+      unsupported: Diesen Dateityp verstehe ich nicht. Bitte schicke mir eine .ics-Datei.
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
   help:
     intro: |

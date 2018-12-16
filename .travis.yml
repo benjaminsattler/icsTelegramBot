@@ -2,7 +2,7 @@ language: ruby
 services:
 - docker
 install: bundle install --without="development"
-script: rspec ./spec/
+script: rake docker:build_testing && rake tests:run_all
 before_deploy: bash ./scripts/ci/before_deploy.sh
 deploy:
   provider: script
