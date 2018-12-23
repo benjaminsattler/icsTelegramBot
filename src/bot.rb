@@ -12,6 +12,7 @@ require 'https_file_downloader'
 require 'statistics'
 require 'sys_info'
 require 'message_broadcaster'
+require 'file_uploader'
 
 require 'date'
 require 'telegram/bot'
@@ -156,6 +157,21 @@ class Bot
     cmd.process(msg, userid, chatid, false)
   end
 
+  def handle_download_message(msg, userid, chatid)
+    message_sender = MessageSender.new(
+      self,
+      @statistics
+    )
+    cmd = AdminCommand.new(
+      self,
+      DownloadCommand.new(
+        message_sender,
+        FileUploader.new
+      )
+    )
+    cmd.process(msg, userid, chatid, false)
+  end
+
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
@@ -263,6 +279,8 @@ class Bot
       handle_broadcast_message(msg.text, msg.author.id, msg.chat.id)
     when '/help', "/help@#{@botname.downcase}"
       handle_help_message(msg.text, msg.author.id, msg.chat.id)
+    when '/download', "/download@#{@botname.downcase}"
+      handle_download_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
         MessageSender.new(self, @statistics).process(

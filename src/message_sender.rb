@@ -36,7 +36,7 @@ class MessageSender
   def default_keyboard_markup(chat_id)
     if @bot.admin_user?(chat_id)
       [
-        %w[/subscribe /setday /help /botstatus],
+        %w[/subscribe /setday /help /botstatus /download],
         %w[/unsubscribe /settime /events /mystatus /broadcast]
       ]
     else
