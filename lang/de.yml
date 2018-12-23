@@ -57,6 +57,8 @@ de:
   ping: Version %{version} ist gestartet um %{start_time}
   upload:
     success: Der Kalender mit %{num_events} Einträgen wurde unter dem Namen %{calendar_name} gespeichert.
+  download:
+    choose_calendar: Welchen Kalender möchtest du herunterladen?
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet für den Kalender %{calendar_name} bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
@@ -78,6 +80,8 @@ de:
       unsupported: Diesen Dateityp verstehe ich nicht. Bitte schicke mir eine .ics-Datei.
     broadcast:
       empty_message: Bitte gibt eine Nachricht an. Um "Hallo, Welt!" zu verschicken, schreibe /broadcast Hallo, Welt!
+    download:
+      command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/download %{calendar_id}" um den Kalender %{calendar_name} herunterzuladen.
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
   help:
     intro: |
