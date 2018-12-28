@@ -1,7 +1,4 @@
 assets/*.ics
-config/*
-!config/*.example
-config/backup/
 .vscode/
 *.log
 log/*.log
@@ -11,3 +8,4 @@ db/sqlite/*
 db/backup/*
 *.pid
 *.env
+docker/gce.json
