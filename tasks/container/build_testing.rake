@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :docker do
+namespace :container do
   desc 'Build docker tests image'
   task :build_testing do
     sh(

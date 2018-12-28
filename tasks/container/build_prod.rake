@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :docker do
+namespace :container do
   desc 'Build docker production image'
   task :build_prod do
     tmpfs = "tmpfs_#{Time.now.to_i}.tar.bz2"

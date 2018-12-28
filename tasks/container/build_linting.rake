@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :docker do
+namespace :container do
   desc 'Build docker linter image'
   task :build_linting do
     sh(

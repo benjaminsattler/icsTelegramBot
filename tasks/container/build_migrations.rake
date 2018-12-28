@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :docker do
+namespace :container do
   desc 'Build docker migrations image'
   task :build_migrations do
     sh(

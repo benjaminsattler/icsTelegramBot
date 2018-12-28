@@ -17,6 +17,15 @@ HYPER_SH_REGION = 'eu-central-1'
 # with the task `docker:push_prod`
 DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
 
+# Full gce tag that shall be used to tag docker images
+# when pushing the production docker image to the repository
+# with the task `gce:push_prod`
+GCE_IMAGE_TAG = 'booming-octane-226319/icstelegrambot'
+
+# GCE hostname that shall be used to push docker images to
+# with the task `gce:push_prod`
+GCE_REPOSITORY_HOST = 'eu.gcr.io'
+
 # directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
 

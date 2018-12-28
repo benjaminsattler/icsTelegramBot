@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :docker do
+namespace :container do
   desc 'Build docker development image'
   task :build_dev do
     sh(
