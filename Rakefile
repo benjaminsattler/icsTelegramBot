@@ -2,29 +2,10 @@
 
 require 'rake'
 
-# What to name the project inside hyper.sh.
-# For more information regarding projects please
-# refer to https://hyper.sh
-HYPER_SH_PROJECTNAME = 'icstelegrambot'
-
-# Region to use for spawing the container.
-# For more information regarding available regions
-# please refer to https://hyper.sh
-HYPER_SH_REGION = 'eu-central-1'
-
-# Full docker tag that shall be used to tag docker images
-# when pushing the production docker image to the repository
-# with the task `docker:push_prod`
-DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
-
-# Full gce tag that shall be used to tag docker images
-# when pushing the production docker image to the repository
-# with the task `gce:push_prod`
-GCE_IMAGE_TAG = 'booming-octane-226319/icstelegrambot'
-
-# GCE hostname that shall be used to push docker images to
-# with the task `gce:push_prod`
-GCE_REPOSITORY_HOST = 'eu.gcr.io'
+# Name of the kubernetes context for the development cluster.
+# This will be used as value for the --context parameter in
+# kubectl calls
+K8S_DEV_CONTEXT_NAME = 'docker-for-desktop'
 
 # directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
@@ -105,6 +86,9 @@ DOCKER_MIGRATIONS_PATH = '/db/migrations/mysql/'
 # enable collection of task comments
 Rake::TaskManager.record_task_metadata = true
 
+# Notice:
+# This will also take care of including the
+# deployment configuration file in the project root
 Dir.glob("#{PWD}/**/*.rake").each { |r| import r }
 
 desc 'Show task information'

@@ -8,4 +8,9 @@ db/sqlite/*
 db/backup/*
 *.pid
 *.env
-docker/gce.json
+k8s/secrets/*
+!k8s/secrets/*.example
+!k8s/secrets/*.enc
+k8s/development.yaml
+docker/*.env
+deployment.rake

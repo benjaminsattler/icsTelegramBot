@@ -1,7 +1,10 @@
 .vscode/
-config/
+assets/
 db/
+k8s/
 log/
+scripts/
 spec/
 tasks/
 .*
+deployment.rake
