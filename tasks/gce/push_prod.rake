@@ -5,10 +5,10 @@ namespace :gce do
   task :push_prod do
     sh(
       'docker login && '\
-      "docker tag muell #{GCE_REPOSITORY_HOST}/#{GCE_IMAGE_TAG}:#{GIT_TAG} && "\
-      "docker push #{GCE_REPOSITORY_HOST}/#{GCE_IMAGE_TAG}:#{GIT_TAG} && "\
-      "docker tag muell #{GCE_REPOSITORY_HOST}/#{GCE_IMAGE_TAG}:latest && "\
-      "docker push #{GCE_REPOSITORY_HOST}/#{GCE_IMAGE_TAG}:latest"
+      "docker tag muell #{GCE_REGISTRY_HOST}/#{GCE_IMAGE_TAG}:#{GIT_TAG} && "\
+      "docker push #{GCE_REGISTRY_HOST}/#{GCE_IMAGE_TAG}:#{GIT_TAG} && "\
+      "docker tag muell #{GCE_REGISTRY_HOST}/#{GCE_IMAGE_TAG}:latest && "\
+      "docker push #{GCE_REGISTRY_HOST}/#{GCE_IMAGE_TAG}:latest"
     )
   end
 end
