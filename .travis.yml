@@ -8,4 +8,4 @@ deploy:
   provider: script
   script: bash ./scripts/ci/deploy.sh
   on:
-    branch: master
+    branch: issue-44-migrate_away_from_hyper.sh
