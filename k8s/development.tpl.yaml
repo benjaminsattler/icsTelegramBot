@@ -45,7 +45,10 @@ spec:
               key: DATABASE_URL
               name: development-config
         - name: ENABLE_DEBUG
-          value: "1"
+          valueFrom:
+            configMapKeyRef:
+              key: ENABLE_DEBUG
+              name: development-config
         - name: FLUSH_INTERVAL
           valueFrom:
             configMapKeyRef:

@@ -3,6 +3,7 @@
 namespace :git do
   desc 'Install git hooks'
   task :install_hooks do
+    puts 'Installing git hooks...'
     Dir.chdir(GITHOOKS_TGTDIR) do
       hooks = Rake::FileList["#{GITHOOKS_SRCDIR}/**/*"]
       hooks.each do |fullfile|

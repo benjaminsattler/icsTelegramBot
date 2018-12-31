@@ -1,9 +1,8 @@
 #!/bin/bash
 
-wget -O google-cloud-sdk.tar.gz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-228.0.0-linux-x86_64.tar.gz && \
-tar xvvf google-cloud-sdk.tar.gz && \
-./google-cloud-sdk/install.sh --quiet && \
-source ./google-cloud-sdk/path.bash.inc && \
-gcloud --quiet components update && \
-gcloud --quiet components install kubectl && \
+set -ev
+curl https://sdk.cloud.google.com | bash > /dev/null
+gcloud --quiet components list
+gcloud --quiet components update
+gcloud --quiet components install beta kubectl docker-credential-gcr
 gcloud --quiet version

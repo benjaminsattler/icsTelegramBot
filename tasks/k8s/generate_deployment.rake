@@ -3,6 +3,7 @@
 namespace :k8s do
   desc 'Preprocesses the development deployment'
   task :generate_deployment do
+    puts 'Generating kubernetes development configuration...'
     infile = "#{PWD}/k8s/development.tpl.yaml"
     outfile = "#{PWD}/k8s/development.yaml"
     template = File.read(infile)
