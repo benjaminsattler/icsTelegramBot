@@ -75,7 +75,7 @@ HYPER_SH_DOCKERFILE = 'docker-compose.hyper.yml'
 # when developing database migrations locally. Usually you want
 # this to be your development environment to be able to test,
 # migrate and rollback your migrations during development
-MIGRATION_ENV_FILE = './docker/development.env'
+MIGRATION_ENV_FILE = './k8s/configs/development.env'
 
 # Location of the database migration files from inside the
 # dbmate docker container. Usually you'll want this to equal

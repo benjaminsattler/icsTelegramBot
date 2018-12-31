@@ -11,7 +11,7 @@ namespace :migration do
     sh(
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
-      '--network=muell_backend '\
+      '--network=host '\
       "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       "--migrations-dir #{DOCKER_MIGRATIONS_PATH} "\
