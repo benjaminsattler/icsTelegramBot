@@ -75,7 +75,7 @@ class MainThread
             calendar[:eventlist].events.each do |event|
               bot.notify(calendar[:calendar_id], event)
             end
-            sleep 60
+            sleep 5
           end
         end
       rescue StandardError => e
