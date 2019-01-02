@@ -6,7 +6,7 @@ git_tag=`git describe --tags | head -n 1`
 gce_image_name="${GCE_REGISTRY_HOST}/${K8S_PROJECT_NAME}/${GCE_DOCKER_IMAGE_NAME}"
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker login -u _json_key --password-stdin https://eu.gcr.io < k8s/secrets/gce.json
+echo "$GCE_DOCKER_LOGIN" | docker login -u _json_key --password-stdin https://eu.gcr.io
 gcloud --quiet beta auth configure-docker
 gcloud --quiet auth activate-service-account --key-file ./k8s/secrets/gce.json
 gcloud --quiet --project ${K8S_PROJECT_NAME} container clusters get-credentials ${K8S_CLUSTER_NAME} --zone ${K8S_CLUSTER_ZONE}
