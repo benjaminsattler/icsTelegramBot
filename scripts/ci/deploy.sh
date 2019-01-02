@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ev
-
+source $HOME/google-cloud-sdk/path.bash.inc
 git_tag=`git describe --tags | head -n 1`
 gce_image_name="${GCE_REGISTRY_HOST}/${K8S_PROJECT_NAME}/${GCE_DOCKER_IMAGE_NAME}"
 
