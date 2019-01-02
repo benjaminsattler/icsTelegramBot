@@ -1,0 +1,101 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Deployment"
+metadata:
+  name: "production"
+  namespace: "default"
+  labels:
+    app: "production"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "production"
+  template:
+    metadata:
+      labels:
+        app: "production"
+    spec:
+      containers:
+      - name: "icstelegrambot"
+        image: "eu.gcr.io/booming-octane-226319/icstelegrambot:latest"
+        volumeMounts:
+        - mountPath: /assets
+          name: assets-prod
+        - mountPath: /log
+          name: log-prod
+        env:
+        - name: BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: prod.token
+              name: bottoken
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: databasecredentials
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_DATABASE
+              name: databasecredentials
+        - name: MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_HOST
+              name: databasecredentials
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_PASSWORD
+              name: databasecredentials
+        - name: MYSQL_PORT
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_PORT
+              name: databasecredentials
+        - name: MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_USERNAME
+              name: databasecredentials
+        - name: ADMIN_USERS
+          valueFrom:
+            configMapKeyRef:
+              key: ADMIN_USERS
+              name: production-config
+        - name: FLUSH_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              key: FLUSH_INTERVAL
+              name: production-config
+        - name: ICSBOT_ENV
+          value: production
+        - name: MIGRATIONS_DIR
+          valueFrom:
+            configMapKeyRef:
+              key: MIGRATIONS_DIR
+              name: production-config
+        - name: PERSISTENCE
+          valueFrom:
+            configMapKeyRef:
+              key: PERSISTENCE
+              name: production-config
+        - name: SQLITE_DB_PATH
+          valueFrom:
+            configMapKeyRef:
+              key: SQLITE_DB_PATH
+              name: production-config
+        - name: TIMEZONE
+          valueFrom:
+            configMapKeyRef:
+              key: TIMEZONE
+              name: production-config
+      volumes:
+        - name: assets-prod
+          persistentVolumeClaim:
+            claimName: assets-prod
+        - name: log-prod
+          persistentVolumeClaim:
+            claimName: log-prod
