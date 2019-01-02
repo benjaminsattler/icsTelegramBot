@@ -12,5 +12,4 @@ k8s/secrets/*
 !k8s/secrets/*.example
 !k8s/secrets/*.enc
 k8s/development.yaml
-docker/*.env
 deployment.rake
