@@ -2,20 +2,10 @@
 
 require 'rake'
 
-# What to name the project inside hyper.sh.
-# For more information regarding projects please
-# refer to https://hyper.sh
-HYPER_SH_PROJECTNAME = 'icstelegrambot'
-
-# Region to use for spawing the container.
-# For more information regarding available regions
-# please refer to https://hyper.sh
-HYPER_SH_REGION = 'eu-central-1'
-
-# Full docker tag that shall be used to tag docker images
-# when pushing the production docker image to the repository
-# with the task `docker:push_prod`
-DOCKER_IMAGE_TAG = 'benjaminsattler/icstelegrambot'
+# Name of the kubernetes context for the development cluster.
+# This will be used as value for the --context parameter in
+# kubectl calls
+K8S_DEV_CONTEXT_NAME = 'docker-for-desktop'
 
 # directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
@@ -75,17 +65,11 @@ BUILD_USER_INFO = \
 # label when building a new docker image
 CURRENT_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 
-# Path to the hyper.sh docker compose file.
-# This file is similar to a conventional docker compose
-# file, but has a few caveats and extras. For more information
-# visit https://hyper.sh/
-HYPER_SH_DOCKERFILE = 'docker-compose.hyper.yml'
-
 # Environemnt variables file that shall be used for docker run
 # when developing database migrations locally. Usually you want
 # this to be your development environment to be able to test,
 # migrate and rollback your migrations during development
-MIGRATION_ENV_FILE = './docker/development.env'
+MIGRATION_ENV_FILE = './k8s/configs/development.env'
 
 # Location of the database migration files from inside the
 # dbmate docker container. Usually you'll want this to equal
@@ -96,6 +80,9 @@ DOCKER_MIGRATIONS_PATH = '/db/migrations/mysql/'
 # enable collection of task comments
 Rake::TaskManager.record_task_metadata = true
 
+# Notice:
+# This will also take care of including the
+# deployment configuration file in the project root
 Dir.glob("#{PWD}/**/*.rake").each { |r| import r }
 
 desc 'Show task information'

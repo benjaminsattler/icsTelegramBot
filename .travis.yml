@@ -1,11 +1,20 @@
 language: ruby
 services:
 - docker
-install: bundle install --without="development"
-script: rake docker:build_testing && rake tests:run_all
-before_deploy: bash ./scripts/ci/before_deploy.sh
+git:
+  depth: false
+env:
+  - PATH=/home/travis/google-cloud-sdk/bin:$PATH CLOUDSDK_CORE_DISABLE_PROMPTS=1
+install: true
+script: rake container:build_testing && rake tests:run_all
+before_deploy:
+  - sudo apt-get -y purge google-cloud-sdk
+  - openssl aes-256-cbc -K $encrypted_8f5a1ceb36fa_key -iv $encrypted_8f5a1ceb36fa_iv -in k8s/secrets/gce.json.enc -out k8s/secrets/gce.json -d
+  - bash ./scripts/ci/before_deploy.sh
 deploy:
   provider: script
   script: bash ./scripts/ci/deploy.sh
+  skip_cleanup: true
   on:
-    branch: issue-44-migrate_away_from_hyper.sh
+    branch: master
+    tags: true

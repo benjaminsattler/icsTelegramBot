@@ -1,7 +1,4 @@
 assets/*.ics
-config/*
-!config/*.example
-config/backup/
 .vscode/
 *.log
 log/*.log
@@ -11,3 +8,8 @@ db/sqlite/*
 db/backup/*
 *.pid
 *.env
+k8s/secrets/*
+!k8s/secrets/*.example
+!k8s/secrets/*.enc
+k8s/development.yaml
+deployment.rake

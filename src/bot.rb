@@ -31,7 +31,7 @@ class Bot
   @botname = nil
 
   def initialize(token, admin_users)
-    @token = token
+    @token = token.chomp
     @admin_users = admin_users
     @statistics = Statistics.new
   end
