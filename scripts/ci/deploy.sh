@@ -2,7 +2,7 @@
 
 set -ev
 source $HOME/google-cloud-sdk/path.bash.inc
-git_tag=`git tag | tail -n 1`
+git_tag=`git ls-remote --tags --refs -q | tail -n 1 | sed -E -n 's%[[:alnum:]]+[[:space:]]+refs/tags/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)%\1%gp'`
 gce_image_name="${GCE_REGISTRY_HOST}/${K8S_PROJECT_NAME}/${GCE_DOCKER_IMAGE_NAME}"
 
 echo $GCE_DOCKER_LOGIN > k8s/secrets/gce.json

@@ -24,10 +24,18 @@ GITHOOKS_SRCDIR = '../../scripts/githooks'
 # a new docker image
 GIT_ACTIVE_BRANCH = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
 
+# regex that will be used to parse the output of git ls-remote
+# for the current tag
+# rubocop:disable Metrics/LineLength
+GIT_TAG_REGEX = '%[[:alnum:]]+[[:space:]]+refs/tags/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)%\1%g'
+# rubocop:enable Metrics/LineLength
+
 # git tag of the current git branch HEAD
 # will be used in a docker image label when building
 # a new docker image
-GIT_TAG = `git describe --tags`.chomp.freeze
+GIT_TAG = `git ls-remote --tags --refs -q | \
+           tail -n 1 | \
+           sed -E -n 's#{GIT_TAG_REGEX}p'`.chomp.freeze
 
 # URL of the remote for this repository
 # will be used in a docker image label when building
