@@ -92,6 +92,28 @@ spec:
             configMapKeyRef:
               key: TIMEZONE
               name: production-config
+        - name: LOGGERS
+          valueFrom:
+            configMapKeyRef:
+              key: LOGGERS
+              name: production-config
+        - name: GOOGLECLOUDLOGGER_PROJECT
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_PROJECT
+              name: production-config
+        - name: GOOGLECLOUDLOGGER_LOGNAME
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_LOGNAME
+              name: production-config
+        - name: GOOGLECLOUDLOGGER_RESOURCE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_RESOURCE_TYPE
+              name: production-config
+        - name: GOOGLECLOUDLOGGER_ENVIRONMENT
+          value: production
       volumes:
         - name: assets-prod
           persistentVolumeClaim:
