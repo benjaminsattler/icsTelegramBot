@@ -22,8 +22,6 @@ spec:
         volumeMounts:
         - mountPath: /assets
           name: assets-prod
-        - mountPath: /log
-          name: log-prod
         env:
         - name: BOT_TOKEN
           valueFrom:
@@ -118,6 +116,3 @@ spec:
         - name: assets-prod
           persistentVolumeClaim:
             claimName: assets-prod
-        - name: log-prod
-          persistentVolumeClaim:
-            claimName: log-prod

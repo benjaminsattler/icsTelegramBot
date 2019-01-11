@@ -24,7 +24,7 @@ LABEL "net.benjaminsattler.icsbot.git_tag"="$GIT_TAG" \
       "net.benjaminsattler.icsbot.git_url"="$GIT_REPO" \
       "net.benjaminsattler.icsbot.build_time"="$BUILD_TIME" \
       "net.benjaminsattler.icsbot.build_user"="$BUILD_USER"
-VOLUME /assets /log
+VOLUME /assets
 
 # development image
 FROM base AS development
@@ -64,4 +64,4 @@ RUN chmod +x /entrypoint.sh && \
 
 ENV ICSBOT_ENV=production
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "/app/bin/server", "--main=MainThread" , "--log=/log/icsbot.log"]
+CMD [ "/app/bin/server", "--main=MainThread"]

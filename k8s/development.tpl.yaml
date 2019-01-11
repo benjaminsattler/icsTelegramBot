@@ -138,8 +138,6 @@ spec:
           readOnly: true
         - mountPath: /assets
           name: assets-pv
-        - mountPath: /log
-          name: log-pv
       restartPolicy: Always
       volumes:
       - name: app-pv
@@ -151,9 +149,6 @@ spec:
       - name: assets-pv
         hostPath:
           path: {{ PROJECT_BASEPATH }}/assets/
-      - name: log-pv
-        hostPath:
-          path: {{ PROJECT_BASEPATH }}/log/
 status: {}
 ---
 apiVersion: "extensions/v1beta1"
