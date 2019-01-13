@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -ev
-
-git_tag=`git describe --tags | head -n 1`
+source $HOME/google-cloud-sdk/path.bash.inc
+git_tag=`git describe --tags`
 gce_image_name="${GCE_REGISTRY_HOST}/${K8S_PROJECT_NAME}/${GCE_DOCKER_IMAGE_NAME}"
 
+echo $GCE_DOCKER_LOGIN > k8s/secrets/gce.json
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 docker login -u _json_key --password-stdin https://eu.gcr.io < k8s/secrets/gce.json
 gcloud --quiet beta auth configure-docker

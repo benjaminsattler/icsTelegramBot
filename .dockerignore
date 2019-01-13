@@ -2,7 +2,6 @@
 assets/
 db/
 k8s/
-log/
 scripts/
 spec/
 tasks/
