@@ -12,6 +12,10 @@ GCE_IMAGE_TAG = 'repositoryname/imagename'
 # with the task `gce:push_prod`
 GCE_REGISTRY_HOST = 'eu.gcr.io'
 
+# Path to your decrypted google cloud engine login
+# credentials file
+GCE_DOCKER_LOGIN = 'k8s/secrets/gce.json'
+
 # Name of the kubernetes context for the production cluster.
 # This will be used as value for the --context parameter in
 # kubectl calls

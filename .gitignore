@@ -1,8 +1,6 @@
 assets/*.ics
 .vscode/
 *.log
-log/*.log
-log/*.gz
 db/mysql/*
 db/sqlite/*
 db/backup/*

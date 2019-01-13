@@ -101,6 +101,28 @@ spec:
             configMapKeyRef:
               key: TIMEZONE
               name: development-config
+        - name: LOGGERS
+          valueFrom:
+            configMapKeyRef:
+              key: LOGGERS
+              name: development-config
+        - name: GOOGLECLOUDLOGGER_PROJECT
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_PROJECT
+              name: development-config
+        - name: GOOGLECLOUDLOGGER_LOGNAME
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_LOGNAME
+              name: development-config
+        - name: GOOGLECLOUDLOGGER_RESOURCE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              key: GOOGLECLOUDLOGGER_RESOURCE_TYPE
+              name: development-config
+        - name: GOOGLECLOUDLOGGER_ENVIRONMENT
+          value: development
         image: muell_dev
         imagePullPolicy: Never
         name: devel
@@ -116,8 +138,6 @@ spec:
           readOnly: true
         - mountPath: /assets
           name: assets-pv
-        - mountPath: /log
-          name: log-pv
       restartPolicy: Always
       volumes:
       - name: app-pv
@@ -129,16 +149,13 @@ spec:
       - name: assets-pv
         hostPath:
           path: {{ PROJECT_BASEPATH }}/assets/
-      - name: log-pv
-        hostPath:
-          path: {{ PROJECT_BASEPATH }}/log/
 status: {}
 ---
 apiVersion: "extensions/v1beta1"
 kind: "Deployment"
 metadata:
   creationTimestamp: null
-  name: "mysql-devel"
+  name: "mysql-development"
 spec:
   replicas: 1
   selector:

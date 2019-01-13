@@ -33,13 +33,14 @@ class MainThread
     env = ENV['ICSBOT_ENV'].nil? ? 'testing' : ENV['ICSBOT_ENV']
     @is_running = true
 
+    @config = EnvironmentConfiguration.new
+    Container.set('logging', Logging.new(@config))
     unless %w[production development testing].include?(env)
       log("Unknown environment #{env}. Terminating...")
       exit
     end
 
     log("Running in #{env.upcase} environment")
-    @config = EnvironmentConfiguration.new
   end
 
   def run

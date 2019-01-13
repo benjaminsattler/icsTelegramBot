@@ -2,7 +2,13 @@
 
 namespace :dev do
   desc 'Bootstrap a new development environment'
-  task bootstrap: %w[git:install_hooks k8s:generate_deployment] do
+  task bootstrap: %w[
+    git:install_hooks
+    k8s:generate_deployment
+    container:build_dev
+    container:build_testing
+    container:build_linting
+  ] do
     config_destination = "#{PWD}/k8s/configs/development.env"
     puts 'Generating development configuration file...'
     FileUtils.copy_file(
