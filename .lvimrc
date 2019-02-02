@@ -1,0 +1,6 @@
+compiler rspec
+let g:rspec_command="AsyncRun rake tests:run_all | copen"
+set makeprg=rake\ tests:run_all
+set tabstop=2
+set shiftwidth=2
+set expandtab
