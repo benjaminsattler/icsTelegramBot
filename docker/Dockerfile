@@ -36,7 +36,7 @@ RUN chmod +x /entrypoint.sh && \
     apk del build-base
 VOLUME /db /app
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "/app/bin/server", "--main=MainThread" ]
+CMD [ "/app/src/server.rb" ]
 
 # testing image
 FROM development AS testing
@@ -64,4 +64,4 @@ RUN chmod +x /entrypoint.sh && \
 
 ENV ICSBOT_ENV=production
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "/app/bin/server", "--main=MainThread"]
+CMD [ "/app/src/server.rb" ]
