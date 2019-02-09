@@ -7,3 +7,4 @@ db/backup/*
 *.pid
 *.env
 k8s/development.yaml
+tags
