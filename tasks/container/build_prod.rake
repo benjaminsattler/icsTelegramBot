@@ -7,7 +7,6 @@ namespace :container do
     Dir.chdir(PWD) do
       sh(
         "tar cvvfj #{tmpfs} "\
-        './bin ' \
         './lang ' \
         './scripts ' \
         './src ' \
