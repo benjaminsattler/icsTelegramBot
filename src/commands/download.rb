@@ -60,7 +60,7 @@ class DownloadCommand < Command
       mine_type: 'text/calendar'
     )
 
-    bot.bot_instance.api.send_document(
+    bot.bot_instance.send_document(
       chat_id: chatid,
       document: document
     )

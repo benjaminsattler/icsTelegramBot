@@ -6,7 +6,7 @@ require 'api_interface'
 # This class will be used for tests against the
 # telegram bot api.
 class TestApi < ApiInterface
-  def send_message(opts)
+  def send_message(params)
     msg = {
       'message_id' => Random.rand(2**31),
       'from' => {
@@ -14,11 +14,15 @@ class TestApi < ApiInterface
       },
       'date' => Time.new.to_i,
       'chat' => {
-        'id' => opts[:chat_id]
+        'id' => params[:chat_id]
       },
-      'text' => opts[:text]
+      'text' => params[:text]
     }
     wrap msg
+  end
+
+  def send_document(_params)
+    raise NotImplementedError
   end
 
   def wrap(msg)

@@ -13,6 +13,7 @@ require 'statistics'
 require 'sys_info'
 require 'message_broadcaster'
 require 'file_uploader'
+require 'telegram_api'
 
 require 'date'
 require 'telegram/bot'
@@ -44,12 +45,12 @@ class Bot
         log('Please double check Telegram bot token!')
         raise e
       end
-      @bot_instance = bot
+      @bot_instance = TelegramApi.new(bot)
       @botname = me['result']['username']
       log("Botname is #{@botname}")
       ping_admin_users(@admin_users)
       until Thread.current[:stop]
-        @bot_instance.listen do |message|
+        bot.listen do |message|
           handle_incoming(message)
         end
       end
@@ -57,7 +58,7 @@ class Bot
   end
 
   def ping_admin_users(users)
-    message_sender = MessageSender.new(self, @statistics)
+    message_sender = MessageSender.new(self, @bot_instance, @statistics)
     users.each do |user|
       message_sender.process(
         I18n.t(
@@ -73,17 +74,35 @@ class Bot
   end
 
   def handle_subscribe_message(msg, userid, chatid, orig)
-    cmd = SubscribeCommand.new(MessageSender.new(self, @statistics))
+    cmd = SubscribeCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_unsubscribe_message(msg, userid, chatid, orig)
-    cmd = UnsubscribeCommand.new(MessageSender.new(self, @statistics))
+    cmd = UnsubscribeCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_my_status_message(msg, userid, chatid)
-    cmd = MyStatusCommand.new(MessageSender.new(self, @statistics))
+    cmd = MyStatusCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, false)
   end
 
@@ -93,6 +112,7 @@ class Bot
       BotStatusCommand.new(
         MessageSender.new(
           self,
+          @bot_instance,
           @statistics
         ),
         SysInfo.new
@@ -102,27 +122,57 @@ class Bot
   end
 
   def handle_start_message(msg, userid, chatid)
-    cmd = StartCommand.new(MessageSender.new(self, @statistics))
+    cmd = StartCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid)
   end
 
   def handle_help_message(msg, userid, chatid)
-    cmd = HelpCommand.new(MessageSender.new(self, @statistics))
+    cmd = HelpCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid)
   end
 
   def handle_events_message(msg, userid, chatid, orig)
-    cmd = EventsCommand.new(MessageSender.new(self, @statistics))
+    cmd = EventsCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_day_message(msg, userid, chatid, orig)
-    cmd = SetDayCommand.new(MessageSender.new(self, @statistics))
+    cmd = SetDayCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, orig)
   end
 
   def handle_set_time_message(msg, userid, chatid, orig)
-    cmd = SetTimeCommand.new(MessageSender.new(self, @statistics))
+    cmd = SetTimeCommand.new(
+      MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics
+      )
+    )
     cmd.process(msg, userid, chatid, orig)
   end
 
@@ -130,7 +180,11 @@ class Bot
     cmd = AdminCommand.new(
       self,
       UploadCommand.new(
-        MessageSender.new(self, @statistics),
+        MessageSender.new(
+          self,
+          @bot_instance,
+          @statistics
+        ),
         HttpsFileDownloader.new,
         FileWriter.new,
         ICS::FileParser
@@ -142,6 +196,7 @@ class Bot
   def handle_broadcast_message(msg, userid, chatid)
     message_sender = MessageSender.new(
       self,
+      @bot_instance,
       @statistics
     )
     cmd = AdminCommand.new(
@@ -160,6 +215,7 @@ class Bot
   def handle_download_message(msg, userid, chatid)
     message_sender = MessageSender.new(
       self,
+      @bot_instance,
       @statistics
     )
     cmd = AdminCommand.new(
@@ -175,7 +231,7 @@ class Bot
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    message_sender = MessageSender.new(self, @statistics)
+    message_sender = MessageSender.new(self, @bot_instance, @statistics)
     description = calendars[calendar_id][:description]
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
@@ -283,12 +339,12 @@ class Bot
       handle_download_message(msg.text, msg.author.id, msg.chat.id)
     else
       if command_target.nil?
-        MessageSender.new(self, @statistics).process(
+        MessageSender.new(self, @bot_instance, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )
       elsif command_target.casecmp(@botname)
-        MessageSender.new(self, @statistics).process(
+        MessageSender.new(self, @bot_instance, @statistics).process(
           I18n.t('unknown_command'),
           msg.chat.id
         )

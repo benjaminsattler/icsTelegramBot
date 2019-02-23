@@ -8,4 +8,8 @@ class ApiInterface
   def send_message(_params)
     raise NotImplementedError
   end
+
+  def send_document(_params)
+    raise NotImplementedError
+  end
 end

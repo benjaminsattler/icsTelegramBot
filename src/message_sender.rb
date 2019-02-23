@@ -5,10 +5,12 @@
 # a message with the telegram bot API.
 class MessageSender
   @bot = nil
+  @api = nil
   @statistics = nil
 
-  def initialize(bot, statistics)
+  def initialize(bot, api, statistics)
     @bot = bot
+    @api = api
     @statistics = statistics
   end
 
@@ -22,7 +24,7 @@ class MessageSender
       )
     end
     begin
-      @bot.bot_instance.api.send_message(
+      @api.send_message(
         chat_id: chat_id,
         text: text,
         reply_markup: reply_markup,
