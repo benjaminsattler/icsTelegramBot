@@ -19,4 +19,26 @@ class TelegramApi < ApiInterface
   def send_document(params)
     @handle.api.send_document(params)
   end
+
+  def get_file(params)
+    @handle.api.get_file(params)
+  end
+
+  def listen
+    @handle.listen do |bot|
+      yield(bot)
+    end
+  end
+
+  # rubocop:disable Naming/AccessorMethodName
+  def get_me
+    @handle.api.get_me
+  end
+  # rubocop:enable Naming/AccessorMethodName
+
+  def self.run(token)
+    Telegram::Bot::Client.run(token) do |bot|
+      yield TelegramApi.new(bot)
+    end
+  end
 end

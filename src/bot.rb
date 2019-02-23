@@ -13,7 +13,6 @@ require 'statistics'
 require 'sys_info'
 require 'message_broadcaster'
 require 'file_uploader'
-require 'telegram_api'
 
 require 'date'
 require 'telegram/bot'
@@ -37,15 +36,15 @@ class Bot
     @statistics = Statistics.new
   end
 
-  def run
-    Telegram::Bot::Client.run(@token) do |bot|
+  def run(api)
+    api.run(@token) do |bot|
       begin
-        me = bot.api.get_me
+        me = bot.get_me
       rescue StandardError => e
         log('Please double check Telegram bot token!')
         raise e
       end
-      @bot_instance = TelegramApi.new(bot)
+      @bot_instance = bot
       @botname = me['result']['username']
       log("Botname is #{@botname}")
       ping_admin_users(@admin_users)
@@ -353,7 +352,7 @@ class Bot
   end
 
   def get_file(file_id)
-    @bot_instance.api.get_file(file_id: file_id)
+    @bot_instance.get_file(file_id: file_id)
   end
 
   def admin_user?(user_id)

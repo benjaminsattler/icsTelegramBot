@@ -13,7 +13,7 @@ class StartCommand < Command
     @message_sender.process(
       I18n.t(
         'start',
-        botname: bot.bot_instance.api.getMe['result']['username']
+        botname: bot.bot_instance.get_me['result']['username']
       ),
       chatid
     )

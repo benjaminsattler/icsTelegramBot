@@ -7,6 +7,7 @@ require 'ics'
 require 'events/calendar'
 require 'log'
 require 'container'
+require 'telegram_api'
 
 require 'configuration/environment_configuration'
 
@@ -87,7 +88,7 @@ class MainThread
 
     bot_thread_block = lambda do
       begin
-        bot.run
+        bot.run TelegramApi
       rescue StandardError => e
         puts e.inspect
         puts e.backtrace
