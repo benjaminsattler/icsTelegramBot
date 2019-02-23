@@ -106,12 +106,12 @@ class SetTimeCommand < Command
     end
     hrs = matcher[1].to_i
     min = matcher[2].to_i
-    subscriber[:notificationtime] = { hrs: hrs, min: min }
+    time = hrs * 100
+    time += min
     subscriber[:notifiedEvents].clear
-    subscriber[:eventlist_id] = calendar_id
-    data_store.update_subscriber(subscriber)
-    reminder_time = "#{Util.pad(subscriber[:notificationtime][:hrs], 2)}"\
-                    ":#{Util.pad(subscriber[:notificationtime][:min], 2)}"
+    data_store.update_time(subscriber[:telegram_id], calendar_id, time)
+    reminder_time = "#{Util.pad(hrs, 2)}"\
+                    ":#{Util.pad(min, 2)}"
     if subscriber[:notificationday].zero?
       @message_sender.process(
         I18n.t(

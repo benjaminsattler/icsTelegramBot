@@ -56,16 +56,23 @@ class Sqlite < Persistence
   end
 
   def subscriber_by_id(id, eventlist = 1)
-    @subscribers
-      .select do |subscriber|
-        subscriber[:telegram_id] == id && subscriber[:eventlist_id] == eventlist
-      end
+    @db
+      .query(
+        'SELECT * from subscribers '\
+        "WHERE telegram_id = #{id} AND "\
+        "eventlist_id = #{eventlist}"
+      )
+      .map { |sub| Mysql.fix_database_object(sub) }
       .first
   end
 
   def subscriptions_for_id(id)
-    @subscribers
-      .select { |subscriber| subscriber[:telegram_id] == id }
+    @db
+      .query(
+        'SELECT * from subscribers '\
+        "WHERE telegram_id = #{id}"
+      )
+      .map { |sub| Mysql.fix_database_object(sub) }
   end
 
   def all_subscribers(eventlist = 1)
@@ -91,42 +98,22 @@ class Sqlite < Persistence
     { calendar_id: sub[0], description: sub[1], ics_path: sub[2] }
   end
 
-  def update_subscriber(sub)
-    @subscribers = @subscribers.map do |subscriber|
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationday] = sub[:notificationday]
-      end
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs]
-      end
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationtime][:min] = sub[:notificationtime][:min]
-      end
-      subscriber
-    end
+  def update_day(sub_id, eventlist_id, day)
+    @db.query(
+      'UPDATE subscribers SET '\
+      "notificationday = #{day} " \
+      "WHERE telegram_id = #{sub_id} AND "\
+      "eventlist_id = #{eventlist_id}"
+    )
   end
 
-  def flush
-    return if @subscribers.nil?
-
-    @subscribers.each do |subscriber|
-      notificationtime = subscriber[:notificationtime][:hrs] * 100
-      notificationtime += subscriber[:notificationtime][:min]
-      @db.execute(
-        'UPDATE subscribers SET '\
-        'notificationday = ?, ' \
-        'notificationtime = ? ' \
-        'WHERE telegram_id = ? AND '\
-        'eventlist_id = ?',
-        subscriber[:notificationday],
-        notificationtime,
-        subscriber[:telegram_id],
-        subscriber[:eventlist_id]
-      )
-    end
+  def update_time(sub_id, eventlist_id, time)
+    @db.query(
+      'UPDATE subscribers SET '\
+      "notificationtime = #{time} " \
+      "WHERE telegram_id = #{sub_id} AND "\
+      "eventlist_id = #{eventlist_id}"
+    )
   end
 
   def calendars

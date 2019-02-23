@@ -25,12 +25,12 @@ class Persistence
     raise NotImplementedError
   end
 
-  def update_subscriber(_sub)
+  def update_time(_sub_id, _eventlist_id, _time)
     raise NotImplementedError
   end
 
-  def flush
-    raise NotImplementedError
+  def update_day(_sub_id, _eventlist_id, _day)
+    raise NotImplemenedError
   end
 
   def add_calendar(_calendar)
@@ -38,6 +38,10 @@ class Persistence
   end
 
   def calendars
+    raise NotImplementedError
+  end
+
+  def sent_message(_msg_id)
     raise NotImplementedError
   end
 end

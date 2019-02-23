@@ -49,11 +49,6 @@ spec:
             configMapKeyRef:
               key: ENABLE_DEBUG
               name: development-config
-        - name: FLUSH_INTERVAL
-          valueFrom:
-            configMapKeyRef:
-              key: FLUSH_INTERVAL
-              name: development-config
         - name: ICSBOT_ENV
           value: development
         - name: MIGRATIONS_DIR

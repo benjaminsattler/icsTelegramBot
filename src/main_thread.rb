@@ -85,26 +85,6 @@ class MainThread
       end
     end
 
-    database_thread_block = lambda do
-      begin
-        run = true
-        while run
-          seconds = @config.get('flush_interval').to_i
-          while seconds.positive? && run
-            sleep 1
-            seconds -= 1
-            run = false if Thread.current[:stop]
-          end
-          log('Syncing database...')
-          data.flush
-          log('Syncing done...')
-        end
-      rescue StandardError => e
-        puts e.inspect
-        puts e.backtrace
-      end
-    end
-
     bot_thread_block = lambda do
       begin
         bot.run
@@ -129,9 +109,6 @@ class MainThread
     th = @watchdog.watch([{
                            name: 'bot',
                            thr: bot_thread_block
-                         }, {
-                           name: 'database',
-                           thr: database_thread_block
                          }, {
                            name: 'event',
                            thr: event_thread_block

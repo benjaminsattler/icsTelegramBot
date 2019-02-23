@@ -63,11 +63,11 @@ module ICS
           when 'VEVENT'
             if current_event.nil?
               throw('Error: encountered close event without opened one')
-            else
-              current_event.id = Random.new.rand(2**30 - 1)
-              events.push(current_event)
-              current_event = nil
             end
+            generated_id = Random.new.rand(2**30 - 1)
+            current_event.id = generated_id if current_event.id.nil?
+            events.push(current_event)
+            current_event = nil
           else
             log("Unknown END key #{v}")
           end
@@ -82,6 +82,12 @@ module ICS
             throw 'Error event property found when in no active event'
           else
             current_event.date = ICS::FileParser.parse_ics_date(v)
+          end
+        when 'UID'
+          if current_event.nil?
+            throw 'Error: event property found when in no active event'
+          else
+            current_event.id = v
           end
         end
       end

@@ -88,12 +88,11 @@ class SetDayCommand < Command
       return
     end
 
-    subscriber[:notificationday] = days
     subscriber[:notifiedEvents].clear
-    data_store.update_subscriber(subscriber)
+    data_store.update_day(subscriber[:telegram_id], calendar_id, days)
     reminder_time = "#{Util.pad(subscriber[:notificationtime][:hrs], 2)}"\
                     ":#{Util.pad(subscriber[:notificationtime][:min], 2)}"
-    if subscriber[:notificationday].zero?
+    if days.zero?
       @message_sender.process(
         I18n.t(
           'confirmations.setdatetime_success_sameday',
@@ -102,7 +101,7 @@ class SetDayCommand < Command
         ),
         chatid
       )
-    elsif subscriber[:notificationday] == 1
+    elsif days == 1
       @message_sender.process(
         I18n.t(
           'confirmations.setdatetime_success_precedingday',
@@ -115,7 +114,7 @@ class SetDayCommand < Command
       @message_sender.process(
         I18n.t(
           'confirmations.setdatetime_success_otherday',
-          reminder_day_count: subscriber[:notificationday],
+          reminder_day_count: days,
           reminder_time: reminder_time,
           calendar_name: calendar_name
         ),
