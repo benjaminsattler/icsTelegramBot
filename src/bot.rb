@@ -5,13 +5,13 @@ require 'util'
 require 'commands'
 require 'incoming_message'
 require 'message_sender'
+require 'message_log'
 require 'events/calendar'
 require 'events/event'
 require 'file_writer'
 require 'https_file_downloader'
 require 'statistics'
 require 'sys_info'
-require 'message_broadcaster'
 require 'file_uploader'
 require 'messages/message'
 
@@ -35,6 +35,7 @@ class Bot
     @token = token.chomp
     @admin_users = admin_users
     @statistics = Statistics.new
+    @message_log = MessageLog.new(Container.get(:dataStore))
   end
 
   def run(api)
@@ -58,7 +59,12 @@ class Bot
   end
 
   def ping_admin_users(users)
-    message_sender = MessageSender.new(self, @bot_instance, @statistics)
+    message_sender = MessageSender.new(
+      self,
+      @bot_instance,
+      @statistics,
+      @message_log
+    )
     start_time = @statistics.get[:starttime].strftime('%d.%m.%Y %H:%M:%S')
     users.each do |user|
       message_sender.process(
@@ -80,7 +86,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, orig)
@@ -91,7 +98,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, orig)
@@ -102,7 +110,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, false)
@@ -115,7 +124,8 @@ class Bot
         MessageSender.new(
           self,
           @bot_instance,
-          @statistics
+          @statistics,
+          @message_log
         ),
         SysInfo.new
       )
@@ -128,7 +138,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid)
@@ -139,7 +150,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid)
@@ -150,7 +162,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, orig)
@@ -161,7 +174,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, orig)
@@ -172,7 +186,8 @@ class Bot
       MessageSender.new(
         self,
         @bot_instance,
-        @statistics
+        @statistics,
+        @message_log
       )
     )
     cmd.process(msg, userid, chatid, orig)
@@ -185,7 +200,8 @@ class Bot
         MessageSender.new(
           self,
           @bot_instance,
-          @statistics
+          @statistics,
+          @message_log
         ),
         HttpsFileDownloader.new,
         FileWriter.new,
@@ -199,7 +215,8 @@ class Bot
     message_sender = MessageSender.new(
       self,
       @bot_instance,
-      @statistics
+      @statistics,
+      @message_log
     )
     cmd = AdminCommand.new(
       self,
@@ -214,7 +231,8 @@ class Bot
     message_sender = MessageSender.new(
       self,
       @bot_instance,
-      @statistics
+      @statistics,
+      @message_log
     )
     cmd = AdminCommand.new(
       self,
@@ -229,7 +247,12 @@ class Bot
   def notify(calendar_id, event)
     data_store = Container.get(:dataStore)
     calendars = Container.get(:calendars)
-    message_sender = MessageSender.new(self, @bot_instance, @statistics)
+    message_sender = MessageSender.new(
+      self,
+      @bot_instance,
+      @statistics,
+      @message_log
+    )
     description = calendars[calendar_id][:description]
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
@@ -339,8 +362,14 @@ class Bot
     when '/download', "/download@#{@botname.downcase}"
       handle_download_message(msg.text, msg.author.id, msg.chat.id)
     else
+      message_sender = MessageSender.new(
+        self,
+        @bot_instance,
+        @statistics,
+        @message_log
+      )
       if command_target.nil?
-        MessageSender.new(self, @bot_instance, @statistics).process(
+        message_sender.process(
           Message.new(
             i18nkey: 'unknown_command',
             i18nparams: {},
@@ -349,7 +378,7 @@ class Bot
           )
         )
       elsif command_target.casecmp(@botname)
-        MessageSender.new(self, @bot_instance, @statistics).process(
+        message_sender.process(
           Message.new(
             i18nkey: 'unknown_command',
             i18nparams: {},

@@ -71,14 +71,20 @@ RSpec.describe Message do
   end
 
   describe 'send' do
-    it 'returns a new SentMessage object' do
+    it 'returns an array of new SentMessage objects' do
       actual = message.send(api)
-      expect(actual.class).to equal(SentMessage)
+      expect(actual).to respond_to(:length)
+      expect(actual).to all(be_instance_of(SentMessage))
     end
 
-    it 'returns correct SentMessage object' do
-      before_time = Time.new.to_i
+    it 'returns an array with only one message' do
       actual = message.send(api)
+      expect(actual.length).to eq(1)
+    end
+
+    it 'returns correct SentMessage objects' do
+      before_time = Time.new.to_i
+      actual = message.send(api)[0]
       after_time = Time.new.to_i
       expect(actual.id_recv).to equal(message.id_recv)
       expect(actual.i18nkey).to equal(message.i18nkey)

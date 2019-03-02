@@ -68,6 +68,6 @@ class Message
   end
 
   def send(api)
-    @bmsg.send(api).first
+    @bmsg.send(api)
   end
 end

@@ -169,4 +169,25 @@ class Mysql < Persistence
 
     @db.escape(input)
   end
+
+  def add_to_message_log(message)
+    timestamp = Time.at(
+      message[:message_timestamp]
+    )
+    @db.query(
+      'INSERT INTO message_log('\
+      'telegram_id, '\
+      'msg_id, '\
+      'message_timestamp, '\
+      'i18nkey, '\
+      'i18nparams '\
+      ') VALUES('\
+      "#{message[:telegram_id]}, "\
+      "#{message[:msg_id]}, "\
+      "'#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}', "\
+      "'#{message[:i18nkey]}', "\
+      "'#{message[:i18nparams]}' "\
+      ')'
+    )
+  end
 end

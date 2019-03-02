@@ -46,15 +46,15 @@ class MainThread
 
   def run
     data = Factory.new(@config).get(@config.get('persistence'))
+    Container.set(:dataStore, data)
     bot = Bot.new(
       @config.get('bot_token'),
       @config.get('admin_users').split(/:/)
     )
+    Container.set(:bot, bot)
     @watchdog = Watchdog.new
 
-    Container.set(:bot, bot)
     Container.set(:calendars, {})
-    Container.set(:dataStore, data)
     Container.set(:watchdog, @watchdog)
 
     event_thread_block = lambda do
