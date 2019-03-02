@@ -13,6 +13,7 @@ require 'statistics'
 require 'sys_info'
 require 'message_broadcaster'
 require 'file_uploader'
+require 'messages/message'
 
 require 'date'
 require 'telegram/bot'
@@ -58,16 +59,18 @@ class Bot
 
   def ping_admin_users(users)
     message_sender = MessageSender.new(self, @bot_instance, @statistics)
+    start_time = @statistics.get[:starttime].strftime('%d.%m.%Y %H:%M:%S')
     users.each do |user|
       message_sender.process(
-        I18n.t(
-          'ping',
-          start_time: @statistics.get[:starttime].strftime('%d.%m.%Y %H:%M:%S'),
-          version: SysInfo.new.docker_info[:image_version]
-        ),
-        user,
-        nil,
-        true
+        Message.new(
+          i18nkey: 'ping',
+          i18nparams: {
+            start_time: start_time,
+            version: SysInfo.new.docker_info[:image_version]
+          },
+          id_recv: user,
+          markup: nil
+        )
       )
     end
   end
@@ -201,10 +204,6 @@ class Bot
     cmd = AdminCommand.new(
       self,
       BroadcastCommand.new(
-        MessageBroadcaster.new(
-          message_sender,
-          Container.get(:dataStore)
-        ),
         message_sender
       )
     )
@@ -243,14 +242,17 @@ class Bot
 
       @statistics.sent_reminder
       message_sender.process(
-        I18n.t(
-          'event.reminder',
-          summary: event.summary,
-          calendar_name: description,
-          days_to_event: sub[:notificationday],
-          date_of_event: event.date.strftime('%d.%m.%Y')
-        ),
-        sub[:telegram_id]
+        Message.new(
+          i18nkey: 'event.reminder',
+          i18nparams: {
+            summary: event.summary,
+            calendar_name: description,
+            days_to_event: sub[:notificationday],
+            date_of_event: event.date.strftime('%d.%m.%Y')
+          },
+          id_recv: sub[:telegram_id],
+          markup: nil
+        )
       )
       sub[:notifiedEvents].push(event.id)
     end
@@ -339,13 +341,21 @@ class Bot
     else
       if command_target.nil?
         MessageSender.new(self, @bot_instance, @statistics).process(
-          I18n.t('unknown_command'),
-          msg.chat.id
+          Message.new(
+            i18nkey: 'unknown_command',
+            i18nparams: {},
+            id_recv: msg.chat.id,
+            markup: nil
+          )
         )
       elsif command_target.casecmp(@botname)
         MessageSender.new(self, @bot_instance, @statistics).process(
-          I18n.t('unknown_command'),
-          msg.chat.id
+          Message.new(
+            i18nkey: 'unknown_command',
+            i18nparams: {},
+            id_recv: msg.chat.id,
+            markup: nil
+          )
         )
       end
     end

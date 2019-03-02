@@ -2,6 +2,7 @@
 
 require 'commands/command'
 require 'container'
+require 'messages/message'
 
 require 'i18n'
 
@@ -11,21 +12,15 @@ require 'i18n'
 class HelpCommand < Command
   def process(_msg, _userid, chatid)
     calendars = Container.get(:calendars)
-    text = []
-    text << I18n.t('help.intro', calendars_count: calendars.keys.length)
-    text << I18n.t('help.start')
-    text << ''
-    text << I18n.t('help.subscribe')
-    text << I18n.t('help.unsubscribe')
-    text << ''
-    text << I18n.t('help.settime')
-    text << I18n.t('help.setday')
-    text << ''
-    text << I18n.t('help.events')
-    text << ''
-    text << I18n.t('help.mystatus')
-    text << ''
-    text << I18n.t('help.help')
-    @message_sender.process(text.join("\n"), chatid)
+    @message_sender.process(
+      Message.new(
+        i18nkey: 'help',
+        i18nparams: {
+          calendars_count: calendars.keys.length
+        },
+        id_recv: chatid,
+        markup: nil
+      )
+    )
   end
 end

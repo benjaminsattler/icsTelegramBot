@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-require 'message'
+require 'messages/message'
 require 'setup/test_api'
+require 'i18n'
 
 RSpec.describe Message do
   let(:api) { TestApi.new }
   let(:message) do
     described_class.new(
-      id_revc: 42,
+      id_recv: 42,
       i18nkey: 'i18nkey',
       i18nparams: {
         param1: 'foo',
@@ -17,7 +18,7 @@ RSpec.describe Message do
     )
   end
 
-  describe 'new_id_revc' do
+  describe 'new_id_recv' do
     it 'returns a new instance' do
       actual = message.new_id_recv(43)
       expect(actual.id_recv).not_to equal(message.id_recv)
@@ -50,9 +51,9 @@ RSpec.describe Message do
     end
 
     it 'sets the new value' do
-      new_value = {}
+      new_value = { a: 'b' }
       actual = message.new_i18nparams(new_value)
-      expect(actual.i18nparams).to equal(new_value)
+      expect(actual.i18nparams).to eq(new_value)
     end
   end
 
@@ -69,7 +70,7 @@ RSpec.describe Message do
     end
   end
 
-  describe 'sent' do
+  describe 'send' do
     it 'returns a new SentMessage object' do
       actual = message.send(api)
       expect(actual.class).to equal(SentMessage)
@@ -83,6 +84,35 @@ RSpec.describe Message do
       expect(actual.i18nkey).to equal(message.i18nkey)
       expect(actual.i18nparams).to equal(message.i18nparams)
       expect(before_time..after_time).to cover(actual.datetime)
+    end
+
+    it 'sends a message' do
+      message.send(api)
+      actual = api.sent_msgs.pop
+      expect(actual).not_to be_nil
+    end
+
+    it 'sends the correct text' do
+      message.send(api)
+      actual = api.sent_msgs.pop
+      expect(actual[:text]).to eq(
+        I18n.t(
+          message.i18nkey,
+          message.i18nparams
+        )
+      )
+    end
+
+    it 'addresses the correct user' do
+      message.send(api)
+      actual = api.sent_msgs.pop
+      expect(actual[:chat_id]).to equal(message.id_recv)
+    end
+
+    it 'sends the correct markup' do
+      message.send(api)
+      actual = api.sent_msgs.pop
+      expect(actual[:reply_markup]).to equal(message.markup)
     end
   end
 end

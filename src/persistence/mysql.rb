@@ -81,13 +81,19 @@ class Mysql < Persistence
       .map { |sub| Mysql.fix_database_object(sub) }
   end
 
-  def all_subscribers(eventlist = 1)
-    @db
-      .query(
-        'SELECT * from subscribers '\
-        "WHERE eventlist_id = #{eventlist}"
-      )
-      .map { |sub| Mysql.fix_database_object(sub) }
+  def all_subscribers(eventlist = nil)
+    if eventlist.nil?
+      @db
+        .query('SELECT DISTINCT * from subscribers')
+        .map { |sub| Mysql.fix_database_object(sub) }
+    else
+      @db
+        .query(
+          'SELECT * from subscribers '\
+          "WHERE eventlist_id = #{eventlist}"
+        )
+        .map { |sub| Mysql.fix_database_object(sub) }
+    end
   end
 
   def self.fix_database_object(sub)
@@ -153,6 +159,8 @@ class Mysql < Persistence
       cal_fixed = Mysql.fix_database_calendar_object(calendar)
       calendars[cal_fixed[:calendar_id]] = cal_fixed
     end
+    puts 'calendars'
+    puts calendars.values.first
     calendars
   end
 

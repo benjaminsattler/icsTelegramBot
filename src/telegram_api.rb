@@ -12,6 +12,14 @@ class TelegramApi < ApiInterface
     @handle = http_handle
   end
 
+  def edit_message_reply_markup(params)
+    @handle.api.edit_message_reply_markup(params)
+  end
+
+  def edit_message_text(params)
+    @handle.api.edit_message_text(params)
+  end
+
   def send_message(params)
     @handle.api.send_message(params)
   end

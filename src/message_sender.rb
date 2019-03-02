@@ -14,25 +14,20 @@ class MessageSender
     @statistics = statistics
   end
 
-  def process(text, chat_id, reply_markup = nil, silent = false)
-    log("silent is #{silent} for #{text}") if silent
+  def process(msg)
     @statistics.sent_msg
-    if reply_markup.nil?
-      reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-        keyboard: default_keyboard_markup(chat_id),
-        one_time_keyboard: false
-      )
-    end
+    # if reply_markup.nil?
+    #  reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+    #    keyboard: default_keyboard_markup(chat_id),
+    #    one_time_keyboard: false
+    #  )
+    # end
     begin
-      @api.send_message(
-        chat_id: chat_id,
-        text: text,
-        reply_markup: reply_markup,
-        disable_notification: silent
-      )
+      sent_msg = msg.send(@api)
     rescue StandardError => e
       log("StandardError received #{e}")
     end
+    sent_msg
   end
 
   def default_keyboard_markup(chat_id)

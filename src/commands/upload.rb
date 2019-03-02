@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
+require 'messages/message'
 
 require 'i18n'
 
@@ -22,10 +23,12 @@ class UploadCommand < Command
 
     unless @file_parser.supported?(filename)
       @message_sender.process(
-        I18n.t(
-          'errors.upload.unsupported'
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.upload.unsupported',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -44,8 +47,12 @@ class UploadCommand < Command
     file_contents = @file_downloader.get(file_url)
     if file_contents.nil?
       @message_sender.process(
-        I18n.t('errors.upload.empty_file_download'),
-        chatid
+        Message.new(
+          i18nkey: 'errors.upload.empty_file_download',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -55,11 +62,14 @@ class UploadCommand < Command
       events = @file_parser.parse_string(file_contents)
     rescue StandardError => err
       @message_sender.process(
-        I18n.t(
-          'errors.upload.parse_error',
-          error: err
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.upload.parse_error',
+          i18nparams: {
+            error: err
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -77,12 +87,15 @@ class UploadCommand < Command
     )
 
     @message_sender.process(
-      I18n.t(
-        'upload.success',
-        num_events: events.length,
-        calendar_name: description
-      ),
-      chatid
+      Message.new(
+        i18nkey: 'upload.success',
+        i18nparams: {
+          num_events: events.length,
+          calendar_name: description
+        },
+        id_recv: chatid,
+        markup: nil
+      )
     )
     Container.get(:watchdog).kill_by_name('event')
   end

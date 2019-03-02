@@ -10,31 +10,44 @@ de:
     unsubscribe_success: Du erhälst ab nun keine Benachrichtigungen für %{calendar_name} mehr von mir! 👍
   events:
     choose_calendar: Für welchen Kalendar möchtest du Events sehen?
-    listing_intro_one: Hier ist der nächste Termin für %{calendar_name}
-    listing_intro_multiple: Hier sind die nächsten %{total} Termine für %{calendar_name}
-    listing_intro_empty: Es scheint keine weiteren Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
-    listing_outro_more: Möchtest du weitere Einträge sehen? 🤓
+    listing_one: |
+      Hier ist der nächste Termin für %{calendar_name}
+
+      %{events}
+
+      Möchtest du weitere Einträge sehen? 🤓
+    listing_multiple: |
+      Hier sind die nächsten %{total} Termine für %{calendar_name}
+
+      %{events}
+
+      Möchtest du weitere Einträge sehen? 🤓
+    listing_empty: Es scheint keine weiteren Termine für %{calendar_name} zu geben (oder du wolltest 0 Termine von mir sehen 😂)
     show_more_button: Weitere %{count} Einträge
   status:
-    intro: "Du erhälst Erinnerungen für die folgenden Einträge 🙃"
+    subscribed: |
+      Du erhälst Erinnerungen für die folgenden Einträge 🙃
+
+      Tage; Uhrzeit; Kalendar
+      %{subscription_info}
     not_subscribed: Du erhälst von mir keine Erinnerungen. Mit /subscribe kannst du das ändern! 😇
-    subscribed_sameday: Für %{calendar_name} werde dich am Tag der Termine um %{reminder_time} Uhr benachrichtigen!
-    subscribed_precedingday: Für %{calendar_name} werde ich dich am Vortrag der Termine um %{reminder_time} Uhr benachrichtigen!
-    subscribed_otherday: Für %{calendar_name} werde ich dich %{reminder_day_count} Tag(e) vor den Terminen um %{reminder_time} Uhr benachrichtigen!
-  botstatus:
-    intro: Ich bin online seit %{uptime} und kenne Events von %{calendar_count} Müllkalendern.
-    calendar_info: "ID %{calendar_id}: %{calendar_name} (%{event_count} Events, %{subscribers_count} angemeldete Personen)"
-    bot_info: |
+  botstatus: |
+      Startdatum: %{uptime}
+      Laufzeit: %{bot_uptime}
+
+      registrierte Kalendare: %{calendar_count}
+      Id; Name; Anzahl Eintraege; Anzahl angemeldeter Personen
+      %{calendar_info}
+    
       # ges. Nachrichten: %{bot_sent_msgs}
       # empf. Nachrichten: %{bot_recvd_msgs}
       # ges. Erinnerungen: %{bot_sent_reminders}
-      Laufzeit: %{bot_uptime}
-    docker_info: |
+
       Docker Image Version: %{docker_image_version}
       Docker Image Author: %{docker_image_author}
       Docker Image Build Time: %{docker_image_build_time}
       Docker Image Source URL: %{docker_image_source_url}
-    os_info: |
+
       Öffentl. IP: %{os_public_ip}
       OS Version: %{os_version}
       OS Laufzeit: %{os_uptime}
@@ -59,6 +72,8 @@ de:
     success: Der Kalender mit %{num_events} Einträgen wurde unter dem Namen %{calendar_name} gespeichert.
   download:
     choose_calendar: Welchen Kalender möchtest du herunterladen?
+  broadcast:
+    message: "%{message}"
   errors:
     no_subscription_teaser: Ich glaube, du bist noch nicht angemeldet für den Kalender %{calendar_name} bei mir. 😇 Mit /subscribe kannst du dich anmelden, danach kannst du den Befehl %{command} nutzen!
     setday:
@@ -83,16 +98,16 @@ de:
     download:
       command_invalid: Ich habe deine Eingabe nicht verstanden. 😳 Bitte schreibe mir z.B. "/download %{calendar_id}" um den Kalender %{calendar_name} herunterzuladen.
   unknown_command: Entschuldige, ich habe dich nicht verstanden! 😳
-  help:
-    intro: |
-      Hi! 😃
-      Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
-      Ich kenne alle Daten von %{calendars_count} Müllkalendern 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
-    start: /start Ich stelle mich vor 😊
-    settime: /settime Uhrzeit der Benachrichtigungen einstellen
-    setday: /setday Tag der Benachrichtigungen einstellen
-    subscribe: /subscribe Benachrichtigungen einschalten
-    unsubscribe: /unsubscribe Benachrichtigungen ausschalten
-    events: /events Abholtermine abfragen
-    mystatus: /mystatus Benachrichtigungen abfragen
-    help: /help Befehlshilfe anzeigen
+  help: |
+    Hi! 😃
+    Ich kann dir Nachrichten schicken, damit du rechtzeitig die Mülltonnen rausstellen kannst wenn sie geleert werden.
+    Ich kenne alle Daten von %{calendars_count} Müllkalendern 😎 und schicke an alle, die sich mittels /subscribe angemeldet haben, eine Benachrichtigung wenn eine Mülltonne rausgestellt werden muss. Den Zeitpunkt, an dem ich dich benachrichtige, kannst du einstellen.
+
+    /start Ich stelle mich vor 😊
+    /settime Uhrzeit der Benachrichtigungen einstellen
+    /setday Tag der Benachrichtigungen einstellen
+    /subscribe Benachrichtigungen einschalten
+    /unsubscribe Benachrichtigungen ausschalten
+    /events Abholtermine abfragen
+    /mystatus Benachrichtigungen abfragen
+    /help Befehlshilfe anzeigen

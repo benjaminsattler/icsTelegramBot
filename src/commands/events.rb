@@ -3,6 +3,7 @@
 require 'commands/command'
 require 'commands/mixins/event_message_pusher'
 require 'container'
+require 'messages/message'
 require 'util'
 
 require 'i18n'
@@ -21,16 +22,17 @@ class EventsCommand < Command
     skip = args[2]
     if calendar_id.nil?
       @message_sender.process(
-        I18n.t(
-          'events.choose_calendar'
-        ),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'events.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.editMessageReplyMarkup(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -46,12 +48,15 @@ class EventsCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.events.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.events.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -63,12 +68,15 @@ class EventsCommand < Command
             end
     if count.negative?
       @message_sender.process(
-        I18n.t(
-          'errors.events.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.events.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end

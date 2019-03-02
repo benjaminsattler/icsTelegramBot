@@ -2,6 +2,7 @@
 
 require 'commands/command'
 require 'container'
+require 'messages/message'
 require 'util'
 
 require 'i18n'
@@ -15,36 +16,37 @@ class MyStatusCommand < Command
     calendars = Container.get(:calendars)
     subscriptions = data_store.subscriptions_for_id(userid)
     if subscriptions.empty?
-      @message_sender.process(I18n.t('status.not_subscribed'), chatid)
+      @message_sender.process(
+        Message.new(
+          i18nkey: 'status.not_subscribed',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: nil
+        )
+      )
       return
     end
-    text = []
-    text << I18n.t('status.intro')
+    text = +''
     subscriptions.each do |subscription|
       reminder_time = "#{Util.pad(subscription[:notificationtime][:hrs], 2)}"\
                       ":#{Util.pad(subscription[:notificationtime][:min], 2)}"
       calendar_name = calendars[subscription[:eventlist_id]][:description]
-      text << if subscription[:notificationday].zero?
-                I18n.t(
-                  'status.subscribed_sameday',
-                  reminder_time: reminder_time,
-                  calendar_name: calendar_name
-                )
-              elsif subscription[:notificationday] == 1
-                I18n.t(
-                  'status.subscribed_precedingday',
-                  reminder_time: reminder_time,
-                  calendar_name: calendar_name
-                )
-              else
-                I18n.t(
-                  'status.subscribed_otherday',
-                  reminder_day_count: subscription[:notificationday],
-                  reminder_time: reminder_time,
-                  calendar_name: calendar_name
-                )
-              end
+      text << format(
+        "%s; %s: %s\n",
+        subscription[:notificationday],
+        reminder_time,
+        calendar_name
+      )
     end
-    @message_sender.process(text.join("\n"), chatid)
+    @message_sender.process(
+      Message.new(
+        i18nkey: 'status.subscribed',
+        i18nparams: {
+          subscription_info: text
+        },
+        id_recv: chatid,
+        markup: nil
+      )
+    )
   end
 end

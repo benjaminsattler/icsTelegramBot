@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'sent_message'
+require 'messages/sent_message'
 
 RSpec.describe SentMessage do
   let(:sent_message) do

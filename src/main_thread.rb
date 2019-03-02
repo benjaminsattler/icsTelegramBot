@@ -53,7 +53,7 @@ class MainThread
     @watchdog = Watchdog.new
 
     Container.set(:bot, bot)
-    Container.set(:calendars, [])
+    Container.set(:calendars, {})
     Container.set(:dataStore, data)
     Container.set(:watchdog, @watchdog)
 

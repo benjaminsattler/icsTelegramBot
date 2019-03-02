@@ -9,6 +9,14 @@ class ApiInterface
     raise NotImplementedError
   end
 
+  def edit_message_reply_markup(_params)
+    raise NotImplementedError
+  end
+
+  def edit_message_text(_params)
+    raise NotImplementedError
+  end
+
   def send_document(_params)
     raise NotImplementedError
   end

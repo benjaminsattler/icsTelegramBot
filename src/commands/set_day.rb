@@ -2,6 +2,7 @@
 
 require 'commands/command'
 require 'container'
+require 'messages/message'
 require 'util'
 
 require 'i18n'
@@ -19,11 +20,12 @@ class SetDayCommand < Command
     days = args[1]
     if calendar_id.nil?
       @message_sender.process(
-        I18n.t(
-          'setday.choose_calendar'
-        ),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'setday.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
@@ -34,17 +36,20 @@ class SetDayCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.setday.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.setday.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_reply_markup(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -57,20 +62,26 @@ class SetDayCommand < Command
     calendar_name = calendars[calendar_id][:description]
     if subscriber.nil?
       @message_sender.process(
-        I18n.t(
-          'errors.no_subscription_teaser',
-          command: '/setday',
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.no_subscription_teaser',
+          i18nparams: {
+            command: '/setday',
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
     if days.nil?
       @message_sender.process(
-        I18n.t('setday.command_inline'),
-        chatid,
-        days_buttons(calendar_id)
+        Message.new(
+          i18nkey: 'setday.command_inline',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: days_buttons(calendar_id)
+        )
       )
       return
     end
@@ -80,11 +91,25 @@ class SetDayCommand < Command
               -1
             end
     if days > 14
-      @message_sender.process(I18n.t('errors.setday.day_too_early'), chatid)
+      @message_sender.process(
+        Message.new(
+          i18nkey: 'errors.setday.day_too_early',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: nil
+        )
+      )
       return
     end
     if days.negative?
-      @message_sender.process(I18n.t('errors.setday.day_in_past'), chatid)
+      @message_sender.process(
+        Message.new(
+          i18nkey: 'errors.setday.day_in_past',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: nil
+        )
+      )
       return
     end
 
@@ -94,31 +119,40 @@ class SetDayCommand < Command
                     ":#{Util.pad(subscriber[:notificationtime][:min], 2)}"
     if days.zero?
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_sameday',
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_sameday',
+          i18nparams: {
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     elsif days == 1
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_precedingday',
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_precedingday',
+          i18nparams: {
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     else
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_otherday',
-          reminder_day_count: days,
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_otherday',
+          i18nparams: {
+            reminder_day_count: days,
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     end
   end

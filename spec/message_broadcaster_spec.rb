@@ -1,70 +1,88 @@
 # frozen_string_literal: true
 
+require 'message_sender'
+require 'bot'
+require 'statistics'
+require 'setup/test_api'
 require 'message_broadcaster'
+require 'messages/broadcast_message'
 
 RSpec.describe MessageBroadcaster do
+  let(:bot) { Bot.new('1', []) }
+  let(:api) { TestApi.new }
+  let(:message_sender) { MessageSender.new(bot, api, Statistics.new) }
+
   describe 'process' do
-    let(:message_sender) { instance_double('MessageSender') }
-    let(:persistence) { instance_double('Mysql') }
-    let(:expected_message) { 'this is a broadcast test' }
-    let(:calendars) do
-      {
-        1 => [{ telegram_id: 1 }, { telegram_id: 2 }],
-        2 => [{ telegram_id: 2 }, { telegram_id: 3 }]
-      }
+    it 'sends correct number of messages' do
+      message_broadcaster = described_class.new(message_sender)
+      recv_list = [1, 2]
+      bmsg = BroadcastMessage.new(
+        i18nkey: 'foo',
+        i18nparams: {},
+        markup: nil,
+        recv_list: recv_list
+      )
+      count_before = api.sent_msgs.count
+      message_broadcaster.process(bmsg)
+      expect(api.sent_msgs.count).to eq(count_before + recv_list.count)
     end
 
-    it 'broadcasts to all subscribers of all eventlists' do
-      allow(persistence).to receive(:calendars) { calendars }
-      allow(persistence).to receive(:all_subscribers) { |p| calendars[p] }
-
-      allow(message_sender).to receive(:process) do |*actual|
-        actual_text = actual[0]
-        actual_userid = actual[1]
-        actual_markup = actual[2]
-        actual_silent = actual[3]
-        expect(actual_text).to eq(expected_message)
-        expect([1, 2, 3].find(actual_userid)).not_to be_nil
-        expect(actual_markup).to be nil
-        expect(actual_silent).to be false
+    it 'sends a message to all recipients' do
+      recv_list = [1, 2, 3]
+      bmsg = BroadcastMessage.new(
+        i18nkey: 'foo',
+        i18nparams: {},
+        markup: nil,
+        recv_list: recv_list
+      )
+      message_broadcaster = described_class.new(message_sender)
+      message_broadcaster.process(bmsg)
+      actual_rcpt_ids = api.sent_msgs.map do |msg|
+        msg[:chat_id]
       end
-
-      message_broadcaster = described_class.new(message_sender, persistence)
-      message_broadcaster.process(expected_message)
-    end
-
-    it 'only texts once to subscribers' do
-      allow(persistence).to receive(:calendars) { calendars }
-      allow(persistence).to receive(:all_subscribers) { |p| calendars[p] }
-
-      seen = []
-      allow(message_sender).to receive(:process) do |*actual|
-        actual_userid = actual[1]
-        expect(seen).not_to include(actual_userid)
-        seen.push actual_userid
-      end
-
-      message_broadcaster = described_class.new(message_sender, persistence)
-      message_broadcaster.process(expected_message)
+      expect(actual_rcpt_ids).to match_array(recv_list)
     end
 
     it 'broadcasts the message it got as a parameter' do
-      allow(persistence).to receive(:calendars) { calendars }
-      allow(persistence).to receive(:all_subscribers) { |p| calendars[p] }
-
-      allow(message_sender).to receive(:process) do |*actual|
-        actual_text = actual[0]
-        expect(actual_text).to eq(expected_message)
+      recv_list = [1, 2, 3]
+      bmsg = BroadcastMessage.new(
+        i18nkey: 'foo',
+        i18nparams: {},
+        markup: nil,
+        recv_list: recv_list
+      )
+      message_broadcaster = described_class.new(message_sender)
+      message_broadcaster.process(bmsg)
+      api.sent_msgs.each do |msg|
+        expect(msg[:text]).to eq(I18n.t('foo'))
       end
-
-      message_broadcaster = described_class.new(message_sender, persistence)
-      message_broadcaster.process(expected_message)
     end
 
-    it 'does not send a message when called with an empty text' do
-      allow(message_sender).to receive(:process) { raise('process called') }
-      message_broadcaster = described_class.new(message_sender, persistence)
-      message_broadcaster.process('')
+    it 'returns a list of SentMessages' do
+      recv_list = [1, 2, 3]
+      bmsg = BroadcastMessage.new(
+        i18nkey: 'foo',
+        i18nparams: {},
+        markup: nil,
+        recv_list: recv_list
+      )
+      message_broadcaster = described_class.new(message_sender)
+      sent_messages = message_broadcaster.process(bmsg)
+      expect(sent_messages).to respond_to(:length)
+      expect(sent_messages).to all(be_instance_of(SentMessage))
+    end
+
+    it 'returns a list of correct length' do
+      recv_list = [1, 2, 3]
+      bmsg = BroadcastMessage.new(
+        i18nkey: 'foo',
+        i18nparams: {},
+        markup: nil,
+        recv_list: recv_list
+      )
+      message_broadcaster = described_class.new(message_sender)
+      sent_messages = message_broadcaster.process(bmsg)
+      expect(sent_messages.length).to equal(recv_list.length)
     end
   end
 end

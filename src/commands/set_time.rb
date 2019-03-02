@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
+require 'messages/message'
 require 'util'
 
 require 'i18n'
@@ -18,9 +19,12 @@ class SetTimeCommand < Command
     time = args[1]
     if calendar_id.nil?
       @message_sender.process(
-        I18n.t('settime.choose_calendar'),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'settime.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
@@ -31,17 +35,20 @@ class SetTimeCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.settime.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.settime.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_reply_markup(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -54,26 +61,37 @@ class SetTimeCommand < Command
     calendar_name = calendars[calendar_id][:description]
     if subscriber.nil?
       @message_sender.process(
-        I18n.t(
-          'errors.no_subscription_teaser',
-          command: '/settime',
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.no_subscription_teaser',
+          i18nparams: {
+            command: '/settime',
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
-    response = I18n.t('settime.command_inline', response: time)
     if time.nil?
-      @message_sender.process(response, chatid, time_buttons(calendar_id, time))
+      @message_sender.process(
+        Message.new(
+          i18nkey: 'settime.command_inline',
+          i18nparams: {
+            response: time
+          },
+          id_recv: chatid,
+          markup: time_buttons(calendar_id, time)
+        )
+      )
       return
     end
     if time.length < 4
       begin
-        bot.bot_instance.api.editMessageText(
+        bot.bot_instance.edit_message_text(
           chat_id: orig.message.chat.id,
           message_id: orig.message.message_id,
-          text: response,
+          text: I18n.t('settime.command_inline', response: time),
           reply_markup: time_buttons(calendar_id, time)
         )
       rescue StandardError
@@ -83,24 +101,30 @@ class SetTimeCommand < Command
     matcher = /^([0-9]{2})([0-9]{2})$/.match(time)
     if matcher.nil?
       @message_sender.process(
-        I18n.t(
-          'errors.settime.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.settime.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
     if matcher[1].to_i.negative? || matcher[1].to_i > 23 ||
        matcher[2].to_i.negative? || matcher[2].to_i > 59
       @message_sender.process(
-        I18n.t(
-          'errors.settime.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.settime.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -114,31 +138,40 @@ class SetTimeCommand < Command
                     ":#{Util.pad(min, 2)}"
     if subscriber[:notificationday].zero?
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_sameday',
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_sameday',
+          i18nparams: {
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     elsif subscriber[:notificationday] == 1
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_precedingday',
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_precedingday',
+          i18nparams: {
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     else
       @message_sender.process(
-        I18n.t(
-          'confirmations.setdatetime_success_otherday',
-          reminder_day_count: subscriber[:notificationday],
-          reminder_time: reminder_time,
-          calendar_name: calendar_name
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'confirmations.setdatetime_success_otherday',
+          i18nparams: {
+            reminder_day_count: subscriber[:notificationday],
+            reminder_time: reminder_time,
+            calendar_name: calendar_name
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
     end
   end
