@@ -14,6 +14,7 @@ require 'statistics'
 require 'sys_info'
 require 'file_uploader'
 require 'messages/message'
+require 'messages/notification'
 
 require 'date'
 require 'telegram/bot'
@@ -253,31 +254,34 @@ class Bot
       @statistics,
       @message_log
     )
-    description = calendars[calendar_id][:description]
-    if calendars[calendar_id].nil?
-      description = I18n.t('event.unknown_calendar')
-    end
-    data_store.all_subscribers(calendar_id).each do |sub|
-      next unless !sub[:notifiedEvents].include?(event.id) &&
-                  (event.date - Date.today).to_i == sub[:notificationday] &&
-                  sub[:notificationtime][:hrs] == Time.new.hour &&
-                  sub[:notificationtime][:min] == Time.new.min
+    subs = data_store.all_subscribers(calendar_id)
 
+    subs.reject! do |sub|
+      data_store.notification?(
+        sub,
+        calendars[calendar_id],
+        event
+      )
+    end
+
+    subs.select! do |sub|
+      daydiff = (event.date - Date.today).to_i
+      daydiff == sub[:notificationday] &&
+        sub[:notificationtime][:hrs] == Time.new.hour &&
+        sub[:notificationtime][:min] == Time.new.min
+    end
+
+    subs.each do |sub|
       @statistics.sent_reminder
       message_sender.process(
-        Message.new(
-          i18nkey: 'event.reminder',
-          i18nparams: {
-            summary: event.summary,
-            calendar_name: description,
-            days_to_event: sub[:notificationday],
-            date_of_event: event.date.strftime('%d.%m.%Y')
-          },
-          id_recv: sub[:telegram_id],
-          markup: nil
+        Notification.new(
+          recv: sub,
+          event: event,
+          calendar: calendars[calendar_id],
+          message_sender: message_sender,
+          persistence: data_store
         )
       )
-      sub[:notifiedEvents].push(event.id)
     end
   end
 

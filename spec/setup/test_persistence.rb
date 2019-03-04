@@ -8,6 +8,7 @@ require 'persistence/persistence'
 class TestPersistence < Persistence
   def initialize
     @message_log = []
+    @notification_log = []
   end
 
   def add_subscriber(_sub)
@@ -50,7 +51,18 @@ class TestPersistence < Persistence
     @message_log.push(message)
   end
 
+  def add_to_notification_log(notification, timestamp)
+    @notification_log.push(
+      notification: notification,
+      timestamp: timestamp
+    )
+  end
+
   def logged_messages
     @message_log
+  end
+
+  def logged_notifications
+    @notification_log
   end
 end
