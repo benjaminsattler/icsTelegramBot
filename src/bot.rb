@@ -180,7 +180,7 @@ class Bot
     if calendars[calendar_id].nil?
       description = I18n.t('event.unknown_calendar')
     end
-    data_store.all_subscribers.each do |sub|
+    data_store.all_subscribers(calendar_id).each do |sub|
       next unless !sub[:notifiedEvents].include?(event.id) &&
                   (event.date - Date.today).to_i == sub[:notificationday] &&
                   sub[:notificationtime][:hrs] == Time.new.hour &&
