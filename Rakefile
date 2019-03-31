@@ -2,11 +2,6 @@
 
 require 'rake'
 
-# Name of the kubernetes context for the development cluster.
-# This will be used as value for the --context parameter in
-# kubectl calls
-K8S_DEV_CONTEXT_NAME = 'docker-for-desktop'
-
 # directory of this Rakefile
 PWD = File.dirname(__FILE__).freeze
 
@@ -69,7 +64,7 @@ CURRENT_TIME = `date +"%d%m%Y-%H%M%S"`.chomp.freeze
 # when developing database migrations locally. Usually you want
 # this to be your development environment to be able to test,
 # migrate and rollback your migrations during development
-MIGRATION_ENV_FILE = './k8s/configs/development.env'
+MIGRATION_ENV_FILE = './docker/configs/development.env'
 
 # Location of the database migration files from inside the
 # dbmate docker container. Usually you'll want this to equal

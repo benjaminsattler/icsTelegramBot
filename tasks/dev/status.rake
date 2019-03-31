@@ -4,9 +4,8 @@ namespace :dev do
   desc 'Status of development environment'
   task :status do
     sh(
-      'kubectl '\
-      "--context=#{K8S_DEV_CONTEXT_NAME} "\
-      'get all'
+      'docker-compose '\
+      'ps'
     )
   end
 end
