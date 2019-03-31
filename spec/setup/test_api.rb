@@ -7,14 +7,16 @@ require 'api_interface'
 # telegram bot api.
 class TestApi < ApiInterface
   attr_accessor :sent_msgs
-  def initialize
-    @sent_msgs = []
+  def initialize(sent_msgs = [])
+    @sent_msgs = sent_msgs
   end
 
   def send_message(params)
+    message_id = Random.rand(2**31)
+    params[:message_id] = message_id
     @sent_msgs.push params
     msg = {
-      'message_id' => Random.rand(2**31),
+      'message_id' => message_id,
       'from' => {
         'id' => 1
       },
@@ -27,12 +29,16 @@ class TestApi < ApiInterface
     wrap msg
   end
 
-  def edit_message_reply_markup(_params)
-    raise NotImplementedError
+  def edit_message_reply_markup(params)
+    idx = @sent_msgs
+          .find_index { |msg| msg[:message_id] == params[:message_id] }
+    @sent_msgs[idx][:reply_markup] = params[:reply_markup] unless idx.nil?
   end
 
-  def edit_message_text(_params)
-    raise NotImplementedError
+  def edit_message_text(params)
+    idx = @sent_msgs
+          .find_index { |msg| msg[:message_id] == params[:message_id] }
+    @sent_msgs[idx][:text] = params[:text] unless idx.nil?
   end
 
   def send_document(_params)
@@ -65,5 +71,19 @@ class TestApi < ApiInterface
       'ok' => true,
       'result' => msg
     }
+  end
+
+  def push_sent_message_to_stack(sent_message, reply_markup = nil)
+    msg = {
+      chat_id: sent_message.id_recv,
+      text: I18n.t(
+        sent_message.i18nkey,
+        sent_message.i18nparams
+      ),
+      reply_markup: reply_markup,
+      message_id: sent_message.id
+    }
+    @sent_msgs.push(msg)
+    msg
   end
 end

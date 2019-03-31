@@ -51,6 +51,10 @@ class TestPersistence < Persistence
     @message_log.push(message)
   end
 
+  def message_from_log(_message_id)
+    raise NotImplementedError
+  end
+
   def add_to_notification_log(notification, timestamp)
     @notification_log.push(
       notification: notification,

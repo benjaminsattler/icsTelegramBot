@@ -189,7 +189,8 @@ class Bot
         @bot_instance,
         @statistics,
         @message_log
-      )
+      ),
+      @bot_instance
     )
     cmd.process(msg, userid, chatid, orig)
   end

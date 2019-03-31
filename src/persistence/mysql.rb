@@ -24,18 +24,16 @@ class Mysql < Persistence
   end
 
   def reconnect
-    if @db.nil?
-      log('Reconnect to database')
-      @db = Mysql2::Client.new(
-        host: @hostname,
-        username: @username,
-        password: @password,
-        port: @port,
-        database: @databasename
-      )
-    end
-    log('Reconnect to database') unless @db.closed?
-    @db.reconnect unless @db.closed?
+    return if !@db.nil? && !@db.closed?
+
+    log('Reconnect to database')
+    @db = Mysql2::Client.new(
+      host: @hostname,
+      username: @username,
+      password: @password,
+      port: @port,
+      database: @databasename
+    )
   end
 
   def connected?
@@ -211,6 +209,19 @@ class Mysql < Persistence
       "'#{message[:i18nparams]}' "\
       ')'
     )
+  end
+
+  def message_from_log(message_id)
+    reconnect unless connected?
+    escaped_message_id = escape(message_id.to_s)
+    result = []
+    @db
+      .query(
+        'SELECT * from message_log '\
+        "WHERE msg_id = #{escaped_message_id}"
+      )
+      .each { |res| result.push(res) }
+    result
   end
 
   def add_to_notification_log(notification, timestamp)

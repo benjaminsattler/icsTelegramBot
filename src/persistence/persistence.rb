@@ -45,6 +45,10 @@ class Persistence
     raise NotImplementedError
   end
 
+  def message_from_log(_message_id)
+    raise NotImplementedError
+  end
+
   def add_to_notification_log(_notification, _timestamp)
     raise NotImplementedError
   end
