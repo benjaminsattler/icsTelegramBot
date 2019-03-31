@@ -1,7 +1,6 @@
 .vscode/
 assets/
 db/
-k8s/
 scripts/
 spec/
 tasks/
