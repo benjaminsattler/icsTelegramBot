@@ -6,7 +6,7 @@ namespace :migration do
     sh(
       'docker run --rm '\
       "-v #{PWD}/db/:/db "\
-      '--network=host '\
+      '--network=muell_backend '\
       "--env-file #{MIGRATION_ENV_FILE} "\
       'muell_dbmate '\
       '--no-dump-schema '\
