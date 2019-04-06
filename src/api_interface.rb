@@ -9,7 +9,7 @@ class ApiInterface
     raise NotImplementedError
   end
 
-  def edit_message_reply_markup(_params)
+  def edit_message_buttons(_params)
     raise NotImplementedError
   end
 
@@ -30,7 +30,7 @@ class ApiInterface
   end
 
   # rubocop:disable Naming/AccessorMethodName
-  def get_me
+  def get_identity
     raise NotImplementedError
   end
   # rubocop:enable Naming/AccessorMethodName

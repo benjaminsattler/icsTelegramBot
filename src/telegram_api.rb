@@ -12,7 +12,7 @@ class TelegramApi < ApiInterface
     @handle = http_handle
   end
 
-  def edit_message_reply_markup(params)
+  def edit_message_buttons(params)
     @handle.api.edit_message_reply_markup(params)
   end
 
@@ -39,7 +39,7 @@ class TelegramApi < ApiInterface
   end
 
   # rubocop:disable Naming/AccessorMethodName
-  def get_me
+  def get_identity
     @handle.api.get_me
   end
   # rubocop:enable Naming/AccessorMethodName

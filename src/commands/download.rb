@@ -31,7 +31,7 @@ class DownloadCommand < Command
       return
     end
     begin
-      bot.bot_instance.edit_message_reply_markup(
+      bot.bot_instance.edit_message_buttons(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(

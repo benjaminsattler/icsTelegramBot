@@ -14,7 +14,7 @@ class SentMessage
   end
 
   def set_markup(api, new_markup)
-    api.edit_message_reply_markup(
+    api.edit_message_buttons(
       chat_id: @id_recv,
       message_id: @id,
       reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -24,7 +24,7 @@ class SentMessage
   end
 
   def clear_markup(api)
-    api.edit_message_reply_markup(
+    api.edit_message_buttons(
       chat_id: @id_recv,
       message_id: @id,
       reply_markup: Telegram::Bot::Types::ReplyKeyboardRemove.new(

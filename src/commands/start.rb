@@ -14,7 +14,7 @@ class StartCommand < Command
       Message.new(
         i18nkey: 'start',
         i18nparams: {
-          botname: bot.bot_instance.get_me['result']['username']
+          botname: bot.bot_instance.get_identity['result']['username']
         },
         id_recv: chatid,
         markup: nil

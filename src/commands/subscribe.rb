@@ -34,7 +34,7 @@ class SubscribeCommand < Command
       return
     end
     begin
-      bot.bot_instance.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_buttons(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(

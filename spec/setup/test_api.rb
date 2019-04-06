@@ -29,7 +29,7 @@ class TestApi < ApiInterface
     wrap msg
   end
 
-  def edit_message_reply_markup(params)
+  def edit_message_buttons(params)
     idx = @sent_msgs
           .find_index { |msg| msg[:message_id] == params[:message_id] }
     @sent_msgs[idx][:reply_markup] = params[:reply_markup] unless idx.nil?
@@ -54,7 +54,7 @@ class TestApi < ApiInterface
   end
 
   # rubocop:disable Naming/AccessorMethodName
-  def get_me
+  def get_identity
     msg = {
       'username' => 'TestImplementation'
     }

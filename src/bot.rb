@@ -42,7 +42,7 @@ class Bot
   def run(api)
     api.run(@token) do |bot|
       begin
-        me = bot.get_me
+        me = bot.get_identity
       rescue StandardError => e
         log('Please double check Telegram bot token!')
         raise e
