@@ -7,6 +7,7 @@ require 'ics'
 require 'events/calendar'
 require 'log'
 require 'container'
+require 'telegram_api'
 
 require 'configuration/environment_configuration'
 
@@ -45,15 +46,15 @@ class MainThread
 
   def run
     data = Factory.new(@config).get(@config.get('persistence'))
+    Container.set(:dataStore, data)
     bot = Bot.new(
       @config.get('bot_token'),
       @config.get('admin_users').split(/:/)
     )
+    Container.set(:bot, bot)
     @watchdog = Watchdog.new
 
-    Container.set(:bot, bot)
-    Container.set(:calendars, [])
-    Container.set(:dataStore, data)
+    Container.set(:calendars, {})
     Container.set(:watchdog, @watchdog)
 
     event_thread_block = lambda do
@@ -85,29 +86,9 @@ class MainThread
       end
     end
 
-    database_thread_block = lambda do
-      begin
-        run = true
-        while run
-          seconds = @config.get('flush_interval').to_i
-          while seconds.positive? && run
-            sleep 1
-            seconds -= 1
-            run = false if Thread.current[:stop]
-          end
-          log('Syncing database...')
-          data.flush
-          log('Syncing done...')
-        end
-      rescue StandardError => e
-        puts e.inspect
-        puts e.backtrace
-      end
-    end
-
     bot_thread_block = lambda do
       begin
-        bot.run
+        bot.run TelegramApi
       rescue StandardError => e
         puts e.inspect
         puts e.backtrace
@@ -129,9 +110,6 @@ class MainThread
     th = @watchdog.watch([{
                            name: 'bot',
                            thr: bot_thread_block
-                         }, {
-                           name: 'database',
-                           thr: database_thread_block
                          }, {
                            name: 'event',
                            thr: event_thread_block

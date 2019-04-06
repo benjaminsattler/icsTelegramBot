@@ -20,35 +20,35 @@ module EventMessagePusher
                                                .drop(eventskip)
                                                .take(eventcount)
     calendar_name = calendars[calendar_id][:description]
-    text = []
+    i18nkey = nil
+    i18nparams = {}
     unless events.count == 1
-      text << I18n.t(
-        'events.listing_intro_multiple',
+      i18nkey = 'events.listing_multiple'
+      i18nparams = {
         total: eventcount,
         calendar_name: calendar_name
-      )
+      }
     end
     if events.count == 1
-      text << I18n.t(
-        'events.listing_intro_one',
+      i18nkey = 'events.listing_one'
+      i18nparams = {
         calendar_name: calendar_name
-      )
+      }
     end
     if events.count.zero?
-      text << I18n.t(
-        'events.listing_intro_empty',
+      i18nkey = 'events.listing_empty'
+      i18nparams = {
         calendar_name: calendar_name
-      )
+      }
     end
-    text << ''
+    events_text = +''
     events.each do |event|
-      text << "#{event.date.strftime('%d.%m.%Y')}: #{event.summary}"
+      events_text << "#{event.date.strftime('%d.%m.%Y')}: #{event.summary}\n"
     end
 
+    i18nparams[:events] = events_text
     markup = nil
     if events.count.positive?
-      text << ''
-      text << I18n.t('events.listing_outro_more')
       markup = more_events_keyboard_markup(
         calendar_id,
         eventcount,
@@ -57,9 +57,12 @@ module EventMessagePusher
     end
 
     @message_sender.process(
-      text.join("\n"),
-      chatid,
-      markup
+      Message.new(
+        i18nkey: i18nkey,
+        i18nparams: i18nparams,
+        id_recv: chatid,
+        markup: markup
+      )
     )
   end
 

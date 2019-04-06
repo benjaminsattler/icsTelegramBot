@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
-# This interface abstracts concrete Persistence implementations
-# and must be implemented by all persistence layers.
-class Persistence
-  def initialize; end
+require 'persistence/persistence'
+
+##
+# This class will be used for tests against the
+# telegram bot api.
+class TestPersistence < Persistence
+  def initialize
+    @message_log = []
+    @notification_log = []
+  end
 
   def add_subscriber(_sub)
     raise NotImplementedError
@@ -41,15 +47,26 @@ class Persistence
     raise NotImplementedError
   end
 
-  def add_to_message_log(_message)
-    raise NotImplementedError
+  def add_to_message_log(message)
+    @message_log.push(message)
   end
 
   def message_from_log(_message_id)
     raise NotImplementedError
   end
 
-  def add_to_notification_log(_notification, _timestamp)
-    raise NotImplementedError
+  def add_to_notification_log(notification, timestamp)
+    @notification_log.push(
+      notification: notification,
+      timestamp: timestamp
+    )
+  end
+
+  def logged_messages
+    @message_log
+  end
+
+  def logged_notifications
+    @notification_log
   end
 end

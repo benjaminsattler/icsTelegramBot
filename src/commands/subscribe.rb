@@ -3,6 +3,7 @@
 require 'commands/command'
 require 'commands/mixins/event_message_pusher'
 require 'container'
+require 'messages/message'
 
 require 'i18n'
 
@@ -23,16 +24,17 @@ class SubscribeCommand < Command
     _command, *args = msg.split(/\s+/)
     if args.empty?
       @message_sender.process(
-        I18n.t(
-          'subscribe.choose_calendar'
-        ),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'subscribe.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_buttons(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -48,23 +50,29 @@ class SubscribeCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.subscribe.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.subscribe.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
     is_subbed = data_store.subscriber_by_id(userid, calendar_id)
     unless is_subbed.nil?
       @message_sender.process(
-        I18n.t(
-          'errors.subscribe.double_subscription',
-          calendar_name: calendars[calendar_id][:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.subscribe.double_subscription',
+          i18nparams: {
+            calendar_name: calendars[calendar_id][:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -76,11 +84,14 @@ class SubscribeCommand < Command
       notifiedEvents: []
     )
     @message_sender.process(
-      I18n.t(
-        'confirmations.subscribe_success',
-        calendar_name: calendars[calendar_id][:description]
-      ),
-      chatid
+      Message.new(
+        i18nkey: 'confirmations.subscribe_success',
+        i18nparams: {
+          calendar_name: calendars[calendar_id][:description]
+        },
+        id_recv: chatid,
+        markup: nil
+      )
     )
     push_events_description(calendar_id, 1, userid, chatid)
   end

@@ -5,27 +5,43 @@ require 'persistence/persistence'
 require 'mysql2'
 
 ##
-# This class bundles sqlite persistence functionality
+# This class bundles mysql persistence functionality
 class Mysql < Persistence
+  @hostname = nil
+  @port = nil
+  @username = nil
+  @password = nil
+  @databasename = nil
+
   @db = nil
-  @subscribers = nil
 
   def initialize(host, port, username, password, database)
+    @hostname = host
+    @port = port
+    @username = username
+    @password = password
+    @databasename = database
+  end
+
+  def reconnect
+    return if !@db.nil? && !@db.closed?
+
+    log('Reconnect to database')
     @db = Mysql2::Client.new(
-      host: host,
-      username: username,
-      password: password,
-      port: port,
-      database: database
+      host: @hostname,
+      username: @username,
+      password: @password,
+      port: @port,
+      database: @databasename
     )
-    @subscribers = []
-    @db
-      .query('SELECT * from subscribers')
-      .each { |sub| @subscribers.push(Mysql.fix_database_object(sub)) }
+  end
+
+  def connected?
+    !@db.nil? && !@db.closed?
   end
 
   def add_subscriber(sub)
-    @subscribers.push(sub)
+    reconnect unless connected?
     notificationtime = sub[:notificationtime][:hrs] * 100
     notificationtime += sub[:notificationtime][:min]
     e_notification_time = notificationtime
@@ -48,10 +64,7 @@ class Mysql < Persistence
   end
 
   def remove_subscriber(sub)
-    @subscribers.reject! do |subscriber|
-      (subscriber[:telegram_id] == sub[:telegram_id]) &&
-        (subscriber[:eventlist_id] == sub[:eventlist_id])
-    end
+    reconnect unless connected?
     e_telegram_id = sub[:telegram_id]
     e_eventlist_id = sub[:eventlist_id]
     @db.query(
@@ -62,20 +75,41 @@ class Mysql < Persistence
   end
 
   def subscriber_by_id(id, eventlist = 1)
-    @subscribers
-      .select do |subscriber|
-        subscriber[:telegram_id] == id && subscriber[:eventlist_id] == eventlist
-      end
+    reconnect unless connected?
+    @db
+      .query(
+        'SELECT * from subscribers '\
+        "WHERE telegram_id = #{id} AND "\
+        "eventlist_id = #{eventlist}"
+      )
+      .map { |sub| Mysql.fix_database_object(sub) }
       .first
   end
 
   def subscriptions_for_id(id)
-    @subscribers
-      .select { |subscriber| subscriber[:telegram_id] == id }
+    reconnect unless connected?
+    @db
+      .query(
+        'SELECT * from subscribers '\
+        "WHERE telegram_id = #{id}"
+      )
+      .map { |sub| Mysql.fix_database_object(sub) }
   end
 
-  def all_subscribers(eventlist = 1)
-    @subscribers.select { |subscriber| subscriber[:eventlist_id] == eventlist }
+  def all_subscribers(eventlist = nil)
+    reconnect unless connected?
+    if eventlist.nil?
+      @db
+        .query('SELECT DISTINCT * from subscribers')
+        .map { |sub| Mysql.fix_database_object(sub) }
+    else
+      @db
+        .query(
+          'SELECT * from subscribers '\
+          "WHERE eventlist_id = #{eventlist}"
+        )
+        .map { |sub| Mysql.fix_database_object(sub) }
+    end
   end
 
   def self.fix_database_object(sub)
@@ -101,45 +135,28 @@ class Mysql < Persistence
     }
   end
 
-  def update_subscriber(sub)
-    @subscribers = @subscribers.map do |subscriber|
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationday] = sub[:notificationday]
-      end
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationtime][:hrs] = sub[:notificationtime][:hrs]
-      end
-      if  (sub[:telegram_id] == subscriber[:telegram_id]) &&
-          (subscriber[:eventlist_id] == sub[:eventlist_id])
-        subscriber[:notificationtime][:min] = sub[:notificationtime][:min]
-      end
-      subscriber
-    end
+  def update_day(sub_id, eventlist_id, day)
+    reconnect unless connected?
+    @db.query(
+      'UPDATE subscribers SET '\
+      "notificationday = #{day} " \
+      "WHERE telegram_id = #{sub_id} AND "\
+      "eventlist_id = #{eventlist_id}"
+    )
   end
 
-  def flush
-    return if @subscribers.nil?
-
-    @subscribers.each do |subscriber|
-      notificationtime = subscriber[:notificationtime][:hrs] * 100
-      notificationtime += subscriber[:notificationtime][:min]
-      e_notification_time = notificationtime
-      e_notification_day = subscriber[:notificationday]
-      e_telegram_id = subscriber[:telegram_id]
-      e_eventlist_id = subscriber[:eventlist_id]
-      @db.query(
-        'UPDATE subscribers SET '\
-        "notificationday = #{e_notification_day}, " \
-        "notificationtime = #{e_notification_time} " \
-        "WHERE telegram_id = #{e_telegram_id} AND "\
-        "eventlist_id = #{e_eventlist_id}"
-      )
-    end
+  def update_time(sub_id, eventlist_id, time)
+    reconnect unless connected?
+    @db.query(
+      'UPDATE subscribers SET '\
+      "notificationtime = #{time} " \
+      "WHERE telegram_id = #{sub_id} AND "\
+      "eventlist_id = #{eventlist_id}"
+    )
   end
 
   def add_calendar(calendar)
+    reconnect unless connected?
     escaped_filename = escape(calendar[:filename])
     escaped_display_name = escape(calendar[:display_name])
     @db.query(
@@ -156,6 +173,7 @@ class Mysql < Persistence
   end
 
   def calendars
+    reconnect unless connected?
     calendars = {}
     @db.query('SELECT * FROM eventslists').each do |calendar|
       cal_fixed = Mysql.fix_database_calendar_object(calendar)
@@ -165,8 +183,76 @@ class Mysql < Persistence
   end
 
   def escape(input)
+    reconnect unless connected?
     return nil if input.nil?
 
     @db.escape(input)
+  end
+
+  def add_to_message_log(message)
+    reconnect unless connected?
+    timestamp = Time.at(
+      message[:message_timestamp]
+    )
+    @db.query(
+      'INSERT INTO message_log('\
+      'telegram_id, '\
+      'msg_id, '\
+      'message_timestamp, '\
+      'i18nkey, '\
+      'i18nparams '\
+      ') VALUES('\
+      "#{message[:telegram_id]}, "\
+      "#{message[:msg_id]}, "\
+      "'#{timestamp.strftime('%Y-%m-%d %H:%M:%S')}', "\
+      "'#{message[:i18nkey]}', "\
+      "'#{message[:i18nparams]}' "\
+      ')'
+    )
+  end
+
+  def message_from_log(message_id)
+    reconnect unless connected?
+    escaped_message_id = escape(message_id.to_s)
+    result = []
+    @db
+      .query(
+        'SELECT * from message_log '\
+        "WHERE msg_id = #{escaped_message_id}"
+      )
+      .each { |res| result.push(res) }
+    result
+  end
+
+  def add_to_notification_log(notification, timestamp)
+    reconnect unless connected?
+    escaped_event_id = escape(notification.event.id.chomp)
+    query = 'INSERT INTO notification_log('\
+      'telegram_id, '\
+      'event_id, '\
+      'calendar_id, '\
+      'message_timestamp '\
+      ') VALUES('\
+      "#{notification.id_recv}, "\
+      "'#{escaped_event_id}', "\
+      "#{notification.calendar[:calendar_id]}, "\
+      "'#{Time.at(timestamp).strftime('%Y-%m-%d %H:%M:%S')}'"\
+      ')'
+    @db.query(
+      query
+    )
+  end
+
+  def notification?(sub, calendar, event)
+    escaped_sub_id = escape(sub[:telegram_id].to_s)
+    escaped_event_id = escape(event.id.chomp)
+    query = 'SELECT * FROM notification_log '\
+      "WHERE telegram_id = #{escaped_sub_id} AND "\
+      "event_id = '#{escaped_event_id}' AND "\
+      "calendar_id = #{calendar[:calendar_id]}"
+    count = @db.query(
+      query
+    ).count
+    count.positive?
   end
 end

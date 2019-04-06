@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
+require 'messages/message'
 
 require 'i18n'
 
@@ -20,16 +21,17 @@ class DownloadCommand < Command
     calendar_id = args[0]
     if calendar_id.nil?
       @message_sender.process(
-        I18n.t(
-          'download.choose_calendar'
-        ),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'download.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_buttons(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -45,12 +47,15 @@ class DownloadCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.download.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.download.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -60,7 +65,7 @@ class DownloadCommand < Command
       mine_type: 'text/calendar'
     )
 
-    bot.bot_instance.api.send_document(
+    bot.bot_instance.send_document(
       chat_id: chatid,
       document: document
     )

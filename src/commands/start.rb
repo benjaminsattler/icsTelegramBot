@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'commands/command'
-
 require 'i18n'
+require 'messages/message'
 
 ##
 # This class represents a /start command
@@ -11,11 +11,14 @@ class StartCommand < Command
   def process(_msg, _userid, chatid)
     bot = Container.get(:bot)
     @message_sender.process(
-      I18n.t(
-        'start',
-        botname: bot.bot_instance.api.getMe['result']['username']
-      ),
-      chatid
+      Message.new(
+        i18nkey: 'start',
+        i18nparams: {
+          botname: bot.bot_instance.get_identity['result']['username']
+        },
+        id_recv: chatid,
+        markup: nil
+      )
     )
   end
 end

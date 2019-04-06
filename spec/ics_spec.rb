@@ -58,7 +58,6 @@ RSpec.describe ICS do
         LOCATION:64287 Darmstadt-Innenstadt, Soderstraße 36-Ende, 39-Ende
         TRANSP:TRANSPARENT
         SEQUENCE:0
-        UID:15183587252@muellmax.de
         DTSTAMP:20180211T141845Z
         SUMMARY:EAD Restabfall wöchentliche Leerung
         CLASS:PUBLIC
@@ -142,7 +141,8 @@ RSpec.describe ICS do
         expect(actual[0].date.month).to eq(2)
         expect(actual[0].date.year).to eq(2018)
         expect(actual[0].summary).to eq('EAD Restabfall wöchentliche Leerung')
-        expect(0..2**30 - 1).to cover actual[0].id
+        expect(actual[0].id).to eq('15183587251@muellmax.de')
+        expect(0..2**30 - 1).to cover actual[1].id
       end
     end
   end

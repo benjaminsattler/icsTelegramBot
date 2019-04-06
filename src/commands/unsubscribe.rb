@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'commands/command'
+require 'messages/message'
 
 require 'i18n'
 
@@ -16,14 +17,17 @@ class UnsubscribeCommand < Command
     bot = Container.get(:bot)
     if args.empty?
       @message_sender.process(
-        I18n.t('unsubscribe.choose_calendar'),
-        chatid,
-        calendar_buttons
+        Message.new(
+          i18nkey: 'unsubscribe.choose_calendar',
+          i18nparams: {},
+          id_recv: chatid,
+          markup: calendar_buttons
+        )
       )
       return
     end
     begin
-      bot.bot_instance.api.editMessageReplyMarkup(
+      bot.bot_instance.edit_message_buttons(
         chat_id: orig.message.chat.id,
         message_id: orig.message.message_id,
         reply_markup: Telegram::Bot::Types::InlineKeyboardMarkup.new(
@@ -39,12 +43,15 @@ class UnsubscribeCommand < Command
                   end
     if calendars[calendar_id].nil?
       @message_sender.process(
-        I18n.t(
-          'errors.unsubscribe.command_invalid',
-          calendar_id: calendars.keys.first,
-          calendar_name: calendars.values.first[:description]
-        ),
-        chatid
+        Message.new(
+          i18nkey: 'errors.unsubscribe.command_invalid',
+          i18nparams: {
+            calendar_id: calendars.keys.first,
+            calendar_name: calendars.values.first[:description]
+          },
+          id_recv: chatid,
+          markup: nil
+        )
       )
       return
     end
@@ -53,11 +60,14 @@ class UnsubscribeCommand < Command
       eventlist_id: calendar_id
     )
     @message_sender.process(
-      I18n.t(
-        'confirmations.unsubscribe_success',
-        calendar_name: calendars[calendar_id][:description]
-      ),
-      chatid
+      Message.new(
+        i18nkey: 'confirmations.unsubscribe_success',
+        i18nparams: {
+          calendar_name: calendars[calendar_id][:description]
+        },
+        id_recv: chatid,
+        markup: nil
+      )
     )
   end
 

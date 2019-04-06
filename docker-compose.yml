@@ -1,0 +1,45 @@
+version: '3'
+services:
+  devel:
+    # you might need to compile this image locally first.
+    # to compile, execute the command 'rake container:build_dev'
+    image: muell_dev
+    restart: always
+    depends_on:
+      - "mysql"
+    env_file:
+      # create this file by copying ./docker/environment.env.example
+      - ./docker/configs/development.env
+    volumes:
+      # volume for bot source code
+      - .:/app:rw
+      # volume for database and migrations files
+      - ./db:/db:ro
+      # volume for ics file storage
+      - ./assets:/assets:rw
+    networks:
+      - backend
+    ports:
+      # rdebug-ide will listen on this port if ENABLE_DEBUG
+      # is set to 1 as indicated above
+      - 1234:1234
+      - 26162:26162
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    networks:
+      - backend
+    volumes:
+      # volume for mysql data files
+      - ./db/mysql:/var/lib/mysql
+    environment:
+      # modify this variable to change the default
+      # root password to whatever you like
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - 3306:3306
+networks:
+  # this network will be used by the bot, mysql, and migrations
+  backend:
+    driver: bridge

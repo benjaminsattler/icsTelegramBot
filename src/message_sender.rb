@@ -5,32 +5,34 @@
 # a message with the telegram bot API.
 class MessageSender
   @bot = nil
+  @api = nil
   @statistics = nil
+  @message_log = nil
 
-  def initialize(bot, statistics)
+  def initialize(bot, api, statistics, message_log)
     @bot = bot
+    @api = api
     @statistics = statistics
+    @message_log = message_log
   end
 
-  def process(text, chat_id, reply_markup = nil, silent = false)
-    log("silent is #{silent} for #{text}") if silent
-    @statistics.sent_msg
-    if reply_markup.nil?
-      reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
-        keyboard: default_keyboard_markup(chat_id),
-        one_time_keyboard: false
-      )
-    end
+  def process(msg)
+    # if reply_markup.nil?
+    #  reply_markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(
+    #    keyboard: default_keyboard_markup(chat_id),
+    #    one_time_keyboard: false
+    #  )
+    # end
     begin
-      @bot.bot_instance.api.send_message(
-        chat_id: chat_id,
-        text: text,
-        reply_markup: reply_markup,
-        disable_notification: silent
-      )
+      sent_messages = msg.send(@api)
     rescue StandardError => e
       log("StandardError received #{e}")
     end
+    sent_messages.each do |sent_message|
+      @statistics.sent_msg
+      @message_log.add(sent_message)
+    end
+    sent_messages
   end
 
   def default_keyboard_markup(chat_id)
