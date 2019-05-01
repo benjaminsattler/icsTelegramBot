@@ -18,4 +18,20 @@ RSpec.describe Bot do
       expect(bot.admin_user?(123)).to eq(true)
     end
   end
+
+  describe 'run' do
+    it 'calls run of api parameter' do
+      bot = described_class.new(
+        'foo',
+        ['123'],
+        Statistics.new,
+        MessageLog.new(TestPersistence.new)
+      )
+      th = Thread.new do
+        bot.run TestApi.new
+      end
+      sleep 3
+      th[:stop] = true
+    end
+  end
 end

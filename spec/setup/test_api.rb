@@ -50,7 +50,19 @@ class TestApi < ApiInterface
   end
 
   def listen
-    raise NotImplementedError
+    yield message
+  end
+
+  def message
+    {
+      text: 'hallo',
+      from: {
+        id: 42
+      },
+      chat: {
+        id: 43
+      }
+    }
   end
 
   # rubocop:disable Naming/AccessorMethodName
