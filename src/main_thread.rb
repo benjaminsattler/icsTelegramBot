@@ -8,6 +8,8 @@ require 'events/calendar'
 require 'log'
 require 'container'
 require 'telegram_api'
+require 'statistics'
+require 'message_log'
 
 require 'configuration/environment_configuration'
 
@@ -49,7 +51,9 @@ class MainThread
     Container.set(:dataStore, data)
     bot = Bot.new(
       @config.get('bot_token'),
-      @config.get('admin_users').split(/:/)
+      @config.get('admin_users').split(/:/),
+      Statistics.new,
+      MessageLog.new(data)
     )
     Container.set(:bot, bot)
     @watchdog = Watchdog.new
