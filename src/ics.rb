@@ -3,6 +3,8 @@
 require 'log'
 require 'date'
 require 'events/event'
+require 'open-uri'
+require 'aws-sdk'
 
 ##
 # This module represents classes used for parsing,
@@ -32,12 +34,6 @@ module ICS
       return nil, parts[0] if parts.length == 1
 
       [parts[0], parts[1]]
-    end
-
-    def self.parse_ics(file)
-      File.open(file, 'r', external_encoding: Encoding::UTF_8) do |handle|
-        ICS::FileParser.parse_string(handle.gets(nil))
-      end
     end
 
     def self.parse_string(input)

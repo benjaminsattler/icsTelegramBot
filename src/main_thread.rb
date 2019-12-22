@@ -65,11 +65,17 @@ class MainThread
       begin
         calendars = Container.get(:dataStore).calendars
         Container.set(:calendars, calendars)
+        s3 = Aws::S3::Resource.new.client
         calendars.each_value do |calendar_desc|
+          resp = s3.get_object(
+            bucket: ENV['AWS_S3_BUCKET'],
+            key: calendar_desc[:ics_path],
+            response_content_encoding: 'UTF-8'
+          )
           events = Events::Calendar.new
           events.load_events(
-            ICS::FileParser.parse_ics(
-              calendar_desc[:ics_path]
+            ICS::FileParser.parse_string(
+              resp.body.read.force_encoding('UTF-8')
             )
           )
           calendar_desc[:eventlist] = events

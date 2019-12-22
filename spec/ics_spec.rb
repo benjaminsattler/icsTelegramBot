@@ -113,37 +113,5 @@ RSpec.describe ICS do
         expect(actual_v).to be_nil
       end
     end
-
-    describe 'parse_ics' do
-      let(:file_path) { Tempfile.new }
-      let(:dir_path) { File.dirname(file_path) }
-
-      before do
-        Dir.mkdir(dir_path) unless Dir.exist?(dir_path)
-        File.open(file_path, 'w') { |handle| handle.write ics_file }
-      end
-
-      after do
-        File.unlink file_path
-      end
-
-      it 'returns a list of events' do
-        actual = ICS::FileParser.parse_ics file_path
-        expect(actual).to be_instance_of Array
-        expect(actual.length).to eq 2
-        expect(actual).to all(be_instance_of(Events::Event))
-      end
-
-      it 'correctlies parse events' do
-        actual = ICS::FileParser.parse_ics file_path
-        expect(actual[0].date).to be_instance_of Date
-        expect(actual[0].date.day).to eq(16)
-        expect(actual[0].date.month).to eq(2)
-        expect(actual[0].date.year).to eq(2018)
-        expect(actual[0].summary).to eq('EAD Restabfall wöchentliche Leerung')
-        expect(actual[0].id).to eq('15183587251@muellmax.de')
-        expect(0..2**30 - 1).to cover actual[1].id
-      end
-    end
   end
 end
