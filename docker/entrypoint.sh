@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [[ "$TIMEZONE" == "" ]]; then
   echo "No timezone set, falling back to UTC."
   echo "To change timezone, set \$TIMEZONE to any"
