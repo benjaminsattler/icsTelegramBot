@@ -32,11 +32,11 @@ class Bot
   @admin_users = nil
   @botname = nil
 
-  def initialize(token, admin_users)
+  def initialize(token, admin_users, statistics, message_log)
     @token = token.chomp
     @admin_users = admin_users
-    @statistics = Statistics.new
-    @message_log = MessageLog.new(Container.get(:dataStore))
+    @statistics = statistics
+    @message_log = message_log
   end
 
   def run(api)
