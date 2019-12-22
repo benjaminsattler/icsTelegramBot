@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 group :prod do
+  gem 'aws-sdk'
   gem 'google-cloud-logging'
   gem 'i18n'
   gem 'multitrap'

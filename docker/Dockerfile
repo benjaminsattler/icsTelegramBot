@@ -1,5 +1,5 @@
 # base system image with all deps
-FROM ruby:2.4.4-alpine3.7 AS base
+FROM ruby:2.4.4 AS base
 
 ARG GIT_TAG=unknown
 ARG GIT_REPO=unknown
@@ -10,8 +10,10 @@ COPY ./Gemfile ./
 # BUNDLE_FORCE_RUBY_PLATFORM needs to be set
 # because of https://github.com/protocolbuffers/protobuf/issues/3925
 # for google-cloud-logging
-RUN apk update && \
-    apk add -v --no-cache ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
+RUN apt-get update && \
+    apt-get install -v ruby-dev build-base sqlite-dev mysql-dev libc6-compat tzdata && \
+    rm -rf /var/cache/apt/ && \
+    rm -rf /var/cache/apt/ && \
     wget -O /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/download/v1.4.1/dbmate-linux-amd64 && \
     chmod +x /usr/local/bin/dbmate && \
     BUNDLE_FORCE_RUBY_PLATFORM=1 bundle install --without="development testing"
@@ -32,8 +34,7 @@ FROM base AS development
 EXPOSE 1234 26162
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \
-    BUNDLE_FORCE_RUBY_PLATFORM=1 bundle install --with="development" && \
-    apk del build-base
+    BUNDLE_FORCE_RUBY_PLATFORM=1 bundle install --with="development"
 VOLUME /db /app
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "/app/src/server.rb" ]
